@@ -18,6 +18,7 @@ class SparePartsTable
     {
         return $table
             ->columns([
+                TextColumn::make('index')->label('No')->rowIndex(),
                 TextColumn::make('name')->label('Nama')
                     ->searchable(),
                 TextColumn::make('category')->label('Kategori')
@@ -33,18 +34,6 @@ class SparePartsTable
                 TextColumn::make('price')->label('Harga')
                     ->money('IDR', locale: 'id', decimalPlaces: 0)
                     ->sortable(),
-                TextColumn::make('created_at')->label('Dibuat')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')->label('Diperbarui')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('deleted_at')->label('Dihapus')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 TrashedFilter::make(),
@@ -53,12 +42,13 @@ class SparePartsTable
                 EditAction::make(),
                 DeleteAction::make(),
             ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
-                ]),
-            ]);
+            // ->toolbarActions([
+            //     BulkActionGroup::make([
+            //         DeleteBulkAction::make(),
+            //         ForceDeleteBulkAction::make(),
+            //         RestoreBulkAction::make(),
+            //     ]),
+            // ])
+            ;
     }
 }
