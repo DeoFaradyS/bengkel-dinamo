@@ -1,8 +1,8 @@
 # PRD: Sistem Informasi Manajemen Bengkel Cak Budi Dinamo
 
-**Versi:** 0.2 (draft) | **Metode:** Prototype, 4 iterasi | **Platform:** Web (Laravel + Filament + MySQL)
+**Versi:** 0.3 (draft) | **Metode:** Prototype, 4 iterasi | **Platform:** Web (Laravel + Filament + MySQL)
 
-**Perubahan dari v0.1:** user story dipetakan ke iterasi, scope dipecah MVP dan setelah MVP, ditambah model data dan aturan bisnis, timeline per iterasi.
+**Perubahan dari v0.2:** demo dihapus dari PRD (urusan skripsi, bukan produk); filter stok menipis diganti penandaan baris dan pengurutan prioritas; ditambah filter kategori (multi-pilih), format harga Rupiah, perilaku form, dan konvensi tampilan hasil prototype iterasi 1.
 
 ---
 
@@ -47,7 +47,7 @@ Produk ini adalah aplikasi web untuk **mengelola stok sparepart, jadwal servis, 
 | **3** | Sisi publik | US-09, 10, 06, 07 | Halaman info, formulir pelanggan, konfirmasi/tolak permintaan, promo |
 | **4** | Laporan | US-08 | Dashboard dan rekap |
 
-**MVP = Iterasi 1 + 2** (sisi pemilik yang sudah bisa dipakai sehari-hari). Tiap iterasi diakhiri demo ke pemilik (tahap Customer Evaluation). Screenshot dan catatan revisi disimpan sebagai bahan Bab 4.
+**MVP = Iterasi 1 + 2** (sisi pemilik yang sudah bisa dipakai sehari-hari).
 
 ## 6. Kebutuhan Fungsional dan User Stories
 
@@ -58,25 +58,32 @@ Produk ini adalah aplikasi web untuk **mengelola stok sparepart, jadwal servis, 
 - Hanya akun pemilik yang bisa masuk ke panel kelola.
 - Kredensial salah menampilkan pesan error dan tidak memberi akses.
 - Panel kelola tidak bisa dibuka tanpa login.
+- Selama pengembangan, login boleh dinonaktifkan. Wajib aktif sebelum aplikasi bisa diakses orang lain.
 
 **US-02 Kelola data sparepart (CRUD)** `[Iterasi 1]` Sebagai pemilik, saya ingin menambah, melihat, mengubah, dan menghapus sparepart agar stok tercatat rapi.
 
 - Data minimal: name, category, stock, min_stock, location, price.
 - Hapus meminta konfirmasi dan memakai soft delete (riwayat servis tetap aman).
 - Stok tidak boleh bernilai negatif.
+- Harga diinput dengan pemisah ribuan dan tampil dalam format Rupiah (contoh: Rp 1.500.000).
+- Setelah simpan (tambah atau ubah), pengguna kembali ke daftar sparepart.
 - Perubahan langsung tampil di daftar.
+- Pemulihan data yang dihapus belum disediakan di antarmuka (data tetap aman di database).
 
 **US-03 Cari sparepart** `[Iterasi 1]` Sebagai pemilik, saya ingin mencari sparepart berdasarkan nama atau kategori agar tidak lagi mencari di kardus.
 
+- Pencarian mencakup nama, kategori, dan lokasi.
 - Hasil pencarian tampil dalam kurang dari 10 detik sejak kata kunci dimasukkan.
 - Hasil menampilkan stok dan lokasi simpan.
+- Ada filter kategori, bisa memilih lebih dari satu kategori sekaligus.
 - Kata kunci tidak ditemukan menampilkan pesan "tidak ditemukan".
 
 **US-04 Peringatan stok menipis** `[Iterasi 1]` Sebagai pemilik, saya ingin diberi tanda saat stok di bawah batas minimum agar bisa beli sebelum habis.
 
-- Part dengan `stock <= min_stock` ditandai di daftar.
-- Ada filter "stok menipis".
-- Batas minimum bisa diatur per sparepart.
+- Part dengan `stock <= min_stock` ditandai: baris berlatar merah muda dan angka stok berupa badge merah.
+- Daftar diurutkan dengan part stok menipis di atas (kekurangan terbesar lebih dulu), lalu sisanya dari yang terbaru ditambah atau diubah.
+- Pengurutan ini adalah bawaan. Jika pengguna memilih urutan kolom lain, pilihan pengguna yang dipakai.
+- Batas minimum bisa diatur per sparepart (nilai awal 1).
 
 **US-05 Kelola jadwal dan status servis** `[Iterasi 2]` Sebagai pemilik, saya ingin mencatat dan memantau servis agar pengerjaan teratur.
 
@@ -121,7 +128,7 @@ Produk ini adalah aplikasi web untuk **mengelola stok sparepart, jadwal servis, 
 | Tabel | Kolom utama |
 | --- | --- |
 | `users` | id, name, email, password |
-| `spare_parts` | id, name, category, stock, min_stock, location, price, soft delete |
+| `spare_parts` | id, name, category, stock, min_stock, location, price, soft delete. `stock` dan `min_stock` bertipe unsigned (tidak bisa negatif). |
 | `services` | id, customer_name, phone, complaint, scheduled_at, status, source (`owner`/`form`), labor_cost, notes, soft delete |
 | `service_parts` | id, service_id (FK), spare_part_id (FK), quantity, unit_price |
 
@@ -183,12 +190,13 @@ service_parts.spare_part_id > spare_parts.id
 
 ## 8. Aturan Bisnis
 
-1. Stok tidak boleh negatif.
+1. Stok tidak boleh negatif (kolom unsigned di database; hitung selisih stok dengan urutan yang tidak menghasilkan nilai negatif).
 2. Alur status: `pending → confirmed → in_progress → completed`, atau `pending → rejected`.
 3. `unit_price` di `service_parts` disalin dari `spare_parts.price` saat part dipakai.
 4. Biaya servis = `labor_cost` (standar saat ini Rp50.000) + total part.
 5. Part yang dihapus memakai soft delete.
-6. *(Perlu konfirmasi pemilik)* Stok berkurang saat part ditambahkan ke servis, atau saat servis `completed`?
+6. Urutan daftar sparepart: (a) `stock <= min_stock` di atas, (b) di dalam kelompok itu kekurangan `min_stock - stock` terbesar lebih dulu, (c) sisanya `updated_at` terbaru lebih dulu.
+7. *(Perlu konfirmasi pemilik)* Stok berkurang saat part ditambahkan ke servis, atau saat servis `completed`?
 
 ## 9. Metrik Keberhasilan
 
@@ -197,14 +205,14 @@ service_parts.spare_part_id > spare_parts.id
 | Waktu cari sparepart | 10-15 menit | \< 10 detik | Time-motion study, 5-10 percobaan sebelum dan sesudah |
 | Servis tertunda karena stok habis | 3-4 kasus/minggu | Turun (angka disepakati dengan pemilik) | Catatan servis |
 | Fungsi utama lolos Black Box | - | 100% test case utama lulus | Tabel test case |
-| Kesesuaian dengan kebutuhan pemilik | - | Pemilik menyatakan prototype tiap iterasi sesuai | Evaluasi per iterasi |
 
 ## 10. Scope
 
 **MVP (Iterasi 1-2):**
 
 - Login pemilik
-- CRUD sparepart, pencarian, peringatan stok menipis
+- CRUD sparepart, pencarian (nama, kategori, lokasi), filter kategori
+- Penandaan dan pengurutan prioritas stok menipis
 - Jadwal dan status servis, pemakaian part dengan stok otomatis
 - Tampilan responsif
 
@@ -222,20 +230,26 @@ service_parts.spare_part_id > spare_parts.id
 - Aplikasi mobile native
 - Notifikasi otomatis WhatsApp/SMS
 - Pengujian selain Black Box (white box, beban)
+- Filter khusus "stok menipis" (diganti penandaan dan pengurutan prioritas)
+- Tampilan dan pemulihan data yang dihapus (soft delete tetap berjalan di database)
 
 ## 11. Pertimbangan Teknis
 
-- **Stack:** Laravel, Filament (panel pemilik), Blade/Livewire (halaman publik), MySQL, VS Code.
+- **Stack:** Laravel, Filament v4 (panel pemilik), Blade/Livewire (halaman publik), MySQL, VS Code.
 - **Arsitektur:** browser → server Laravel → MySQL.
-- **Keamanan:** autentikasi hanya untuk pemilik; validasi input dan proteksi spam pada formulir publik.
+- **Keamanan:** autentikasi hanya untuk pemilik (dinonaktifkan sementara selama pengembangan, aktifkan sebelum dipakai orang lain); validasi input dan proteksi spam pada formulir publik.
 - **Kinerja:** CRUD dan pencarian responsif.
 - **Kompatibilitas:** browser modern di desktop dan ponsel.
 - **Konvensi:** nama tabel, kolom, dan model berbahasa Inggris. Label tampilan ke pemilik berbahasa Indonesia.
+- **Bahasa:** locale aplikasi `id`, pesan validasi diterjemahkan ke Indonesia (paket terjemahan bahasa Laravel).
+- **Tema:** tema Filament kustom (Vite + Tailwind), warna utama biru, mode gelap nonaktif.
 - **Data awal:** daftar stok dan layanan dari pemilik (foto kardus atau daftar part paling sering dipakai).
 
 ## 12. Desain dan UX
 
 - Antarmuka sederhana untuk pemilik yang terbiasa kerja manual.
+- Tabel: kolom pencarian dan filter berada di sisi kiri toolbar.
+- Form tambah dan ubah berupa satu kartu selebar halaman, dua kolom, dengan tombol "Simpan" dan "Kembali" (tanpa "buat & buat lainnya").
 - Panel pemilik memakai komponen Filament. Rancangan Figma disesuaikan atau perbedaannya dijelaskan di laporan.
 - Halaman publik mobile-first.
 - Desain diperbaiki tiap iterasi berdasarkan masukan pemilik.
@@ -247,10 +261,10 @@ service_parts.spare_part_id > spare_parts.id
 | Tahap | Jadwal |
 | --- | --- |
 | Persiapan (baseline waktu cari part, tanya pemilik, data awal stok, setup repo) | *isi* |
-| Iterasi 1: Sparepart + login, lalu demo | *isi* |
-| Iterasi 2: Servis, lalu demo | *isi* |
-| Iterasi 3: Sisi publik, lalu demo | *isi* |
-| Iterasi 4: Laporan, lalu demo | *isi* |
+| Iterasi 1: Sparepart + login | *isi* |
+| Iterasi 2: Servis | *isi* |
+| Iterasi 3: Sisi publik | *isi* |
+| Iterasi 4: Laporan | *isi* |
 | Testing (Black Box + time-motion "sesudah") | *isi* |
 | Penyusunan laporan | *isi* |
 
@@ -258,7 +272,6 @@ service_parts.spare_part_id > spare_parts.id
 
 | Risiko | Mitigasi |
 | --- | --- |
-| Pemilik sibuk, demo terlambat | Jadwal demo singkat dan tetap, sesuaikan jam bengkel |
 | Pemilik belum terbiasa sistem digital | Antarmuka sederhana, pendampingan saat uji coba |
 | Data awal stok tidak lengkap | Input bertahap, mulai dari part yang paling sering dipakai |
 | Baseline waktu tidak sempat diukur sebelum sistem dipakai | Ukur di persiapan, sebelum iterasi 1 |
@@ -270,14 +283,13 @@ service_parts.spare_part_id > spare_parts.id
 
 - Pemilik dan pelanggan punya perangkat dan koneksi internet.
 - Pemilik menyediakan data awal stok dan layanan.
-- Pemilik bersedia ikut demo tiap iterasi.
 - Hosting atau lingkungan uji tersedia.
 
 ## 16. Pertanyaan Terbuka
 
 1. Deadline sidang dan pengumpulan? (menentukan timeline)
-2. Harga part: satu harga saja, atau beda harga beli dan jual?
-3. Batas minimum stok: pemilik atur per part, atau ada nilai default?
+2. Harga part: satu harga saja, atau beda harga beli dan jual? (Sementara satu kolom `price`.)
+3. ~~Batas minimum stok~~ Diputuskan: diatur per part, nilai awal 1.
 4. Stok berkurang saat part ditambahkan ke servis, atau saat servis selesai?
 5. Laporan perlu mencakup pendapatan (jasa + komponen), atau hanya servis dan stok?
 6. Target penurunan servis tertunda yang realistis?

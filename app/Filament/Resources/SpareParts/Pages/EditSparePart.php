@@ -15,9 +15,22 @@ class EditSparePart extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
+            // DeleteAction::make(),
             ForceDeleteAction::make(),
             RestoreAction::make(),
         ];
+    }
+
+    protected function getFormActions(): array
+    {
+        return [
+            $this->getSaveFormAction()->label('Simpan'),
+            $this->getCancelFormAction()->label('Kembali'),
+        ];
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
     }
 }

@@ -1,0 +1,14 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+
+
+.fi-ta-header-toolbar {
+    justify-content: flex-start !important;
+}
+
+.fi-ta-header-toolbar > * {
+    margin-inline-start: 0 !important;
+}
+
