@@ -13,14 +13,23 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use UnitEnum;
 
 class SparePartResource extends Resource
 {
     protected static ?string $model = SparePart::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCube;
+
+    protected static ?string $navigationLabel = 'Spare Part'; // BARU
+
+    protected static string|UnitEnum|null $navigationGroup = 'Katalog'; // UBAH, dulu 'Inventori'
+
+    protected static ?int $navigationSort = 2; // UBAH, dulu 1
+
+    protected static ?string $modelLabel = 'Spare Part';
+
+    protected static ?string $pluralModelLabel = 'Spare Part';
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -34,11 +43,14 @@ class SparePartResource extends Resource
         return SparePartsTable::configure($table);
     }
 
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['code', 'name'];
+    }
+
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array
@@ -48,13 +60,5 @@ class SparePartResource extends Resource
             'create' => CreateSparePart::route('/create'),
             'edit' => EditSparePart::route('/{record}/edit'),
         ];
-    }
-
-    public static function getRecordRouteBindingEloquentQuery(): Builder
-    {
-        return parent::getRecordRouteBindingEloquentQuery()
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ]);
     }
 }

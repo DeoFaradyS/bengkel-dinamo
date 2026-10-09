@@ -1,8 +1,8 @@
 # PRD: Sistem Informasi Manajemen Bengkel Cak Budi Dinamo
 
-**Versi:** 0.3 (draft) | **Metode:** Prototype, 4 iterasi | **Platform:** Web (Laravel + Filament + MySQL)
+**Versi:** 0.4 (draft) | **Metode:** Prototype, 4 iterasi | **Platform:** Web (Laravel + Filament + MySQL)
 
-**Perubahan dari v0.2:** demo dihapus dari PRD (urusan skripsi, bukan produk); filter stok menipis diganti penandaan baris dan pengurutan prioritas; ditambah filter kategori (multi-pilih), format harga Rupiah, perilaku form, dan konvensi tampilan hasil prototype iterasi 1.
+**Perubahan dari v0.3:** servis bisa dibuat langsung oleh pemilik untuk pelanggan walk-in (US-05); part pada servis boleh kosong; alur status dilonggarkan untuk servis `owner`; stok berkurang saat part ditambahkan (keputusan); penjelasan tabel `service_parts`; kolom `source` tidak ditampilkan di MVP. Struktur ERD tidak berubah.
 
 ---
 
@@ -43,7 +43,7 @@ Produk ini adalah aplikasi web untuk **mengelola stok sparepart, jadwal servis, 
 | Iterasi | Fokus | User story | Hasil |
 | --- | --- | --- | --- |
 | **1** | Sparepart + login | US-01, 02, 03, 04 | Pemilik bisa login, input, cari, dan lihat part hampir habis |
-| **2** | Servis | US-05 | Pemilik bisa catat servis, ubah status, pakai part (stok berkurang otomatis) |
+| **2** | Servis | US-05 | Pemilik bisa catat servis (termasuk pelanggan walk-in), ubah status, pakai part (stok berkurang otomatis) |
 | **3** | Sisi publik | US-09, 10, 06, 07 | Halaman info, formulir pelanggan, konfirmasi/tolak permintaan, promo |
 | **4** | Laporan | US-08 | Dashboard dan rekap |
 
@@ -87,10 +87,16 @@ Produk ini adalah aplikasi web untuk **mengelola stok sparepart, jadwal servis, 
 
 **US-05 Kelola jadwal dan status servis** `[Iterasi 2]` Sebagai pemilik, saya ingin mencatat dan memantau servis agar pengerjaan teratur.
 
+- Pemilik bisa membuat servis baru untuk pelanggan yang datang langsung ke bengkel (walk-in). Servis ini bersumber `owner`, dengan atau tanpa part.
+- Isian servis: nama pelanggan, nomor HP, keluhan, tanggal/jam, status, biaya jasa (nilai awal Rp50.000), catatan.
 - Status: `pending`, `confirmed`, `in_progress`, `completed`, `rejected`.
+- Status awal servis `owner` bawaannya `confirmed`; pemilik bisa memilih `in_progress` jika langsung dikerjakan.
+- Part yang dipakai boleh kosong (servis tanpa ganti part adalah kasus normal).
 - Servis mencatat part yang dipakai (quantity, unit_price disalin dari harga part saat itu).
-- Stok berkurang otomatis. Jumlah melebihi stok ditolak dengan pesan jelas.
+- Stok berkurang otomatis saat part ditambahkan ke servis. Jumlah melebihi stok ditolak dengan pesan jelas.
+- Jika part dihapus dari servis atau jumlahnya diubah, stok disesuaikan kembali.
 - Daftar servis bisa difilter per status.
+- Biaya servis = `labor_cost` + total part (total part bernilai 0 jika tidak ada part).
 
 **US-06 Tanggapi permintaan pelanggan** `[Iterasi 3]` Sebagai pemilik, saya ingin menerima, menolak, atau mengubah jam permintaan jadwal agar sesuai kapasitas saya.
 
@@ -129,10 +135,12 @@ Produk ini adalah aplikasi web untuk **mengelola stok sparepart, jadwal servis, 
 | --- | --- |
 | `users` | id, name, email, password |
 | `spare_parts` | id, name, category, stock, min_stock, location, price, soft delete. `stock` dan `min_stock` bertipe unsigned (tidak bisa negatif). |
-| `services` | id, customer_name, phone, complaint, scheduled_at, status, source (`owner`/`form`), labor_cost, notes, soft delete |
-| `service_parts` | id, service_id (FK), spare_part_id (FK), quantity, unit_price |
+| `services` | id, customer_name, phone, complaint, scheduled_at, status, source (`owner`/`form`), labor_cost (default 50000), notes, soft delete |
+| `service_parts` | id, service_id (FK), spare_part_id (FK), quantity (unsigned), unit_price |
 
 Relasi: `service_parts.service_id > services.id`, `service_parts.spare_part_id > spare_parts.id`.
+
+**Penjelasan `service_parts`:** tabel penghubung (many-to-many) antara `services` dan `spare_parts`. Satu baris berarti "servis X memakai part Y sebanyak N dengan harga satuan Z saat itu". Satu servis bisa memakai banyak part, dan satu part bisa dipakai di banyak servis. Servis tanpa ganti part tidak memiliki baris di tabel ini.
 
 **ERD (format Eraser.io, bisa langsung di-paste):**
 
@@ -191,12 +199,14 @@ service_parts.spare_part_id > spare_parts.id
 ## 8. Aturan Bisnis
 
 1. Stok tidak boleh negatif (kolom unsigned di database; hitung selisih stok dengan urutan yang tidak menghasilkan nilai negatif).
-2. Alur status: `pending → confirmed → in_progress → completed`, atau `pending → rejected`.
+2. Alur status:
+   - Servis `owner` (walk-in): boleh mulai dari `confirmed` atau `in_progress`, lalu `in_progress → completed`. Tidak wajib lewat `pending`.
+   - Servis `form` (iterasi 3): `pending → confirmed → in_progress → completed`, atau `pending → rejected`.
 3. `unit_price` di `service_parts` disalin dari `spare_parts.price` saat part dipakai.
-4. Biaya servis = `labor_cost` (standar saat ini Rp50.000) + total part.
+4. Biaya servis = `labor_cost` (standar saat ini Rp50.000) + total part. Servis tanpa part: biaya = `labor_cost`.
 5. Part yang dihapus memakai soft delete.
 6. Urutan daftar sparepart: (a) `stock <= min_stock` di atas, (b) di dalam kelompok itu kekurangan `min_stock - stock` terbesar lebih dulu, (c) sisanya `updated_at` terbaru lebih dulu.
-7. *(Perlu konfirmasi pemilik)* Stok berkurang saat part ditambahkan ke servis, atau saat servis `completed`?
+7. Stok berkurang saat part ditambahkan ke servis (part fisik sudah diambil dari rak). Jika part dihapus dari servis atau jumlah diubah, stok disesuaikan kembali.
 
 ## 9. Metrik Keberhasilan
 
@@ -213,13 +223,16 @@ service_parts.spare_part_id > spare_parts.id
 - Login pemilik
 - CRUD sparepart, pencarian (nama, kategori, lokasi), filter kategori
 - Penandaan dan pengurutan prioritas stok menipis
-- Jadwal dan status servis, pemakaian part dengan stok otomatis
+- Pemilik membuat dan mengelola servis sendiri (walk-in), status servis, filter per status
+- Pemakaian part pada servis (boleh kosong) dengan stok otomatis
 - Tampilan responsif
+- Kolom `source` tidak ditampilkan di antarmuka (otomatis `owner`); baru muncul di iterasi 3
 
 **Setelah MVP (Iterasi 3-4):**
 
 - Halaman publik info layanan dan promo
-- Formulir konsultasi/jadwal dan antrean konfirmasi
+- Formulir konsultasi/jadwal dan antrean konfirmasi (servis `form`, status `pending`)
+- Tampilan kolom `source` ("Langsung" / "Online")
 - Laporan dan dashboard
 
 **Tidak masuk:**
@@ -240,18 +253,20 @@ service_parts.spare_part_id > spare_parts.id
 - **Keamanan:** autentikasi hanya untuk pemilik (dinonaktifkan sementara selama pengembangan, aktifkan sebelum dipakai orang lain); validasi input dan proteksi spam pada formulir publik.
 - **Kinerja:** CRUD dan pencarian responsif.
 - **Kompatibilitas:** browser modern di desktop dan ponsel.
-- **Konvensi:** nama tabel, kolom, dan model berbahasa Inggris. Label tampilan ke pemilik berbahasa Indonesia.
+- **Konvensi:** nama tabel, kolom, dan model berbahasa Inggris. Label tampilan ke pemilik berbahasa Indonesia (menu "Servis").
 - **Bahasa:** locale aplikasi `id`, pesan validasi diterjemahkan ke Indonesia (paket terjemahan bahasa Laravel).
 - **Tema:** tema Filament kustom (Vite + Tailwind), warna utama biru, mode gelap nonaktif.
 - **Data awal:** daftar stok dan layanan dari pemilik (foto kardus atau daftar part paling sering dipakai).
+- **Implementasi servis:** relasi `Service hasMany ServicePart`, `SparePart hasMany ServicePart`, `ServicePart belongsTo Service` dan `SparePart`. Input part di form Servis memakai Repeater atau Relation Manager (tidak wajib diisi). Total part dihitung dengan `sum()` yang aman untuk nilai kosong.
 
 ## 12. Desain dan UX
 
 - Antarmuka sederhana untuk pemilik yang terbiasa kerja manual.
 - Tabel: kolom pencarian dan filter berada di sisi kiri toolbar.
 - Form tambah dan ubah berupa satu kartu selebar halaman, dua kolom, dengan tombol "Simpan" dan "Kembali" (tanpa "buat & buat lainnya").
+- Menu "Servis" dengan tombol "Tambah Servis". Bagian part yang dipakai bersifat opsional; harga satuan terisi otomatis dari harga part.
 - Panel pemilik memakai komponen Filament. Rancangan Figma disesuaikan atau perbedaannya dijelaskan di laporan.
-- Halaman publik mobile-first.
+- Halaman publik mobile-first. Tombol di sisi publik boleh berlabel "Booking Servis".
 - Desain diperbaiki tiap iterasi berdasarkan masukan pemilik.
 
 ## 13. Timeline
@@ -290,7 +305,7 @@ service_parts.spare_part_id > spare_parts.id
 1. Deadline sidang dan pengumpulan? (menentukan timeline)
 2. Harga part: satu harga saja, atau beda harga beli dan jual? (Sementara satu kolom `price`.)
 3. ~~Batas minimum stok~~ Diputuskan: diatur per part, nilai awal 1.
-4. Stok berkurang saat part ditambahkan ke servis, atau saat servis selesai?
+4. ~~Stok berkurang kapan?~~ Diputuskan: saat part ditambahkan ke servis.
 5. Laporan perlu mencakup pendapatan (jasa + komponen), atau hanya servis dan stok?
 6. Target penurunan servis tertunda yang realistis?
 7. Pelanggan perlu melihat status servisnya sendiri, atau cukup status permintaan awal?

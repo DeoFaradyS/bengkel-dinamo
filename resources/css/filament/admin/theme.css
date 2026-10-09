@@ -12,3 +12,11 @@
     margin-inline-start: 0 !important;
 }
 
+.fi-tabs {
+    width: 100%;
+}
+
+.fi-tabs .fi-tabs-item {
+    flex: 1 1 0%;
+    justify-content: center;
+}

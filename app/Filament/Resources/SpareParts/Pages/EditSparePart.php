@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\SpareParts\Pages;
 
 use App\Filament\Resources\SpareParts\SparePartResource;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
@@ -15,7 +14,6 @@ class EditSparePart extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            // DeleteAction::make(),
             ForceDeleteAction::make(),
             RestoreAction::make(),
         ];

@@ -2,16 +2,12 @@
 
 namespace App\Filament\Resources\SpareParts\Tables;
 
-use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
 use Filament\Tables\Columns\TextColumn;
-// use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Filament\Tables\Columns\ImageColumn;
 
 class SparePartsTable
 {
@@ -27,16 +23,20 @@ class SparePartsTable
                 ? 'bg-red-50!'
                 : null)
             ->columns([
-                TextColumn::make('index')->label('No')->rowIndex(),
+                ImageColumn::make('photo')->label('Foto')
+                    ->disk('public')
+                    ->square(),
+                TextColumn::make('code')->label('Kode')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('name')->label('Nama')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('category')->label('Kategori')
-                    ->searchable(),
-                TextColumn::make('stock')->label('Stok')
-                    ->numeric()
+                TextColumn::make('category.name')->label('Kategori')
+                    ->placeholder('Tanpa kategori')
+                    ->searchable()
                     ->sortable(),
-                TextColumn::make('min_stock')->label('Stok Minimal')
+                TextColumn::make('stock')->label('Stok')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('location')->label('Lokasi')
@@ -46,27 +46,16 @@ class SparePartsTable
                     ->sortable(),
             ])
             ->filters([
-                // TrashedFilter::make(),
-                SelectFilter::make('category')
+                SelectFilter::make('category_id')
                     ->label('Kategori')
+                    ->relationship('category', 'name')
                     ->multiple()
-                    ->options(fn() => \App\Models\SparePart::query()
-                        ->whereNotNull('category')
-                        ->distinct()
-                        ->pluck('category', 'category')),
+                    ->preload(),
             ])
+
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make(),
-            ])
-
-            // ->toolbarActions([
-            //     BulkActionGroup::make([
-            //         DeleteBulkAction::make(),
-            //         ForceDeleteBulkAction::make(),
-            //         RestoreBulkAction::make(),
-            //     ]),
-            // ])
-        ;
+            ]);
     }
 }
