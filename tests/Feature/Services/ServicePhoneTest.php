@@ -58,3 +58,22 @@ it('HPU-005: edit HP jadi nomor servis aktif lain ditolak', function () {
         ->call('save')
         ->assertHasFormErrors(['phone' => 'unique']);
 });
+it('HPU-006: +62 dianggap sama dengan 08, servis aktif bentrok ditolak', function () {
+    Service::factory()->create(['phone' => '081234500001']);
+
+    Livewire::test(CreateService::class)
+        ->fillForm(serviceFormData(['phone' => '+6281234500001']))
+        ->call('create')
+        ->assertHasFormErrors(['phone' => 'unique']);
+
+    expect(Service::count())->toBe(1);
+});
+
+it('HPU-007: HP disimpan dalam format 08...', function () {
+    Livewire::test(CreateService::class)
+        ->fillForm(serviceFormData(['phone' => '+62 812 3450 0009']))
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(Service::first()->phone)->toBe('081234500009');
+});

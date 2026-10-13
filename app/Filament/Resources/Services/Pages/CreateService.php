@@ -6,6 +6,7 @@ use App\Enums\ServiceStatus;
 use App\Filament\Resources\Services\ServiceResource;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
+use App\Support\PhoneNumber;
 
 class CreateService extends CreateRecord
 {
@@ -53,5 +54,10 @@ class CreateService extends CreateRecord
         $status = $status instanceof ServiceStatus ? $status : ServiceStatus::tryFrom((string) $status);
 
         return $status === ServiceStatus::Completed;
+    }
+
+    protected function beforeValidate(): void
+    {
+        $this->data['phone'] = PhoneNumber::normalize($this->data['phone'] ?? null);
     }
 }

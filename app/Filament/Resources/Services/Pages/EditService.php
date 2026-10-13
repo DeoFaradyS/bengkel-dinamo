@@ -6,6 +6,7 @@ use App\Enums\ServiceStatus;
 use App\Filament\Resources\Services\ServiceResource;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
+use App\Support\PhoneNumber;
 
 class EditService extends EditRecord
 {
@@ -20,7 +21,7 @@ class EditService extends EditRecord
 
     protected function beforeSave(): void
     {
-        if ($this->isCompleting() && ! $this->completeConfirmed) {
+        if ($this->isCompleting() && !$this->completeConfirmed) {
             $this->mountAction('confirmComplete');
             $this->halt();
         }
@@ -52,5 +53,10 @@ class EditService extends EditRecord
         $status = $status instanceof ServiceStatus ? $status : ServiceStatus::tryFrom((string) $status);
 
         return $status === ServiceStatus::Completed;
+    }
+
+    protected function beforeValidate(): void
+    {
+        $this->data['phone'] = PhoneNumber::normalize($this->data['phone'] ?? null);
     }
 }
