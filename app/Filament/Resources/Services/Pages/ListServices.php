@@ -28,7 +28,13 @@ class ListServices extends ListRecords
             ->groupBy('status')
             ->pluck('total', 'status');
 
+        $activeCount = collect(ServiceStatus::activeValues())
+            ->sum(fn($value) => $counts[$value] ?? 0);
+
         $tabs = [
+            'antrian' => Tab::make('Antrian')
+                ->badge($activeCount)
+                ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('status', ServiceStatus::activeValues())),
             'all' => Tab::make('Semua')->badge($counts->sum()),
         ];
 
@@ -36,7 +42,7 @@ class ListServices extends ListRecords
             $tabs[$status->value] = Tab::make($status->getLabel())
                 ->badge($counts[$status->value] ?? 0)
                 ->badgeColor($status->getColor())
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', $status));
+                ->modifyQueryUsing(fn(Builder $query) => $query->where('status', $status));
         }
 
         return $tabs;
@@ -44,6 +50,6 @@ class ListServices extends ListRecords
 
     public function getDefaultActiveTab(): string|int|null
     {
-        return 'all';
+        return 'antrian';
     }
 }

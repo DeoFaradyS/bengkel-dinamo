@@ -3,20 +3,10 @@
 use App\Filament\Resources\ServiceTypes\Pages\CreateServiceType;
 use App\Filament\Resources\ServiceTypes\Pages\EditServiceType;
 use App\Filament\Resources\ServiceTypes\Pages\ListServiceTypes;
+use App\Models\Service;
 use App\Models\ServiceType;
-use App\Models\User;
 use Filament\Actions\Testing\TestAction;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
-use Tests\TestCase;
-
-use function Pest\Laravel\actingAs;
-
-uses(TestCase::class, RefreshDatabase::class);
-
-beforeEach(function () {
-    actingAs(User::factory()->create());
-});
 
 // Data form valid. Field yang mau diuji tinggal ditimpa lewat $override.
 function typeData(array $override = []): array
@@ -25,14 +15,6 @@ function typeData(array $override = []): array
         'name' => 'Servis dinamo',
         'default_price' => 50000,
     ], $override);
-}
-
-function makeType(array $override = []): ServiceType
-{
-    return ServiceType::create(array_merge([
-        'name' => 'Servis dinamo',
-        'default_price' => 50000,
-    ], $override));
 }
 
 /* ------------------------------------------------------------------ */
@@ -58,7 +40,7 @@ it('TJS-002: name dikosongkan ditolak', function () {
 });
 
 it('TJS-003: name sama dengan jasa lain boleh', function () {
-    makeType(['name' => 'Servis dinamo']);
+    ServiceType::factory()->create(['name' => 'Servis dinamo']);
 
     Livewire::test(CreateServiceType::class)
         ->fillForm(typeData(['name' => 'Servis dinamo']))
@@ -118,7 +100,7 @@ it('TJS-008: default_price di atas maksimal ditolak', function () {
 /* ------------------------------------------------------------------ */
 
 it('EJS-001: ubah data dengan valid value', function () {
-    $type = makeType();
+    $type = ServiceType::factory()->create();
 
     Livewire::test(EditServiceType::class, ['record' => $type->getRouteKey()])
         ->fillForm(['name' => 'Servis dinamo besar', 'default_price' => 75000])
@@ -130,7 +112,7 @@ it('EJS-001: ubah data dengan valid value', function () {
 });
 
 it('EJS-002: name dikosongkan ditolak', function () {
-    $type = makeType();
+    $type = ServiceType::factory()->create();
 
     Livewire::test(EditServiceType::class, ['record' => $type->getRouteKey()])
         ->fillForm(['name' => null])
@@ -143,7 +125,7 @@ it('EJS-002: name dikosongkan ditolak', function () {
 /* ------------------------------------------------------------------ */
 
 it('HJS-001: hapus jasa berhasil', function () {
-    $type = makeType();
+    $type = ServiceType::factory()->create();
 
     Livewire::test(ListServiceTypes::class)
         ->callAction(TestAction::make('delete')->table($type));
@@ -151,16 +133,40 @@ it('HJS-001: hapus jasa berhasil', function () {
     $this->assertModelMissing($type);
 });
 
-// Baru bisa ditulis setelah tabel service_items ada (langkah berikutnya).
-it('HJS-002: hapus jasa yang dipakai servis, baris servis tetap utuh')->todo();
+it('HJS-002: hapus jasa yang dipakai servis, baris servis tetap utuh', function () {
+    $type = ServiceType::factory()->create(['name' => 'Ganti bearing']);
+
+    $service = Service::create([
+        'customer_name' => 'Pak Budi',
+        'phone' => '081234500001',
+        'complaint' => 'Dinamo tidak mau engkol',
+        'scheduled_at' => now()->addDay(),
+        'status' => 'confirmed',
+    ]);
+
+    $service->items()->create([
+        'service_type_id' => $type->id,
+        'name' => $type->name,
+        'price' => 100000,
+    ]);
+
+    Livewire::test(ListServiceTypes::class)
+        ->callAction(TestAction::make('delete')->table($type));
+
+    $item = $service->items()->first();
+
+    expect($item)->not->toBeNull()
+        ->and($item->service_type_id)->toBeNull()
+        ->and($item->name)->toBe('Ganti bearing');
+});
 
 /* ------------------------------------------------------------------ */
 /* SJS: search                                                         */
 /* ------------------------------------------------------------------ */
 
 it('SJS-001: cari pakai nama', function () {
-    $a = makeType(['name' => 'Servis dinamo']);
-    $b = makeType(['name' => 'Ganti bearing']);
+    $a = ServiceType::factory()->create(['name' => 'Servis dinamo']);
+    $b = ServiceType::factory()->create(['name' => 'Ganti bearing']);
 
     Livewire::test(ListServiceTypes::class)
         ->searchTable('bearing')
@@ -169,7 +175,7 @@ it('SJS-001: cari pakai nama', function () {
 });
 
 it('SJS-002: cari kata yang tidak ada, tabel kosong', function () {
-    $a = makeType();
+    $a = ServiceType::factory()->create();
 
     Livewire::test(ListServiceTypes::class)
         ->searchTable('tidak-ada-xyz')

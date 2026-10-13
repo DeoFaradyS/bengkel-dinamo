@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Services;
 use App\Filament\Resources\Services\Pages\CreateService;
 use App\Filament\Resources\Services\Pages\EditService;
 use App\Filament\Resources\Services\Pages\ListServices;
+use App\Filament\Resources\Services\Pages\ViewService; // BARU 2
 use App\Filament\Resources\Services\Schemas\ServiceForm;
 use App\Filament\Resources\Services\Tables\ServicesTable;
 use App\Models\Service;
@@ -14,8 +15,9 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model; // BARU 2
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use UnitEnum; // BARU
+use UnitEnum;
 
 class ServiceResource extends Resource
 {
@@ -23,11 +25,11 @@ class ServiceResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentList;
 
-    protected static ?string $navigationLabel = 'Servis'; // BARU
+    protected static ?string $navigationLabel = 'Servis';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Operasional'; // BARU
+    protected static string|UnitEnum|null $navigationGroup = 'Operasional';
 
-    protected static ?int $navigationSort = 1; // BARU
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $recordTitleAttribute = 'customer_name';
 
@@ -53,8 +55,15 @@ class ServiceResource extends Resource
         return [
             'index' => ListServices::route('/'),
             'create' => CreateService::route('/create'),
+            'view' => ViewService::route('/{record}'), // BARU 2
             'edit' => EditService::route('/{record}/edit'),
         ];
+    }
+
+    // BARU 2: servis final tidak bisa diedit
+    public static function canEdit(Model $record): bool
+    {
+        return ! $record->status->isFinal();
     }
 
     public static function getRecordRouteBindingEloquentQuery(): Builder

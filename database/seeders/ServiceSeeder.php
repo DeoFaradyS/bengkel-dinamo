@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Service;
 use App\Models\ServiceType;
+use App\Models\SparePart;
 use Illuminate\Database\Seeder;
 
 class ServiceSeeder extends Seeder
@@ -11,8 +12,9 @@ class ServiceSeeder extends Seeder
     public function run(): void
     {
         $types = ServiceType::all()->keyBy('name');
+        $parts = SparePart::all()->keyBy('name');
 
-        // [nama, hp, keluhan, status, jasa[[nama katalog, harga atau null]], hari, spare part (belum dipakai), alasan batal]
+        // [nama, hp, keluhan, status, jasa[[nama katalog, harga atau null]], hari, spare part[[nama, qty]], alasan batal]
         // harga null = pakai harga katalog
         $data = [
             [
@@ -118,6 +120,19 @@ class ServiceSeeder extends Seeder
                     'price' => $price ?? $type->default_price,
                 ]);
             }
+
+            foreach ($d[6] as [$partName, $qty]) {
+                $part = $parts->get($partName)
+                    ?? throw new \RuntimeException("Spare part tidak ada di seeder: {$partName}");
+
+                $service->serviceParts()->create([
+                    'spare_part_id' => $part->id,
+                    'quantity' => $qty,
+                    'unit_price' => $part->price,
+                ]);
+            }
+
+            $service->syncStock();
         }
     }
 }

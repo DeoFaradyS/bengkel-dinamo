@@ -59,4 +59,9 @@ enum ServiceStatus: string implements HasColor, HasIcon, HasLabel
             self::InProgress->value,
         ];
     }
+
+    public function isFinal(): bool
+    {
+        return !in_array($this->value, self::activeValues(), true);
+    }
 }

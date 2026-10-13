@@ -5,20 +5,9 @@ use App\Filament\Resources\Categories\Pages\CreateCategory;
 use App\Filament\Resources\Categories\Pages\EditCategory;
 use App\Filament\Resources\Categories\Pages\ListCategories;
 use App\Models\Category;
-use App\Models\User;
-use Filament\Actions\Testing\TestAction;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Livewire\Livewire;
-use Tests\TestCase;
 use App\Models\SparePart;
-
-use function Pest\Laravel\actingAs;
-
-uses(TestCase::class, RefreshDatabase::class);
-
-beforeEach(function () {
-    actingAs(User::factory()->create());
-});
+use Filament\Actions\Testing\TestAction;
+use Livewire\Livewire;
 
 it('TKT-001: submit dengan semua field valid', function () {
     Livewire::test(CreateCategory::class)

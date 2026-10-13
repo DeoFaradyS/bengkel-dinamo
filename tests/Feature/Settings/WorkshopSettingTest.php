@@ -2,10 +2,7 @@
 
 use App\Filament\Pages\JarakOngkos;
 use App\Models\WorkshopSetting;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
-
-uses(Tests\TestCase::class, RefreshDatabase::class);
 
 beforeEach(function () {
     // Satu baris awal, sama seperti hasil seeder.

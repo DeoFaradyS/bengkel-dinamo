@@ -20,8 +20,8 @@ return new class extends Migration {
             $table->string('status', 20)
                 ->default(ServiceStatus::Pending->value)
                 ->index();
-            $table->decimal('labor_cost', 12, 2)->default(50000);
             $table->text('cancel_reason')->nullable();
+            $table->timestamp('stock_synced_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

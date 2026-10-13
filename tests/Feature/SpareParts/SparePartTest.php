@@ -5,20 +5,12 @@ use App\Filament\Resources\SpareParts\Pages\EditSparePart;
 use App\Filament\Resources\SpareParts\Pages\ListSpareParts;
 use App\Models\Category;
 use App\Models\SparePart;
-use App\Models\User;
 use Filament\Actions\Testing\TestAction;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
-use Tests\TestCase;
-
-use function Pest\Laravel\actingAs;
-
-uses(TestCase::class, RefreshDatabase::class);
 
 beforeEach(function () {
-    actingAs(User::factory()->create());
     Storage::fake('public');
 });
 
@@ -287,8 +279,7 @@ it('SSP-003: cari kata yang tidak ada, tabel kosong', function () {
 });
 
 /* ------------------------------------------------------------------ */
-/* FSP: filter kategori. Nama filter 'category_id' = tebakan,          */
-/* samakan dengan SelectFilter::make('...') di tabel.                  */
+/* FSP: filter kategori                                                */
 /* ------------------------------------------------------------------ */
 
 it('FSP-001: filter 1 kategori', function () {
