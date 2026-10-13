@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model; // BARU 2
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use UnitEnum;
+use App\Enums\ServiceStatus;
 
 class ServiceResource extends Resource
 {
@@ -63,7 +64,7 @@ class ServiceResource extends Resource
     // BARU 2: servis final tidak bisa diedit
     public static function canEdit(Model $record): bool
     {
-        return ! $record->status->isFinal();
+        return !$record->status->isFinal();
     }
 
     public static function getRecordRouteBindingEloquentQuery(): Builder
@@ -72,5 +73,16 @@ class ServiceResource extends Resource
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
+    }
+    public static function getNavigationBadge(): ?string
+    {
+        $count = static::getModel()::where('status', ServiceStatus::Pending)->count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return 'warning';
     }
 }
