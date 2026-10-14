@@ -10,6 +10,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\DB;
+use App\Support\WhatsAppLink;
 
 class ServicesTable
 {
@@ -54,15 +55,29 @@ class ServicesTable
                 ViewAction::make()
                     ->visible(fn($record) => $record->status->isFinal()),
                 EditAction::make()
-                    ->visible(fn($record) => ! $record->status->isFinal()),
+                    ->visible(fn($record) => !$record->status->isFinal()),
                 Action::make('invoice')
                     ->label('Invoice')
                     ->icon(Heroicon::OutlinedPrinter)
                     ->visible(fn($record) => $record->status === ServiceStatus::Completed)
                     ->action(fn($record) => response()->streamDownload(
-                        fn() => print($record->invoicePdf()),
+                        fn() => print ($record->invoicePdf()),
                         $record->invoiceNumber() . '.pdf',
                     )),
+                Action::make('whatsapp')
+                    ->label('Chat WA')
+                    ->icon(Heroicon::OutlinedChatBubbleLeftRight)
+                    ->color('success')
+                    ->visible(fn($record) => filled($record->phone))
+                    ->url(fn($record) => WhatsAppLink::make(
+                        $record->phone,
+                        match ($record->status) {
+                            ServiceStatus::Pending => "Halo {$record->customer_name}, booking servis Anda sudah kami terima. Kami konfirmasi jadwalnya segera.",
+                            ServiceStatus::Completed => "Halo {$record->customer_name}, servis motor Anda sudah selesai. Silakan diambil. Terima kasih.",
+                            default => "Halo {$record->customer_name}, kami dari bengkel menghubungi soal servis Anda.",
+                        },
+                    ))
+                    ->openUrlInNewTab(),
             ]);
     }
 }
