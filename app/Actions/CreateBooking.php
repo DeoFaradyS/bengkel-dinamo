@@ -4,7 +4,9 @@ namespace App\Actions;
 
 use App\Enums\ServiceStatus;
 use App\Models\Service;
+use App\Models\User;
 use App\Support\PhoneNumber;
+use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -17,7 +19,7 @@ class CreateBooking
     {
         $phone = PhoneNumber::normalize($data['phone']);
 
-        return DB::transaction(function () use ($data, $phone) {
+        $service = DB::transaction(function () use ($data, $phone) {
             $hasActive = Service::query()
                 ->where('phone', $phone)
                 ->whereIn('status', ServiceStatus::activeValues())
@@ -38,5 +40,14 @@ class CreateBooking
                 'status' => ServiceStatus::Pending,
             ]);
         });
+
+        Notification::make()
+            ->title('Booking baru')
+            ->body("{$service->customer_name} ({$service->phone}) menunggu konfirmasi.")
+            ->icon('heroicon-o-clock')
+            ->warning()
+            ->sendToDatabase(User::all());
+
+        return $service;
     }
 }
