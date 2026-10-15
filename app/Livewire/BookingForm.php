@@ -3,8 +3,10 @@
 namespace App\Livewire;
 
 use App\Actions\CreateBooking;
+use App\Enums\BookingType;
 use App\Support\PhoneNumber;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -16,6 +18,10 @@ class BookingForm extends Component
     public string $phone = '';
     public string $complaint = '';
     public string $scheduled_at = '';
+
+    public string $booking_type = 'workshop';
+    public ?float $latitude = null;
+    public ?float $longitude = null;
 
     // Honeypot: manusia tidak melihat field ini, bot mengisinya.
     public string $website = '';
@@ -42,16 +48,30 @@ class BookingForm extends Component
 
         $this->phone = PhoneNumber::normalize($this->phone) ?? '';
 
-        $this->validate([
+        $rules = [
             'customer_name' => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:16'],
             'complaint' => ['required', 'string', 'max:1000'],
             'scheduled_at' => ['required', 'date', 'after:now'],
-        ], [], [
+            'booking_type' => ['required', Rule::enum(BookingType::class)],
+        ];
+
+        if ($this->booking_type === BookingType::HomeService->value) {
+            $rules['latitude'] = ['required', 'numeric', 'between:-90,90'];
+            $rules['longitude'] = ['required', 'numeric', 'between:-180,180'];
+        }
+
+        $this->validate($rules, [
+            'latitude.required' => 'Pilih lokasi di peta.',
+            'longitude.required' => 'Pilih lokasi di peta.',
+        ], [
             'customer_name' => 'Nama',
             'phone' => 'No. HP',
             'complaint' => 'Keluhan',
             'scheduled_at' => 'Jadwal',
+            'booking_type' => 'Tipe layanan',
+            'latitude' => 'Lokasi',
+            'longitude' => 'Lokasi',
         ]);
 
         try {
@@ -60,6 +80,9 @@ class BookingForm extends Component
                 'phone' => $this->phone,
                 'complaint' => $this->complaint,
                 'scheduled_at' => $this->scheduled_at,
+                'booking_type' => $this->booking_type,
+                'latitude' => $this->latitude,
+                'longitude' => $this->longitude,
             ]);
         } catch (ValidationException $e) {
             foreach ($e->errors() as $field => $messages) {
@@ -69,7 +92,15 @@ class BookingForm extends Component
             return;
         }
 
-        $this->reset(['customer_name', 'phone', 'complaint', 'scheduled_at']);
+        $this->reset([
+            'customer_name',
+            'phone',
+            'complaint',
+            'scheduled_at',
+            'booking_type',
+            'latitude',
+            'longitude',
+        ]);
         $this->submitted = true;
     }
 
