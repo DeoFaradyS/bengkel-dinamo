@@ -12,6 +12,8 @@ window.bookingMap = (el, wire) => {
         },
     });
 
+    el.pinMap = pin;
+
     // Pelanggan pindah tab lalu balik: pin lama dipulihkan.
     pin.sync();
 };

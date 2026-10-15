@@ -57,5 +57,29 @@ export function mountPinMap(el, { get, set, center = [-7.7174465, 113.0755426], 
     // Peta muncul di wadah yang baru tampil, ukurannya perlu dihitung ulang.
     setTimeout(() => map.invalidateSize(), 0);
 
-    return { map, sync };
+    // Ambil posisi perangkat, pindahkan pin. Pesan error dikirim ke onError.
+    const locate = ({ onStart, onDone, onError }) => {
+        if (!navigator.geolocation) {
+            onError('Browser tidak mendukung lokasi. Ketuk peta untuk pilih manual.');
+            return;
+        }
+        onStart();
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const latlng = L.latLng(pos.coords.latitude, pos.coords.longitude);
+                place(latlng, true);
+                map.setView(latlng, 17);
+                onDone();
+            },
+            (err) => {
+                onDone();
+                onError(err.code === 1
+                    ? 'Izin lokasi ditolak. Ketuk peta untuk pilih manual.'
+                    : 'Lokasi tidak ditemukan. Ketuk peta untuk pilih manual.');
+            },
+            { enableHighAccuracy: true, timeout: 10000 },
+        );
+    };
+
+    return { map, sync, locate };
 }

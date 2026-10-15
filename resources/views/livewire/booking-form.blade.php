@@ -49,13 +49,24 @@
             </div>
 
             @if ($booking_type === \App\Enums\BookingType::HomeService->value)
-                <div x-data class="flex flex-col gap-2 p-4 bg-neutral-50 rounded-[10px] border border-neutral-200">
+                <div x-data="{ locating: false, locateError: '' }" class="flex flex-col gap-2 p-4 bg-neutral-50 rounded-[10px] border border-neutral-200">
                     <p class="text-sm font-semibold text-neutral-600">Lokasi montir datang</p>
                     <div wire:ignore>
                         <div id="booking-map" x-init="bookingMap($el, $wire)"
                             data-center-lat="-7.7174465" data-center-lng="113.0755426"
                             class="w-full h-64 rounded-lg z-0"></div>
                     </div>
+                    <button type="button" x-bind:disabled="locating"
+                        x-on:click="locateError = ''; document.getElementById('booking-map').pinMap.locate({
+                            onStart: () => locating = true,
+                            onDone: () => locating = false,
+                            onError: (msg) => locateError = msg,
+                        })"
+                        class="px-4 py-3 bg-white border border-neutral-200 rounded-[10px] text-sm font-semibold text-neutral-700 disabled:opacity-60">
+                        <span x-show="!locating">Lokasi saya</span>
+                        <span x-show="locating" style="display:none">Mencari lokasi...</span>
+                    </button>
+                    <p class="text-sm text-red-600" style="display:none" x-show="locateError" x-text="locateError"></p>
                     <p class="text-sm text-neutral-500" x-show="$wire.latitude == null">
                         Ketuk peta untuk menaruh pin di lokasi kamu. Pin bisa digeser.
                     </p>
