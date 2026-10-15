@@ -49,10 +49,19 @@
             </div>
 
             @if ($booking_type === \App\Enums\BookingType::HomeService->value)
-                <div class="flex flex-col gap-2 p-4 bg-neutral-50 rounded-[10px] border border-neutral-200">
+                <div x-data class="flex flex-col gap-2 p-4 bg-neutral-50 rounded-[10px] border border-neutral-200">
                     <p class="text-sm font-semibold text-neutral-600">Lokasi montir datang</p>
-                    {{-- Placeholder. Peta Leaflet menggantikan bagian ini di langkah berikutnya. --}}
-                    <p class="text-sm text-neutral-500">Peta lokasi menyusul.</p>
+                    <div wire:ignore>
+                        <div id="booking-map" x-init="bookingMap($el, $wire)"
+                            data-center-lat="-7.7174465" data-center-lng="113.0755426"
+                            class="w-full h-64 rounded-lg z-0"></div>
+                    </div>
+                    <p class="text-sm text-neutral-500" x-show="$wire.latitude == null">
+                        Ketuk peta untuk menaruh pin di lokasi kamu. Pin bisa digeser.
+                    </p>
+                    <p class="text-sm font-semibold text-green-700" style="display:none" x-show="$wire.latitude != null">
+                        Lokasi sudah dipilih. Geser pin kalau kurang pas.
+                    </p>
                     @error('latitude') <small class="text-sm text-red-600">{{ $message }}</small> @enderror
                 </div>
             @endif
