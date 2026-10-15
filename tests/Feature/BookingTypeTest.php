@@ -42,6 +42,6 @@ it('BKT-003: workshop boleh tanpa koordinat', function () {
 });
 
 it('BKT-004: label BookingType', function () {
-    expect(BookingType::Workshop->getLabel())->toBe('Antar ke bengkel')
-        ->and(BookingType::HomeService->getLabel())->toBe('Montir datang ke lokasi');
+    expect(BookingType::Workshop->getLabel())->toBe('Ke Bengkel')
+        ->and(BookingType::HomeService->getLabel())->toBe('Home Service');
 });

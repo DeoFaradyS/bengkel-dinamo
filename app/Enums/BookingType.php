@@ -14,8 +14,8 @@ enum BookingType: string implements HasColor, HasIcon, HasLabel
     public function getLabel(): string
     {
         return match ($this) {
-            self::Workshop => 'Antar ke bengkel',
-            self::HomeService => 'Montir datang ke lokasi',
+            self::Workshop => 'Ke Bengkel',
+            self::HomeService => 'Home Service',
         };
     }
 

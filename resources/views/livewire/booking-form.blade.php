@@ -11,6 +11,20 @@
             </div>
 
             <div class="flex flex-col gap-1">
+                <div class="grid grid-cols-2 gap-1 p-1 bg-neutral-100 rounded-[10px]">
+                    @foreach (\App\Enums\BookingType::cases() as $type)
+                        <label wire:key="type-{{ $type->value }}"
+                            class="py-3 text-center rounded-lg cursor-pointer font-semibold transition focus-within:ring-2 focus-within:ring-red-500 {{ $booking_type === $type->value ? 'bg-white text-red-600 shadow-sm' : 'text-neutral-500' }}">
+                            <input type="radio" wire:model.live="booking_type" value="{{ $type->value }}"
+                                class="sr-only">
+                            {{ $type->getLabel() }}
+                        </label>
+                    @endforeach
+                </div>
+                @error('booking_type') <small class="text-sm text-red-600">{{ $message }}</small> @enderror
+            </div>
+
+            <div class="flex flex-col gap-1">
                 <input type="text" wire:model="customer_name" placeholder="Nama Lengkap"
                     class="w-full p-4 bg-neutral-100 rounded-[10px] text-neutral-800 placeholder:text-neutral-400 outline-none focus:ring-2 focus:ring-red-500">
                 @error('customer_name') <small class="text-sm text-red-600">{{ $message }}</small> @enderror
@@ -34,11 +48,20 @@
                 @error('complaint') <small class="text-sm text-red-600">{{ $message }}</small> @enderror
             </div>
 
+            @if ($booking_type === \App\Enums\BookingType::HomeService->value)
+                <div class="flex flex-col gap-2 p-4 bg-neutral-50 rounded-[10px] border border-neutral-200">
+                    <p class="text-sm font-semibold text-neutral-600">Lokasi montir datang</p>
+                    {{-- Placeholder. Peta Leaflet menggantikan bagian ini di langkah berikutnya. --}}
+                    <p class="text-sm text-neutral-500">Peta lokasi menyusul.</p>
+                    @error('latitude') <small class="text-sm text-red-600">{{ $message }}</small> @enderror
+                </div>
+            @endif
+
             @error('throttle') <small class="text-sm text-red-600">{{ $message }}</small> @enderror
 
             <button type="submit" wire:loading.attr="disabled"
                 class="px-6 py-3.5 bg-gradient-to-b from-red-500 to-red-600 rounded-[10px] text-white font-semibold flex justify-center items-center gap-4 disabled:opacity-60">
-                <span wire:loading.remove>Booking Sekarang →</span>
+                <span wire:loading.remove>Booking Sekarang &rarr;</span>
                 <span wire:loading>Mengirim...</span>
             </button>
         </form>
