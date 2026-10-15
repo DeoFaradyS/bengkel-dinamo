@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Enums\BookingType;
 
 class Service extends Model
 {
@@ -22,10 +23,16 @@ class Service extends Model
         'scheduled_at',
         'status',
         'cancel_reason',
+        'booking_type',
+        'latitude',
+        'longitude',
     ];
 
     protected $casts = [
         'status' => ServiceStatus::class,
+        'booking_type' => BookingType::class,
+        'latitude' => 'float',
+        'longitude' => 'float',
         'scheduled_at' => 'datetime',
         'stock_synced_at' => 'datetime',
     ];
