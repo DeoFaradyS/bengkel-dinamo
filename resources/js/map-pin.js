@@ -59,8 +59,8 @@ export function mountPinMap(el, { get, set, center = [-7.7174465, 113.0755426], 
 
     // Ambil posisi perangkat, pindahkan pin. Pesan error dikirim ke onError.
     const locate = ({ onStart, onDone, onError }) => {
-        if (!navigator.geolocation) {
-            onError('Browser tidak mendukung lokasi. Ketuk peta untuk pilih manual.');
+        if (!window.isSecureContext || !navigator.geolocation) {
+            onError('Lokasi butuh HTTPS. Ketuk peta untuk pilih manual.');
             return;
         }
         onStart();
