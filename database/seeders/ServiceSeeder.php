@@ -18,6 +18,36 @@ class ServiceSeeder extends Seeder
         // harga null = pakai harga katalog
         $data = [
             [
+                'Pak Wawan Setiawan', '081311223340',
+                'Starter pickup mati di garasi rumah, minta montir datang',
+                'pending',
+                [],
+                1,
+                [],
+                null,
+                ['lat' => -7.7188, 'lng' => 113.0790],
+            ],
+            [
+                'Bu Ani Rahayu', '081311223341',
+                'Dinamo pompa air rumah tidak mau menyala',
+                'confirmed',
+                [['Servis dinamo', null]],
+                2,
+                [],
+                null,
+                ['lat' => -7.7201, 'lng' => 113.0712, 'address' => 'Gang Melati 3, depan Indomaret, pagar hijau'],
+            ],
+            [
+                'Pak Rudi Hartono', '081311223342',
+                'Alternator mobil di garasi tidak ngecas',
+                'completed',
+                [['Servis dinamo', null]],
+                -4,
+                [['Kohlen / Carbon Brush Alternator (set)', 1]],
+                null,
+                ['lat' => -7.7165, 'lng' => 113.0830, 'address' => 'Jl. Kenanga 12, sebelah bengkel las, gerbang biru'],
+            ],
+            [
                 'Pak Budi Santoso', '081234567801',
                 'Dinamo starter Avanza ngik-ngik, tidak mau engkol',
                 'completed',
@@ -109,6 +139,10 @@ class ServiceSeeder extends Seeder
                 'status' => $d[3],
                 'scheduled_at' => now()->addDays($d[5])->setTime(rand(8, 16), [0, 30][rand(0, 1)]),
                 'cancel_reason' => $d[7] ?? null,
+                'booking_type' => isset($d[8]) ? 'home_service' : 'workshop',
+                'latitude' => $d[8]['lat'] ?? null,
+                'longitude' => $d[8]['lng'] ?? null,
+                'address' => $d[8]['address'] ?? null,
             ]);
 
             foreach ($d[4] as [$name, $price]) {
