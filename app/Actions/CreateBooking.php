@@ -66,7 +66,7 @@ class CreateBooking
 
         Notification::make()
             ->title('Booking baru')
-            ->body("{$service->customer_name} ({$service->phone}) menunggu konfirmasi.")
+            ->body("{$service->customer_name} ({$service->phone}) booking {$type->getLabel()}, menunggu konfirmasi.")
             ->icon('heroicon-o-clock')
             ->warning()
             ->sendToDatabase(User::all());

@@ -2,15 +2,17 @@
 
 namespace App\Filament\Resources\Services\Tables;
 
+use App\Enums\BookingType;
 use App\Enums\ServiceStatus;
+use App\Support\WhatsAppLink;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\DB;
-use App\Support\WhatsAppLink;
 
 class ServicesTable
 {
@@ -34,6 +36,8 @@ class ServicesTable
                 TextColumn::make('scheduled_at')->label('Tanggal & Jam')
                     ->dateTime('d/m/Y H:i')
                     ->sortable(),
+                TextColumn::make('booking_type')->label('Tipe')
+                    ->badge(),
                 TextColumn::make('status')->label('Status')
                     ->badge(),
                 TextColumn::make('total')->label('Total')
@@ -51,11 +55,23 @@ class ServicesTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->filters([
+                SelectFilter::make('booking_type')
+                    ->label('Tipe')
+                    ->options(BookingType::class),
+            ])
             ->recordActions([
                 ViewAction::make()
                     ->visible(fn($record) => $record->status->isFinal()),
                 EditAction::make()
                     ->visible(fn($record) => !$record->status->isFinal()),
+                Action::make('map')
+                    ->label('Buka Peta')
+                    ->icon(Heroicon::OutlinedMapPin)
+                    ->color('info')
+                    ->visible(fn($record) => $record->latitude !== null && $record->longitude !== null)
+                    ->url(fn($record) => "https://www.google.com/maps?q={$record->latitude},{$record->longitude}")
+                    ->openUrlInNewTab(),
                 Action::make('invoice')
                     ->label('Invoice')
                     ->icon(Heroicon::OutlinedPrinter)
