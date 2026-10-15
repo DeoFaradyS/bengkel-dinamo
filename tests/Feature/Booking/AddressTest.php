@@ -142,7 +142,7 @@ it('ADR-010: ubah ke Ke Bengkel, alamat dikosongkan', function () {
     expect($service->fresh()->address)->toBeNull();
 });
 
-it('ADR-011: tabel punya kolom alamat', function () {
+it('ADR-011: tabel tidak punya kolom alamat', function () {
     Livewire::test(ListServices::class)
-        ->assertTableColumnExists('address');
+        ->assertTableColumnDoesNotExist('address');
 });

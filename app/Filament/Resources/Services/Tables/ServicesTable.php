@@ -38,9 +38,6 @@ class ServicesTable
                     ->sortable(),
                 TextColumn::make('booking_type')->label('Tipe')
                     ->badge(),
-                TextColumn::make('address')->label('Alamat')
-                    ->limit(40)
-                    ->placeholder('-'),
                 TextColumn::make('status')->label('Status')
                     ->badge(),
                 TextColumn::make('total')->label('Total')
