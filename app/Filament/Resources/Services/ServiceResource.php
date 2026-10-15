@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Model; // BARU 2
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use UnitEnum;
 use App\Enums\ServiceStatus;
+use App\Filament\Resources\Services\Schemas\ServiceInfolist;
 
 class ServiceResource extends Resource
 {
@@ -84,5 +85,9 @@ class ServiceResource extends Resource
     public static function getNavigationBadgeColor(): string|array|null
     {
         return 'warning';
+    }
+    public static function infolist(Schema $schema): Schema
+    {
+        return ServiceInfolist::configure($schema);
     }
 }
