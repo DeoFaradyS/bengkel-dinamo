@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Services\Schemas;
 
+use App\Enums\BookingType;
 use App\Enums\ServiceStatus;
 use App\Models\ServiceType;
 use App\Models\SparePart;
@@ -15,6 +16,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\View;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
@@ -24,6 +26,16 @@ use Illuminate\Validation\Rules\Unique;
 
 class ServiceForm
 {
+    private static function typeOf(mixed $state): ?BookingType
+    {
+        return $state instanceof BookingType ? $state : BookingType::tryFrom((string) $state);
+    }
+
+    private static function isHome(Get $get): bool
+    {
+        return self::typeOf($get('booking_type')) === BookingType::HomeService;
+    }
+
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -68,6 +80,53 @@ class ServiceForm
                         Textarea::make('complaint')->label('Keluhan')
                             ->rows(3)
                             ->required(),
+                    ]),
+
+                Section::make('Lokasi')
+                    ->columnSpanFull()
+                    ->columns(3)
+                    ->schema([
+                        Select::make('booking_type')->label('Tipe Layanan')
+                            ->options(BookingType::class)
+                            ->default(BookingType::Workshop)
+                            ->live()
+                            ->afterStateUpdated(function ($state, Set $set) {
+                                if (self::typeOf($state) !== BookingType::HomeService) {
+                                    $set('latitude', null);
+                                    $set('longitude', null);
+                                }
+                            })
+                            ->required(),
+                        TextInput::make('latitude')->label('Latitude')
+                            ->numeric()
+                            ->minValue(-90)
+                            ->maxValue(90)
+                            ->required(fn(Get $get) => self::isHome($get))
+                            ->visible(fn(Get $get) => self::isHome($get))
+                            ->dehydratedWhenHidden()
+                            ->live(onBlur: true)
+                            ->helperText('Contoh: -7.7174465'),
+                        TextInput::make('longitude')->label('Longitude')
+                            ->numeric()
+                            ->minValue(-180)
+                            ->maxValue(180)
+                            ->required(fn(Get $get) => self::isHome($get))
+                            ->visible(fn(Get $get) => self::isHome($get))
+                            ->dehydratedWhenHidden()
+                            ->live(onBlur: true)
+                            ->helperText('Contoh: 113.0755426'),
+                        View::make('filament.forms.pin-map')
+                            ->columnSpanFull()
+                            ->visible(fn(Get $get) => self::isHome($get)),
+                        TextEntry::make('maps_link')->label('Peta')
+                            ->columnSpanFull()
+                            ->state('Buka di Google Maps')
+                            ->color('info')
+                            ->url(fn(Get $get) => "https://www.google.com/maps?q={$get('latitude')},{$get('longitude')}")
+                            ->openUrlInNewTab()
+                            ->visible(fn(Get $get) => self::isHome($get)
+                                && filled($get('latitude'))
+                                && filled($get('longitude'))),
                     ]),
 
                 Section::make('Jasa')

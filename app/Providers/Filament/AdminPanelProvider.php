@@ -19,6 +19,8 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Support\Enums\Width;
+use Filament\View\PanelsRenderHook;
+use Illuminate\Support\Facades\Vite;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -32,6 +34,7 @@ class AdminPanelProvider extends PanelProvider
             ->darkMode(false)
             ->login()
             ->databaseNotifications()
+            ->renderHook(PanelsRenderHook::HEAD_END, fn () => Vite::withEntryPoints(['resources/js/admin-map.js'])->toHtml())
             ->colors([
                 'primary' => Color::Blue,
             ])
