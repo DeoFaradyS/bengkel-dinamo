@@ -31,6 +31,14 @@ class ServiceForm
         return $state instanceof BookingType ? $state : BookingType::tryFrom((string) $state);
     }
 
+    private static function needsReason(Get $get): bool
+    {
+        $status = $get('status');
+        $status = $status instanceof ServiceStatus ? $status : ServiceStatus::tryFrom((string) $status);
+
+        return in_array($status, [ServiceStatus::Cancelled, ServiceStatus::Rejected], true);
+    }
+
     private static function isHome(Get $get): bool
     {
         return self::typeOf($get('booking_type')) === BookingType::HomeService;
@@ -77,6 +85,15 @@ class ServiceForm
                             ->live()
                             ->inline()
                             ->required(),
+                        Textarea::make('cancel_reason')->label('Alasan')
+                            ->rows(2)
+                            ->maxLength(1000)
+                            ->required(fn(Get $get) => self::needsReason($get))
+                            ->visible(fn(Get $get) => self::needsReason($get))
+                            ->validationMessages([
+                                'required' => 'Isi alasan penolakan atau pembatalan.',
+                            ])
+                            ->placeholder('Contoh: pelanggan batal, kerusakan parah'),
                         Textarea::make('complaint')->label('Keluhan')
                             ->rows(3)
                             ->required(),

@@ -97,6 +97,7 @@ it('STK-006: buat servis status non-Selesai, stok tidak berkurang', function (Se
             'complaint' => 'Dinamo tidak mau engkol',
             'scheduled_at' => now()->addDay()->format('Y-m-d H:i:s'),
             'status' => $status->value,
+            'cancel_reason' => 'Pelanggan batal',
             'items' => [],
             'serviceParts' => [
                 ['spare_part_id' => $part->id, 'quantity' => 2, 'unit_price' => 100000],
