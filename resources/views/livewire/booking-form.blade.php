@@ -74,6 +74,11 @@
                         Lokasi sudah dipilih. Geser pin kalau kurang pas.
                     </p>
                     @error('latitude') <small class="text-sm text-red-600">{{ $message }}</small> @enderror
+
+                    <input type="text" wire:model="address" maxlength="255"
+                        placeholder="Patokan (opsional), contoh: depan Indomaret, pagar hijau"
+                        class="w-full p-4 bg-white rounded-[10px] text-neutral-800 placeholder:text-neutral-400 border border-neutral-200 outline-none focus:ring-2 focus:ring-red-500">
+                    @error('address') <small class="text-sm text-red-600">{{ $message }}</small> @enderror
                 </div>
             @endif
 

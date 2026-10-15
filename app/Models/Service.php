@@ -26,6 +26,7 @@ class Service extends Model
         'booking_type',
         'latitude',
         'longitude',
+        'address',
     ];
 
     protected $casts = [

@@ -23,11 +23,13 @@ class CreateBooking
 
         $latitude = null;
         $longitude = null;
+        $address = null;
 
         if ($type === BookingType::HomeService) {
             $coordinates = Validator::make($data, [
                 'latitude' => ['required', 'numeric', 'between:-90,90'],
                 'longitude' => ['required', 'numeric', 'between:-180,180'],
+                'address' => ['nullable', 'string', 'max:255'],
             ], [
                 'latitude.required' => 'Pilih lokasi di peta.',
                 'longitude.required' => 'Pilih lokasi di peta.',
@@ -35,11 +37,12 @@ class CreateBooking
 
             $latitude = (float) $coordinates['latitude'];
             $longitude = (float) $coordinates['longitude'];
+            $address = filled($coordinates['address'] ?? null) ? trim($coordinates['address']) : null;
         }
 
         $phone = PhoneNumber::normalize($data['phone']);
 
-        $service = DB::transaction(function () use ($data, $phone, $type, $latitude, $longitude) {
+        $service = DB::transaction(function () use ($data, $phone, $type, $latitude, $longitude, $address) {
             $hasActive = Service::query()
                 ->where('phone', $phone)
                 ->whereIn('status', ServiceStatus::activeValues())
@@ -61,12 +64,13 @@ class CreateBooking
                 'booking_type' => $type,
                 'latitude' => $latitude,
                 'longitude' => $longitude,
+                'address' => $address,
             ]);
         });
 
         Notification::make()
             ->title('Booking baru')
-            ->body("{$service->customer_name} ({$service->phone}) booking {$type->getLabel()}, menunggu konfirmasi.")
+            ->body("{$service->customer_name} ({$service->phone}) booking {$type->getLabel()}, menunggu konfirmasi.".($address ? " Alamat: {$address}." : ''))
             ->icon('heroicon-o-clock')
             ->warning()
             ->sendToDatabase(User::all());

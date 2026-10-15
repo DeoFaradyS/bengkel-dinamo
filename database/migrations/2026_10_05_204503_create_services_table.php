@@ -26,6 +26,7 @@ return new class extends Migration {
                 ->index();
             $table->decimal('latitude', 10, 7)->nullable();
             $table->decimal('longitude', 10, 7)->nullable();
+            $table->string('address')->nullable();
             $table->text('cancel_reason')->nullable();
             $table->timestamp('stock_synced_at')->nullable();
             $table->timestamps();

@@ -22,6 +22,7 @@ class BookingForm extends Component
     public string $booking_type = 'workshop';
     public ?float $latitude = null;
     public ?float $longitude = null;
+    public string $address = '';
 
     // Honeypot: manusia tidak melihat field ini, bot mengisinya.
     public string $website = '';
@@ -59,6 +60,7 @@ class BookingForm extends Component
         if ($this->booking_type === BookingType::HomeService->value) {
             $rules['latitude'] = ['required', 'numeric', 'between:-90,90'];
             $rules['longitude'] = ['required', 'numeric', 'between:-180,180'];
+            $rules['address'] = ['nullable', 'string', 'max:255'];
         }
 
         $this->validate($rules, [
@@ -72,6 +74,7 @@ class BookingForm extends Component
             'booking_type' => 'Tipe layanan',
             'latitude' => 'Lokasi',
             'longitude' => 'Lokasi',
+            'address' => 'Alamat',
         ]);
 
         try {
@@ -83,6 +86,7 @@ class BookingForm extends Component
                 'booking_type' => $this->booking_type,
                 'latitude' => $this->latitude,
                 'longitude' => $this->longitude,
+                'address' => $this->address,
             ]);
         } catch (ValidationException $e) {
             foreach ($e->errors() as $field => $messages) {
@@ -100,6 +104,7 @@ class BookingForm extends Component
             'booking_type',
             'latitude',
             'longitude',
+            'address',
         ]);
         $this->submitted = true;
     }

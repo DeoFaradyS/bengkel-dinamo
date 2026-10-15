@@ -94,6 +94,7 @@ class ServiceForm
                                 if (self::typeOf($state) !== BookingType::HomeService) {
                                     $set('latitude', null);
                                     $set('longitude', null);
+                                    $set('address', null);
                                 }
                             })
                             ->required(),
@@ -118,6 +119,12 @@ class ServiceForm
                         View::make('filament.forms.pin-map')
                             ->columnSpanFull()
                             ->visible(fn(Get $get) => self::isHome($get)),
+                        TextInput::make('address')->label('Alamat atau patokan (opsional)')
+                            ->columnSpanFull()
+                            ->maxLength(255)
+                            ->visible(fn(Get $get) => self::isHome($get))
+                            ->dehydratedWhenHidden()
+                            ->placeholder('Contoh: depan Indomaret, pagar hijau'),
                         TextEntry::make('maps_link')->label('Peta')
                             ->columnSpanFull()
                             ->state('Buka di Google Maps')
