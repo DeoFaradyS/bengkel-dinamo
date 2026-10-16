@@ -6,6 +6,8 @@ use App\Models\Service;
 use App\Models\ServiceType;
 use App\Models\SparePart;
 use Illuminate\Database\Seeder;
+use App\Models\WorkshopSetting;
+use App\Support\Distance\DistanceService;
 
 class ServiceSeeder extends Seeder
 {
@@ -18,7 +20,8 @@ class ServiceSeeder extends Seeder
         // harga null = pakai harga katalog
         $data = [
             [
-                'Pak Wawan Setiawan', '081311223340',
+                'Pak Wawan Setiawan',
+                '081311223340',
                 'Starter pickup mati di garasi rumah, minta montir datang',
                 'pending',
                 [],
@@ -28,7 +31,8 @@ class ServiceSeeder extends Seeder
                 ['lat' => -7.7188, 'lng' => 113.0790],
             ],
             [
-                'Bu Ani Rahayu', '081311223341',
+                'Bu Ani Rahayu',
+                '081311223341',
                 'Dinamo pompa air rumah tidak mau menyala',
                 'confirmed',
                 [['Servis dinamo', null]],
@@ -38,7 +42,8 @@ class ServiceSeeder extends Seeder
                 ['lat' => -7.7201, 'lng' => 113.0712, 'address' => 'Gang Melati 3, depan Indomaret, pagar hijau'],
             ],
             [
-                'Pak Rudi Hartono', '081311223342',
+                'Pak Rudi Hartono',
+                '081311223342',
                 'Alternator mobil di garasi tidak ngecas',
                 'completed',
                 [['Servis dinamo', null]],
@@ -48,7 +53,8 @@ class ServiceSeeder extends Seeder
                 ['lat' => -7.7165, 'lng' => 113.0830, 'address' => 'Jl. Kenanga 12, sebelah bengkel las, gerbang biru'],
             ],
             [
-                'Pak Budi Santoso', '081234567801',
+                'Pak Budi Santoso',
+                '081234567801',
                 'Dinamo starter Avanza ngik-ngik, tidak mau engkol',
                 'completed',
                 [['Servis dinamo', null], ['Ganti brush karbon', null]],
@@ -56,7 +62,8 @@ class ServiceSeeder extends Seeder
                 [['Bendix Starter 12V', 1], ['Kohlen / Carbon Brush Starter (set)', 1]],
             ],
             [
-                'CV Maju Jaya', '081345678902',
+                'CV Maju Jaya',
+                '081345678902',
                 'Starter truk Hino 24V lemah, harus didorong',
                 'completed',
                 [['Servis dinamo', 100000], ['Ganti bearing', null], ['Ganti brush karbon', null]],
@@ -64,7 +71,8 @@ class ServiceSeeder extends Seeder
                 [['Bendix Starter 24V (Truk)', 1], ['Magnetic Switch / Solenoid 24V', 1], ['Bosh / Bushing Starter', 2]],
             ],
             [
-                'Bu Sari Wulandari', '085678901203',
+                'Bu Sari Wulandari',
+                '085678901203',
                 'Aki sering tekor, lampu indikator cas menyala',
                 'completed',
                 [['Servis dinamo', null], ['Ganti brush karbon', null]],
@@ -72,7 +80,8 @@ class ServiceSeeder extends Seeder
                 [['Regulator / IC Alternator 12V', 1], ['Kohlen / Carbon Brush Alternator (set)', 1]],
             ],
             [
-                'Toko Sinar Terang', '082112345604',
+                'Toko Sinar Terang',
+                '082112345604',
                 'Dinamo ampere Carry bunyi kasar dan berdecit',
                 'in_progress',
                 [['Ganti bearing', null]],
@@ -80,7 +89,8 @@ class ServiceSeeder extends Seeder
                 [['Pulley Alternator', 1], ['Bearing 6203', 2]],
             ],
             [
-                'Pak Hendra', '081998765405',
+                'Pak Hendra',
+                '081998765405',
                 'Alternator tidak ngecas, kemungkinan dioda jebol',
                 'in_progress',
                 [['Servis dinamo', null], ['Perbaikan kabel kelistrikan', null]],
@@ -88,7 +98,8 @@ class ServiceSeeder extends Seeder
                 [['Dioda Plat / Rectifier', 1]],
             ],
             [
-                'Bu Rina Marlina', '087712345606',
+                'Bu Rina Marlina',
+                '087712345606',
                 'Dinamo pompa air tidak mau start',
                 'in_progress',
                 [['Servis dinamo', null]],
@@ -96,7 +107,8 @@ class ServiceSeeder extends Seeder
                 [['Kapasitor Motor 12uF', 1], ['Seal Mekanik Pompa Air', 1]],
             ],
             [
-                'UD Tani Makmur', '081511223307',
+                'UD Tani Makmur',
+                '081511223307',
                 'Gulung ulang spul starter truk',
                 'confirmed',
                 [['Rewinding kumparan', null]],
@@ -104,7 +116,8 @@ class ServiceSeeder extends Seeder
                 [],
             ],
             [
-                'Pak Agus Wijaya', '081244556608',
+                'Pak Agus Wijaya',
+                '081244556608',
                 'Cek starter Innova, bunyi klek saja',
                 'confirmed',
                 [['Servis dinamo', null]],
@@ -112,7 +125,8 @@ class ServiceSeeder extends Seeder
                 [],
             ],
             [
-                'Pak Dedi', '085211223309',
+                'Pak Dedi',
+                '085211223309',
                 'Servis alternator Xenia, minta dikerjakan',
                 'cancelled',
                 [['Servis dinamo', null]],
@@ -121,7 +135,8 @@ class ServiceSeeder extends Seeder
                 'Pelanggan batal, dinamo dibawa ke tempat lain',
             ],
             [
-                'Bu Lilis', '081377889910',
+                'Bu Lilis',
+                '081377889910',
                 'Rotor alternator hangus total',
                 'rejected',
                 [],
@@ -130,6 +145,8 @@ class ServiceSeeder extends Seeder
                 'Kerusakan parah, biaya melebihi harga unit baru',
             ],
         ];
+
+        $workshop = WorkshopSetting::first();
 
         foreach ($data as $d) {
             $service = Service::create([
@@ -143,7 +160,28 @@ class ServiceSeeder extends Seeder
                 'latitude' => $d[8]['lat'] ?? null,
                 'longitude' => $d[8]['lng'] ?? null,
                 'address' => $d[8]['address'] ?? null,
+
             ]);
+
+            
+            // Servis lewat seeder tidak melewati CreateBooking, jadi jarak diisi di sini.
+            if (isset($d[8]) && $workshop) {
+                $distance = app(DistanceService::class)->measure(
+                    (float) $workshop->latitude,
+                    (float) $workshop->longitude,
+                    (float) $d[8]['lat'],
+                    (float) $d[8]['lng'],
+                    $workshop->distance_method,
+                );
+
+                $service->update([
+                    'distance_air_km' => $distance->airKm,
+                    'distance_road_km' => $distance->roadKm,
+                    'distance_km' => $distance->officialKm,
+                    'distance_method' => $distance->method,
+                    'distance_estimated' => $distance->estimated,
+                ]);
+            }
 
             foreach ($d[4] as [$name, $price]) {
                 $type = $types[$name];

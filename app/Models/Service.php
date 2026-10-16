@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Enums\BookingType;
+use App\Enums\DistanceMethod;
 
 class Service extends Model
 {
@@ -27,6 +28,11 @@ class Service extends Model
         'latitude',
         'longitude',
         'address',
+        'distance_air_km',
+        'distance_road_km',
+        'distance_km',
+        'distance_method',
+        'distance_estimated',
     ];
 
     protected $casts = [
@@ -36,6 +42,11 @@ class Service extends Model
         'longitude' => 'float',
         'scheduled_at' => 'datetime',
         'stock_synced_at' => 'datetime',
+        'distance_air_km' => 'float',
+        'distance_road_km' => 'float',
+        'distance_km' => 'float',
+        'distance_method' => DistanceMethod::class,
+        'distance_estimated' => 'boolean',
     ];
 
     public function items(): HasMany

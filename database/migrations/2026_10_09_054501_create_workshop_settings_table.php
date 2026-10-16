@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->decimal('longitude', 10, 7);
             $table->decimal('max_distance_km', 6, 2);
             $table->decimal('price_per_km', 12, 2)->default(0);
+            $table->string('distance_method', 20)->default('haversine');
             $table->timestamps();
         });
     }

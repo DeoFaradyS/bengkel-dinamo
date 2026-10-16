@@ -11,6 +11,10 @@ use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use App\Enums\DistanceMethod;
+use App\Models\WorkshopSetting;
+use App\Support\Distance\DistanceResult;
+use App\Support\Distance\DistanceService;
 
 class CreateBooking
 {
@@ -40,9 +44,14 @@ class CreateBooking
             $address = filled($coordinates['address'] ?? null) ? trim($coordinates['address']) : null;
         }
 
+        // Dihitung di luar transaksi: panggilan ORS bisa sampai 5 detik.
+        $distance = $type === BookingType::HomeService
+            ? $this->measureDistance($latitude, $longitude)
+            : null;
+
         $phone = PhoneNumber::normalize($data['phone']);
 
-        $service = DB::transaction(function () use ($data, $phone, $type, $latitude, $longitude, $address) {
+        $service = DB::transaction(function () use ($data, $phone, $type, $latitude, $longitude, $address, $distance) {
             $hasActive = Service::query()
                 ->where('phone', $phone)
                 ->whereIn('status', ServiceStatus::activeValues())
@@ -65,12 +74,17 @@ class CreateBooking
                 'latitude' => $latitude,
                 'longitude' => $longitude,
                 'address' => $address,
+                'distance_air_km' => $distance?->airKm,
+                'distance_road_km' => $distance?->roadKm,
+                'distance_km' => $distance?->officialKm,
+                'distance_method' => $distance?->method,
+                'distance_estimated' => $distance?->estimated ?? false,
             ]);
         });
 
         Notification::make()
             ->title('Booking baru')
-            ->body("{$service->customer_name} ({$service->phone}) booking {$type->getLabel()}, menunggu konfirmasi.".($address ? " Alamat: {$address}." : ''))
+            ->body("{$service->customer_name} ({$service->phone}) booking {$type->getLabel()}, menunggu konfirmasi." . ($address ? " Alamat: {$address}." : ''))
             ->icon('heroicon-o-clock')
             ->warning()
             ->sendToDatabase(User::all());
@@ -93,5 +107,23 @@ class CreateBooking
         }
 
         return $type;
+    }
+
+    private function measureDistance(float $latitude, float $longitude): ?DistanceResult
+    {
+        $workshop = WorkshopSetting::first();
+
+        // Booking tidak boleh gagal hanya karena data bengkel belum diisi.
+        if ($workshop === null) {
+            return null;
+        }
+
+        return app(DistanceService::class)->measure(
+            (float) $workshop->latitude,
+            (float) $workshop->longitude,
+            $latitude,
+            $longitude,
+            $workshop->distance_method ?? DistanceMethod::Haversine,
+        );
     }
 }
