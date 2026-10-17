@@ -113,7 +113,7 @@ class CreateBooking
         return $type;
     }
 
-    private function measureDistance(float $latitude, float $longitude): ?DistanceResult
+    public function measureDistance(float $latitude, float $longitude): ?DistanceResult
     {
         $workshop = WorkshopSetting::first();
 
@@ -131,20 +131,27 @@ class CreateBooking
         );
     }
 
-    private function assertWithinRange(DistanceResult $distance): void
+    public function rangeError(DistanceResult $distance): ?string
     {
         $max = (float) WorkshopSetting::first()?->max_distance_km;
 
         if ($max <= 0 || $distance->officialKm <= $max) {
-            return;
+            return null;
         }
 
-        throw ValidationException::withMessages([
-            'latitude' => sprintf(
-                'Lokasi di luar jangkauan. Jarak sekitar %s km, maksimal %s km.',
-                number_format($distance->officialKm, 1, ',', '.'),
-                number_format($max, 1, ',', '.'),
-            ),
-        ]);
+        return sprintf(
+            'Lokasi di luar jangkauan. Jarak sekitar %s km, maksimal %s km.',
+            number_format($distance->officialKm, 1, ',', '.'),
+            number_format($max, 1, ',', '.'),
+        );
+    }
+
+    private function assertWithinRange(DistanceResult $distance): void
+    {
+        $message = $this->rangeError($distance);
+
+        if ($message !== null) {
+            throw ValidationException::withMessages(['latitude' => $message]);
+        }
     }
 }

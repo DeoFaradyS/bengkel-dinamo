@@ -15,8 +15,7 @@
                     @foreach (\App\Enums\BookingType::cases() as $type)
                         <label wire:key="type-{{ $type->value }}"
                             class="py-3 text-center rounded-lg cursor-pointer font-semibold transition focus-within:ring-2 focus-within:ring-red-500 {{ $booking_type === $type->value ? 'bg-white text-red-600 shadow-sm' : 'text-neutral-500' }}">
-                            <input type="radio" wire:model.live="booking_type" value="{{ $type->value }}"
-                                class="sr-only">
+                            <input type="radio" wire:model.live="booking_type" value="{{ $type->value }}" class="sr-only">
                             {{ $type->getLabel() }}
                         </label>
                     @endforeach
@@ -49,19 +48,18 @@
             </div>
 
             @if ($booking_type === \App\Enums\BookingType::HomeService->value)
-                <div x-data="{ locating: false, locateError: '' }" class="flex flex-col gap-2 p-4 bg-neutral-50 rounded-[10px] border border-neutral-200">
+                <div x-data="{ locating: false, locateError: '' }"
+                    class="flex flex-col gap-2 p-4 bg-neutral-50 rounded-[10px] border border-neutral-200">
                     <p class="text-sm font-semibold text-neutral-600">Lokasi montir datang</p>
                     <div wire:ignore>
-                        <div id="booking-map" x-init="bookingMap($el, $wire)"
-                            data-center-lat="-7.7174465" data-center-lng="113.0755426"
-                            class="w-full h-64 rounded-lg z-0"></div>
+                        <div id="booking-map" x-init="bookingMap($el, $wire)" data-center-lat="-7.7174465"
+                            data-center-lng="113.0755426" class="w-full h-64 rounded-lg z-0"></div>
                     </div>
-                    <button type="button" x-bind:disabled="locating"
-                        x-on:click="locateError = ''; document.getElementById('booking-map').pinMap.locate({
-                            onStart: () => locating = true,
-                            onDone: () => locating = false,
-                            onError: (msg) => locateError = msg,
-                        })"
+                    <button type="button" x-bind:disabled="locating" x-on:click="locateError = ''; document.getElementById('booking-map').pinMap.locate({
+                                    onStart: () => locating = true,
+                                    onDone: () => locating = false,
+                                    onError: (msg) => locateError = msg,
+                                })"
                         class="px-4 py-3 bg-white border border-neutral-200 rounded-[10px] text-sm font-semibold text-neutral-700 disabled:opacity-60">
                         <span x-show="!locating">Lokasi saya</span>
                         <span x-show="locating" style="display:none">Mencari lokasi...</span>
@@ -73,6 +71,17 @@
                     <p class="text-sm font-semibold text-green-700" style="display:none" x-show="$wire.latitude != null">
                         Lokasi sudah dipilih. Geser pin kalau kurang pas.
                     </p>
+                    <p class="text-sm text-neutral-500" style="display:none" wire:loading.inline wire:target="hitungJarak">
+                        Menghitung jarak...
+                    </p>
+                    @if ($distanceText)
+                        <p class="text-sm font-semibold text-neutral-700" wire:loading.remove wire:target="hitungJarak">
+                            {{ $distanceText }}</p>
+                    @endif
+                    @if ($distanceError)
+                        <p class="text-sm font-semibold text-red-600" wire:loading.remove wire:target="hitungJarak">
+                            {{ $distanceError }}</p>
+                    @endif
                     @error('latitude') <small class="text-sm text-red-600">{{ $message }}</small> @enderror
 
                     <input type="text" wire:model="address" maxlength="255"

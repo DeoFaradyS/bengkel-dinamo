@@ -1,14 +1,25 @@
-import 'leaflet/dist/leaflet.css';
-import { mountPinMap } from './map-pin';
+import "leaflet/dist/leaflet.css";
+import { mountPinMap } from "./map-pin";
 
 // Dipanggil dari Blade: x-init="bookingMap($el, $wire)"
 window.bookingMap = (el, wire) => {
+    let timer;
     const pin = mountPinMap(el, {
-        center: [parseFloat(el.dataset.centerLat), parseFloat(el.dataset.centerLng)],
-        get: () => ({ lat: parseFloat(wire.latitude), lng: parseFloat(wire.longitude) }),
+        center: [
+            parseFloat(el.dataset.centerLat),
+            parseFloat(el.dataset.centerLng),
+        ],
+        get: () => ({
+            lat: parseFloat(wire.latitude),
+            lng: parseFloat(wire.longitude),
+        }),
         set: (lat, lng) => {
             wire.latitude = lat;
             wire.longitude = lng;
+
+            // Tunggu pin berhenti bergerak, lalu minta server hitung jarak.
+            clearTimeout(timer);
+            timer = setTimeout(() => wire.hitungJarak(), 500);
         },
     });
 

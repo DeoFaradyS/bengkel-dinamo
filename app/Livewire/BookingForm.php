@@ -28,10 +28,12 @@ class BookingForm extends Component
     public string $website = '';
 
     public bool $submitted = false;
+    public ?string $distanceText = null;
+    public ?string $distanceError = null;
 
     public function submit(): void
     {
-        $key = 'booking:'.request()->ip();
+        $key = 'booking:' . request()->ip();
 
         if (RateLimiter::tooManyAttempts($key, 5)) {
             $this->addError('throttle', 'Terlalu banyak percobaan. Coba lagi sebentar.');
@@ -105,8 +107,52 @@ class BookingForm extends Component
             'latitude',
             'longitude',
             'address',
+            'distanceText',
+            'distanceError',
         ]);
         $this->submitted = true;
+    }
+
+    public function hitungJarak(): void
+    {
+        $this->distanceText = null;
+        $this->distanceError = null;
+
+        if (
+            $this->booking_type !== BookingType::HomeService->value
+            || $this->latitude === null
+            || $this->longitude === null
+        ) {
+            return;
+        }
+
+        // Melindungi kuota ORS dari pemanggilan beruntun.
+        $key = 'distance:' . request()->ip();
+
+        if (RateLimiter::tooManyAttempts($key, 20)) {
+            return;
+        }
+
+        RateLimiter::hit($key, 60);
+
+        $action = app(CreateBooking::class);
+        $distance = $action->measureDistance($this->latitude, $this->longitude);
+
+        if ($distance === null) {
+            return;
+        }
+
+        $error = $action->rangeError($distance);
+
+        if ($error !== null) {
+            $this->distanceError = $error;
+
+            return;
+        }
+
+        $this->distanceText = 'Jarak ke bengkel sekitar '
+            . number_format($distance->officialKm, 1, ',', '.') . ' km'
+            . ($distance->estimated ? ' (perkiraan)' : '');
     }
 
     public function render()
