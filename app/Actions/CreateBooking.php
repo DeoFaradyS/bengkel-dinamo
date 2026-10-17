@@ -49,6 +49,10 @@ class CreateBooking
             ? $this->measureDistance($latitude, $longitude)
             : null;
 
+        if ($distance !== null) {
+            $this->assertWithinRange($distance);
+        }
+
         $phone = PhoneNumber::normalize($data['phone']);
 
         $service = DB::transaction(function () use ($data, $phone, $type, $latitude, $longitude, $address, $distance) {
@@ -125,5 +129,22 @@ class CreateBooking
             $longitude,
             $workshop->distance_method ?? DistanceMethod::Haversine,
         );
+    }
+
+    private function assertWithinRange(DistanceResult $distance): void
+    {
+        $max = (float) WorkshopSetting::first()?->max_distance_km;
+
+        if ($max <= 0 || $distance->officialKm <= $max) {
+            return;
+        }
+
+        throw ValidationException::withMessages([
+            'latitude' => sprintf(
+                'Lokasi di luar jangkauan. Jarak sekitar %s km, maksimal %s km.',
+                number_format($distance->officialKm, 1, ',', '.'),
+                number_format($max, 1, ',', '.'),
+            ),
+        ]);
     }
 }
