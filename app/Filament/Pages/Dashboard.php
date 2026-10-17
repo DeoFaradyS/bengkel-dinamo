@@ -10,6 +10,7 @@ use Filament\Pages\Dashboard\Concerns\HasFiltersForm;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use App\Filament\Widgets\KpiOverview;
 
 class Dashboard extends BaseDashboard
 {
@@ -33,13 +34,13 @@ class Dashboard extends BaseDashboard
                         ->native(false)
                         ->displayFormat('d/m/Y')
                         ->maxDate(now())
-                        ->visible(fn (Get $get) => $get('preset') === 'custom'),
+                        ->visible(fn(Get $get) => $get('preset') === 'custom'),
                     DatePicker::make('end_date')
                         ->label('Sampai')
                         ->native(false)
                         ->displayFormat('d/m/Y')
                         ->maxDate(now())
-                        ->visible(fn (Get $get) => $get('preset') === 'custom'),
+                        ->visible(fn(Get $get) => $get('preset') === 'custom'),
                 ]),
         ]);
     }
@@ -47,6 +48,8 @@ class Dashboard extends BaseDashboard
     // Widget dashboard menyusul; sementara hanya filter periode.
     public function getWidgets(): array
     {
-        return [];
+        return [
+            KpiOverview::class,
+        ];
     }
 }
