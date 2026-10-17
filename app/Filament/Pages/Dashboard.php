@@ -12,6 +12,10 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use App\Filament\Widgets\KpiOverview;
 use App\Filament\Widgets\TrendChart;
+use App\Filament\Widgets\StatusChart;
+use App\Filament\Widgets\TopPartsChart;
+use App\Filament\Widgets\TopServicesChart;
+use App\Filament\Widgets\TypeChart;
 
 class Dashboard extends BaseDashboard
 {
@@ -52,6 +56,10 @@ class Dashboard extends BaseDashboard
         return [
             KpiOverview::class,
             TrendChart::class,
+            StatusChart::class,
+            TypeChart::class,
+            TopServicesChart::class,
+            TopPartsChart::class,
         ];
     }
 }
