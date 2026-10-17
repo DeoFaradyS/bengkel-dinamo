@@ -11,6 +11,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use App\Filament\Widgets\KpiOverview;
+use App\Filament\Widgets\TrendChart;
 
 class Dashboard extends BaseDashboard
 {
@@ -50,6 +51,7 @@ class Dashboard extends BaseDashboard
     {
         return [
             KpiOverview::class,
+            TrendChart::class,
         ];
     }
 }
