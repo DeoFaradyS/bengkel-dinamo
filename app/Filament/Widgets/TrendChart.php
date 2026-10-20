@@ -14,6 +14,7 @@ class TrendChart extends ChartWidget
     protected ?string $pollingInterval = null;
 
     protected int|string|array $columnSpan = 'full';
+    protected ?string $maxHeight = '320px';
 
     public function getHeading(): ?string
     {
@@ -44,7 +45,7 @@ class TrendChart extends ChartWidget
                     'backgroundColor' => '#22c55e',
                 ],
             ],
-            'labels' => array_map(fn ($d) => Carbon::parse($d)->format('d/m'), $trend['dates']),
+            'labels' => array_map(fn($d) => Carbon::parse($d)->format('d/m'), $trend['dates']),
         ];
     }
 
