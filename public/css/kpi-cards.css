@@ -1,0 +1,22 @@
+.kpi-stat {
+    position: relative;
+    padding-bottom: 1.5rem;
+}
+
+.kpi-stat::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0.4rem;
+    height: 8px;
+    background-color: var(--kpi-color);
+    -webkit-mask: url('/images/kpi/kpi-wave.svg') center / 100% 100% no-repeat;
+    mask: url('/images/kpi/kpi-wave.svg') center / 100% 100% no-repeat;
+    pointer-events: none;
+}
+
+.kpi-revenue   { --kpi-color: #22c55e; }
+.kpi-completed { --kpi-color: #3b82f6; }
+.kpi-bookings  { --kpi-color: #f59e0b; }
+.kpi-pending   { --kpi-color: #9ca3af; }

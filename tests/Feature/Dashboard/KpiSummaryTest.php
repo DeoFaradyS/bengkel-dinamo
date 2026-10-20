@@ -119,14 +119,13 @@ it('KPI-007: menunggu konfirmasi dihitung saat ini, tidak ikut periode', functio
     expect(kpiCards()['pending']['value'])->toBe('3');
 });
 
-it('KPI-008: kartu menunggu konfirmasi tanpa tren, ada keterangan', function () {
+it('KPI-008: kartu menunggu konfirmasi tanpa tren dan tanpa keterangan', function () {
     $c = kpiCards()['pending'];
 
-    expect($c['description'])->toBe('Saat ini, tidak ikut filter')
+    expect($c['description'])->toBeNull()
         ->and($c['trend'])->toBeNull()
         ->and($c['positive'])->toBeNull();
 });
-
 
 it('KPI-010: widget menampilkan keempat kartu', function () {
     $this->actingAs(User::factory()->create());

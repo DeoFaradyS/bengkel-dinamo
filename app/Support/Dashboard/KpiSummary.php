@@ -37,7 +37,7 @@ final class KpiSummary
                 'key' => 'pending',
                 'label' => 'Menunggu konfirmasi',
                 'value' => (string) ServiceMetrics::pendingNow(),
-                'description' => 'Saat ini, tidak ikut filter',
+                'description' => null,
                 'trend' => null,
                 'positive' => null,
             ],

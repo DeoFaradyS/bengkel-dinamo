@@ -34,7 +34,7 @@ class AdminPanelProvider extends PanelProvider
             ->darkMode(false)
             ->login()
             ->databaseNotifications()
-            ->renderHook(PanelsRenderHook::HEAD_END, fn () => Vite::withEntryPoints(['resources/js/admin-map.js'])->toHtml())
+            ->renderHook(PanelsRenderHook::HEAD_END, fn() => Vite::withEntryPoints(['resources/js/admin-map.js'])->toHtml())
             ->colors([
                 'primary' => Color::Blue,
             ])
@@ -67,6 +67,10 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->renderHook(
+                \Filament\View\PanelsRenderHook::HEAD_END,
+                fn() => new \Illuminate\Support\HtmlString('<link rel="stylesheet" href="/css/kpi-cards.css">'),
+            );
     }
 }
