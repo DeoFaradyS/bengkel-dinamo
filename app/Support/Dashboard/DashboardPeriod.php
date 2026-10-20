@@ -20,7 +20,7 @@ final class DashboardPeriod
             'today' => 'Hari ini',
             'last7' => '7 hari terakhir',
             'this_month' => 'Bulan ini',
-            'last30' => '30 hari terakhir',
+            'this_year' => 'Tahun ini',
             'custom' => 'Pilih tanggal',
         ];
     }
@@ -33,12 +33,26 @@ final class DashboardPeriod
         [$from, $to] = match ($preset) {
             'today' => [$today, $today],
             'last7' => [$today->subDays(6), $today],
-            'last30' => [$today->subDays(29), $today],
+            'this_year' => [$today->startOfYear(), $today],
             'custom' => self::custom($filters ?? [], $today),
             default => [$today->startOfMonth(), $today],
         };
 
         return new ServiceMetrics($from, $to);
+    }
+
+        /** Teks untuk tombol periode: nama pilihan, atau rentang tanggal kalau pilih tanggal. */
+    public static function label(?array $filters): string
+    {
+        $preset = $filters['preset'] ?? self::DEFAULT;
+
+        if ($preset !== 'custom') {
+            return self::options()[$preset] ?? self::options()[self::DEFAULT];
+        }
+
+        $metrics = self::metrics($filters);
+
+        return $metrics->from()->format('d/m/Y').' - '.$metrics->to()->format('d/m/Y');
     }
 
     /** @return array{0: CarbonImmutable, 1: CarbonImmutable} */

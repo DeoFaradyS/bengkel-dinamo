@@ -33,8 +33,8 @@ it('DSH-004: bulan ini', function () {
     expect(dshRange(['preset' => 'this_month']))->toBe(['2026-10-01', '2026-10-18', 18]);
 });
 
-it('DSH-005: 30 hari terakhir', function () {
-    expect(dshRange(['preset' => 'last30']))->toBe(['2026-09-19', '2026-10-18', 30]);
+it('DSH-005: tahun ini, 1 Januari sampai hari ini', function () {
+    expect(dshRange(['preset' => 'this_year']))->toBe(['2026-01-01', '2026-10-18', 291]);
 });
 
 it('DSH-006: rentang tanggal sendiri', function () {
@@ -72,8 +72,21 @@ it('DSH-011: periode pembanding menempel di depan dengan panjang sama', function
         ->and($prev->to()->toDateString())->toBe('2026-10-11');
 });
 
-it('DSH-012: halaman dashboard tampil dengan filter periode', function () {
+it('DSH-012: halaman dashboard tampil, tombol periode menampilkan periode aktif', function () {
     $this->actingAs(User::factory()->create());
 
-    Livewire::test(Dashboard::class)->assertOk()->assertSee('Periode');
+    Livewire::test(Dashboard::class)->assertOk()->assertSee('Bulan ini');
+});
+
+it('DSH-013: label periode untuk pilihan bawaan dan preset', function () {
+    expect(DashboardPeriod::label(null))->toBe('Bulan ini')
+        ->and(DashboardPeriod::label(['preset' => 'today']))->toBe('Hari ini')
+        ->and(DashboardPeriod::label(['preset' => 'this_year']))->toBe('Tahun ini')
+        ->and(DashboardPeriod::label(['preset' => 'asal']))->toBe('Bulan ini');
+});
+
+it('DSH-014: label rentang sendiri berisi tanggal', function () {
+    $f = ['preset' => 'custom', 'start_date' => '2026-10-03', 'end_date' => '2026-10-09'];
+
+    expect(DashboardPeriod::label($f))->toBe('03/10/2026 - 09/10/2026');
 });
