@@ -78,7 +78,7 @@ it('KPI-004: periode lalu kosong, belum ada pembanding', function () {
 
     $c = kpiCards()['bookings'];
 
-    expect($c['description'])->toBe('Belum ada pembanding')
+    expect($c['description'])->toBeNull()
         ->and($c['trend'])->toBeNull()
         ->and($c['positive'])->toBeNull();
 });
@@ -132,7 +132,7 @@ it('KPI-008: pembatalan, periode lalu tanpa booking, belum ada pembanding', func
     kpiSvc(ServiceStatus::Pending, '2026-10-10');
     kpiSvc(ServiceStatus::Cancelled, '2026-10-11');
 
-    expect(kpiCards()['cancellation']['description'])->toBe('Belum ada pembanding');
+    expect(kpiCards()['cancellation']['description'])->toBeNull();
 });
 
 it('KPI-009: rata-rata nilai servis dalam rupiah', function () {
@@ -142,7 +142,7 @@ it('KPI-009: rata-rata nilai servis dalam rupiah', function () {
     $c = kpiCards()['average'];
 
     expect($c['value'])->toBe('Rp 300.000')
-        ->and($c['description'])->toBe('Belum ada pembanding');
+        ->and($c['description'])->toBeNull();
 });
 
 it('KPI-010: widget menampilkan kelima kartu', function () {

@@ -65,7 +65,7 @@ final class KpiSummary
         if ($change === null) {
             return [
                 'key' => $key, 'label' => $label, 'value' => $value,
-                'description' => 'Belum ada pembanding', 'trend' => null, 'positive' => null,
+                'description' => null, 'trend' => null, 'positive' => null,
             ];
         }
 

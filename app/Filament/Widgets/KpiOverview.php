@@ -14,12 +14,17 @@ class KpiOverview extends StatsOverviewWidget
 
     protected ?string $pollingInterval = null;
 
+    public function getColumns(): int
+    {
+        return 5;
+    }
+
     protected function getStats(): array
     {
         $metrics = DashboardPeriod::metrics($this->pageFilters);
 
         return collect(KpiSummary::make($metrics))
-            ->map(fn (array $kpi) => Stat::make($kpi['label'], $kpi['value'])
+            ->map(fn(array $kpi) => Stat::make($kpi['label'], $kpi['value'])
                 ->description($kpi['description'])
                 ->descriptionIcon(match ($kpi['trend']) {
                     'up' => 'heroicon-m-arrow-trending-up',
@@ -32,5 +37,6 @@ class KpiOverview extends StatsOverviewWidget
                     default => 'gray',
                 }))
             ->all();
+
     }
 }

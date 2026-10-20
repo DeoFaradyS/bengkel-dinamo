@@ -23,8 +23,9 @@ class Dashboard extends BaseDashboard
 
     public function filtersForm(Schema $schema): Schema
     {
-        return $schema->components([
+        return $schema->columns(1)->components([
             Section::make()
+            ->columnSpanFull()
                 ->columns(['default' => 1, 'md' => 3])
                 ->schema([
                     Select::make('preset')
