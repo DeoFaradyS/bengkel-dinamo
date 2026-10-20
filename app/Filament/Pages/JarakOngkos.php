@@ -46,64 +46,63 @@ class JarakOngkos extends Page
     {
         return $schema
             ->components([
-                Grid::make(['default' => 1, 'lg' => 2])->schema([
-                    Section::make('Ongkos Transport')
-                        ->schema([
-                            TextInput::make('max_distance_km')
-                                ->label('Jarak Maksimal (km)')
-                                ->required()
-                                ->numeric()
-                                ->rule('gt:0')
-                                ->maxValue(9999),
-                            TextInput::make('price_per_km')
-                                ->label('Ongkos per km')
-                                ->required()
-                                ->numeric()
-                                ->mask(RawJs::make("\$money(\$input, ',', '.', 0)"))
-                                ->stripCharacters('.')
-                                ->minValue(0)
-                                ->maxValue(9999999999)
-                                ->prefix('Rp'),
-                        ]),
-
-                    Section::make('Lokasi Bengkel')
-                        ->schema([
-                            TextInput::make('latitude')
-                                ->label('Latitude')
-                                ->required()
-                                ->numeric()
-                                ->minValue(-90)
-                                ->maxValue(90)
-                                ->live(onBlur: true),
-                            TextInput::make('longitude')
-                                ->label('Longitude')
-                                ->required()
-                                ->numeric()
-                                ->minValue(-180)
-                                ->maxValue(180)
-                                ->live(onBlur: true),
-                        ]),
-                ]),
-
-                Section::make('Pratinjau Lokasi')
+                Grid::make(['default' => 1, 'lg' => 5])
+                    ->extraAttributes(['class' => 'jo-grid'])
                     ->schema([
-                        View::make('filament.components.maps-preview')
-                            ->viewData(fn(Get $get) => [
-                                'lat' => $get('latitude'),
-                                'lng' => $get('longitude'),
+                        Section::make('Pengaturan Home Service')
+                            ->columnSpan(['default' => 1, 'lg' => 3])
+                            ->columns(2)
+                            ->schema([
+                                TextInput::make('max_distance_km')
+                                    ->label('Jarak Maksimal (km)')
+                                    ->required()
+                                    ->numeric()
+                                    ->rule('gt:0')
+                                    ->maxValue(9999),
+                                TextInput::make('price_per_km')
+                                    ->label('Ongkos per km')
+                                    ->required()
+                                    ->numeric()
+                                    ->mask(RawJs::make("\$money(\$input, ',', '.', 0)"))
+                                    ->stripCharacters('.')
+                                    ->minValue(0)
+                                    ->maxValue(9999999999)
+                                    ->prefix('Rp'),
+                                TextInput::make('latitude')
+                                    ->label('Latitude')
+                                    ->required()
+                                    ->numeric()
+                                    ->minValue(-90)
+                                    ->maxValue(90)
+                                    ->live(onBlur: true),
+                                TextInput::make('longitude')
+                                    ->label('Longitude')
+                                    ->required()
+                                    ->numeric()
+                                    ->minValue(-180)
+                                    ->maxValue(180)
+                                    ->live(onBlur: true),
+                                ToggleButtons::make('distance_method')
+                                    ->label('Metode Jarak')
+                                    ->options([
+                                        'haversine' => 'Haversine (garis lurus)',
+                                        'ors' => 'ORS (lewat jalan)',
+                                    ])
+                                    ->inline()
+                                    ->required()
+                                    ->columnSpanFull(),
                             ]),
-                    ]),
 
-                Section::make('Metode Jarak')
-                    ->schema([
-                        ToggleButtons::make('distance_method')
-                            ->label('Metode')
-                            ->options([
-                                'haversine' => 'Haversine (garis lurus)',
-                                'ors' => 'ORS (lewat jalan)',
-                            ])
-                            ->inline()
-                            ->required(),
+                        Section::make('Pratinjau')
+                            ->extraAttributes(['class' => 'jo-preview'])
+                            ->columnSpan(['default' => 1, 'lg' => 2])
+                            ->schema([
+                                View::make('filament.components.maps-preview')
+                                    ->viewData(fn(Get $get) => [
+                                        'lat' => $get('latitude'),
+                                        'lng' => $get('longitude'),
+                                    ]),
+                            ]),
                     ]),
             ])
             ->statePath('data');

@@ -1,8 +1,8 @@
 @if (is_numeric($lat) && is_numeric($lng))
-    <div style="width: 100%;">
+    <div class="jo-map-fill">
         <iframe
             src="https://maps.google.com/maps?q={{ $lat }},{{ $lng }}&z=17&output=embed"
-            style="display: block; width: 100%; height: 420px; border: 0; border-radius: 8px;"
+            style="display: block; width: 100%; height: 100%; border: 0; border-radius: 8px;"
             loading="lazy"
         ></iframe>
     </div>
