@@ -20,3 +20,9 @@
     flex: 1 1 0%;
     justify-content: center;
 }
+
+.fi-modal-header,
+.fi-modal-footer {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
