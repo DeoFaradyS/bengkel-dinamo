@@ -16,7 +16,7 @@ class KpiOverview extends StatsOverviewWidget
 
     public function getColumns(): int
     {
-        return 5;
+        return 4;
     }
 
     protected function getStats(): array

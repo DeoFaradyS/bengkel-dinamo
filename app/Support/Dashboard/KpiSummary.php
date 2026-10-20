@@ -10,15 +10,15 @@ final class KpiSummary
     /**
      * @return list<array{key: string, label: string, value: string, description: string, trend: ?string, positive: ?bool}>
      */
-    public static function make(ServiceMetrics $current): array
+        public static function make(ServiceMetrics $current): array
     {
         $previous = $current->previous();
 
         return [
             self::card(
-                'bookings', 'Booking masuk',
-                (string) $current->bookingsCount(),
-                self::percentChange($current->bookingsCount(), $previous->bookingsCount()),
+                'revenue', 'Pendapatan',
+                self::rupiah($current->revenue()),
+                self::percentChange($current->revenue(), $previous->revenue()),
                 'persen', true,
             ),
             self::card(
@@ -28,25 +28,19 @@ final class KpiSummary
                 'persen', true,
             ),
             self::card(
-                'revenue', 'Pendapatan',
-                self::rupiah($current->revenue()),
-                self::percentChange($current->revenue(), $previous->revenue()),
+                'bookings', 'Booking masuk',
+                (string) $current->bookingsCount(),
+                self::percentChange($current->bookingsCount(), $previous->bookingsCount()),
                 'persen', true,
             ),
-            self::card(
-                'average', 'Rata-rata nilai servis',
-                self::rupiah($current->averageValue()),
-                self::percentChange($current->averageValue(), $previous->averageValue()),
-                'persen', true,
-            ),
-            self::card(
-                'cancellation', 'Tingkat pembatalan',
-                self::number($current->cancellationRate()).'%',
-                $previous->bookingsCount() === 0
-                    ? null
-                    : $current->cancellationRate() - $previous->cancellationRate(),
-                'poin', false,
-            ),
+            [
+                'key' => 'pending',
+                'label' => 'Menunggu konfirmasi',
+                'value' => (string) ServiceMetrics::pendingNow(),
+                'description' => 'Saat ini, tidak ikut filter',
+                'trend' => null,
+                'positive' => null,
+            ],
         ];
     }
 

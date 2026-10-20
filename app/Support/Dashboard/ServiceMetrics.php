@@ -100,6 +100,12 @@ final class ServiceMetrics
         return round($lost / $total * 100, 1);
     }
 
+    /** Booking berstatus Menunggu Konfirmasi saat ini, tidak terikat periode. */
+    public static function pendingNow(): int
+    {
+        return Service::query()->where('status', ServiceStatus::Pending->value)->count();
+    }
+
     /** @return array{dates: list<string>, bookings: list<int>, completed: list<int>} */
     public function perDay(): array
     {
@@ -135,10 +141,10 @@ final class ServiceMetrics
             ->selectRaw('status, COUNT(*) as c')
             ->groupBy('status')
             ->get()
-            ->mapWithKeys(fn ($row) => [$row->status->value => (int) $row->c]);
+            ->mapWithKeys(fn($row) => [$row->status->value => (int) $row->c]);
 
         return collect(ServiceStatus::cases())
-            ->mapWithKeys(fn ($case) => [$case->value => (int) ($counts[$case->value] ?? 0)])
+            ->mapWithKeys(fn($case) => [$case->value => (int) ($counts[$case->value] ?? 0)])
             ->all();
     }
 
@@ -149,10 +155,10 @@ final class ServiceMetrics
             ->selectRaw('booking_type, COUNT(*) as c')
             ->groupBy('booking_type')
             ->get()
-            ->mapWithKeys(fn ($row) => [$row->booking_type->value => (int) $row->c]);
+            ->mapWithKeys(fn($row) => [$row->booking_type->value => (int) $row->c]);
 
         return collect(BookingType::cases())
-            ->mapWithKeys(fn ($case) => [$case->value => (int) ($counts[$case->value] ?? 0)])
+            ->mapWithKeys(fn($case) => [$case->value => (int) ($counts[$case->value] ?? 0)])
             ->all();
     }
 
@@ -167,7 +173,7 @@ final class ServiceMetrics
             ->orderBy('name')
             ->limit($limit)
             ->pluck('c', 'name')
-            ->map(fn ($c) => (int) $c)
+            ->map(fn($c) => (int) $c)
             ->all();
     }
 
@@ -188,8 +194,8 @@ final class ServiceMetrics
             ->pluck('name', 'id');
 
         return $rows
-            ->mapWithKeys(fn ($row) => [
-                ($names[$row->spare_part_id] ?? 'Part #'.$row->spare_part_id) => (int) $row->q,
+            ->mapWithKeys(fn($row) => [
+                ($names[$row->spare_part_id] ?? 'Part #' . $row->spare_part_id) => (int) $row->q,
             ])
             ->all();
     }

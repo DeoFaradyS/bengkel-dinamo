@@ -40,8 +40,8 @@ function kpiJob(Service $service, float $price): void
     ]);
 }
 
-it('KPI-001: lima kartu dengan urutan tetap', function () {
-    expect(array_keys(kpiCards()))->toBe(['bookings', 'completed', 'revenue', 'average', 'cancellation']);
+it('KPI-001: empat kartu dengan urutan tetap', function () {
+    expect(array_keys(kpiCards()))->toBe(['revenue', 'completed', 'bookings', 'pending']);
 });
 
 it('KPI-002: booking naik dibanding periode lalu', function () {
@@ -110,50 +110,34 @@ it('KPI-006: pendapatan dalam rupiah, jasa + spare part, dibanding periode lalu'
         ->and($c['description'])->toBe('Naik 100% dari periode lalu');
 });
 
-it('KPI-007: pembatalan naik itu buruk, selisih dalam poin', function () {
-    kpiSvc(ServiceStatus::Pending, '2026-10-10');
-    kpiSvc(ServiceStatus::Pending, '2026-10-11');
+it('KPI-007: menunggu konfirmasi dihitung saat ini, tidak ikut periode', function () {
+    kpiSvc(ServiceStatus::Pending, '2026-09-01');   // di luar periode, tetap dihitung
     kpiSvc(ServiceStatus::Pending, '2026-10-12');
-    kpiSvc(ServiceStatus::Cancelled, '2026-10-13');
+    kpiSvc(ServiceStatus::Pending, '2026-10-20');   // di luar periode, tetap dihitung
+    kpiSvc(ServiceStatus::Confirmed, '2026-10-12'); // bukan Pending, tidak dihitung
 
-    foreach (['03', '04', '05', '06'] as $d) {
-        kpiSvc(ServiceStatus::Pending, "2026-10-{$d}");
-    }
-
-    $c = kpiCards()['cancellation'];
-
-    expect($c['value'])->toBe('25%')
-        ->and($c['description'])->toBe('Naik 25 poin dari periode lalu')
-        ->and($c['trend'])->toBe('up')
-        ->and($c['positive'])->toBeFalse();
+    expect(kpiCards()['pending']['value'])->toBe('3');
 });
 
-it('KPI-008: pembatalan, periode lalu tanpa booking, belum ada pembanding', function () {
-    kpiSvc(ServiceStatus::Pending, '2026-10-10');
-    kpiSvc(ServiceStatus::Cancelled, '2026-10-11');
+it('KPI-008: kartu menunggu konfirmasi tanpa tren, ada keterangan', function () {
+    $c = kpiCards()['pending'];
 
-    expect(kpiCards()['cancellation']['description'])->toBeNull();
+    expect($c['description'])->toBe('Saat ini, tidak ikut filter')
+        ->and($c['trend'])->toBeNull()
+        ->and($c['positive'])->toBeNull();
 });
 
-it('KPI-009: rata-rata nilai servis dalam rupiah', function () {
-    kpiJob(kpiSvc(ServiceStatus::Completed, '2026-10-12'), 400000);
-    kpiJob(kpiSvc(ServiceStatus::Completed, '2026-10-13'), 200000);
 
-    $c = kpiCards()['average'];
-
-    expect($c['value'])->toBe('Rp 300.000')
-        ->and($c['description'])->toBeNull();
-});
-
-it('KPI-010: widget menampilkan kelima kartu', function () {
+it('KPI-010: widget menampilkan keempat kartu', function () {
     $this->actingAs(User::factory()->create());
 
     Livewire::test(KpiOverview::class)
-        ->assertSee('Booking masuk')
-        ->assertSee('Servis selesai')
         ->assertSee('Pendapatan')
-        ->assertSee('Rata-rata nilai servis')
-        ->assertSee('Tingkat pembatalan');
+        ->assertSee('Servis selesai')
+        ->assertSee('Booking masuk')
+        ->assertSee('Menunggu konfirmasi')
+        ->assertDontSee('Rata-rata nilai servis')
+        ->assertDontSee('Tingkat pembatalan');
 });
 
 it('KPI-011: dashboard memuat widget KPI', function () {
