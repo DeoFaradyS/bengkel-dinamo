@@ -30,6 +30,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
+            ->databaseTransactions()
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->darkMode(false)
             ->login()

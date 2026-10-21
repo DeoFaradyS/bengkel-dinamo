@@ -126,6 +126,12 @@ class Service extends Model
         }
 
         DB::transaction(function () {
+
+            $fresh = self::lockForUpdate()->find($this->id);
+
+            if ($fresh->stock_synced_at) {
+                return;
+            }
             foreach ($this->serviceParts()->get() as $servicePart) {
                 $sparePart = SparePart::lockForUpdate()->findOrFail($servicePart->spare_part_id);
 

@@ -309,8 +309,17 @@ class ServiceForm
                                     ->label('Qty')
                                     ->required(fn(Get $get) => filled($get('spare_part_id')))
                                     ->numeric()
-                                    ->minValue(1)
-                                    ->maxValue(fn(Get $get) => SparePart::find($get('spare_part_id'))?->stock)
+                                    ->rules([
+                                        fn(Get $get) => function (string $attribute, $value, \Closure $fail) use ($get) {
+                                            $stock = SparePart::find($get('spare_part_id'))?->stock;
+
+                                            if ($value < 1) {
+                                                $fail('Min 1.');
+                                            } elseif ($stock !== null && $value > $stock) {
+                                                $fail("Maks {$stock}.");
+                                            }
+                                        },
+                                    ])
                                     ->default(1)
                                     ->live(onBlur: true),
                                 TextInput::make('unit_price')

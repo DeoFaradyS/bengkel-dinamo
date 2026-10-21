@@ -8,6 +8,8 @@ use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
 use App\Support\PhoneNumber;
 use Filament\Support\Enums\Alignment;
+use Filament\Notifications\Notification;
+use Filament\Support\Exceptions\Halt;
 
 class EditService extends EditRecord
 {
@@ -30,7 +32,18 @@ class EditService extends EditRecord
     protected function afterSave(): void
     {
         if ($this->record->status === ServiceStatus::Completed) {
-            $this->record->syncStock();
+            try {
+                $this->record->syncStock();
+            } catch (\RuntimeException $e) {
+                Notification::make()
+                    ->danger()
+                    ->title('Gagal menyelesaikan servis')
+                    ->body($e->getMessage())
+                    ->persistent()
+                    ->send();
+
+                throw (new Halt())->rollBackDatabaseTransaction();
+            }
         }
     }
 

@@ -8,6 +8,8 @@ use Filament\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
 use App\Support\PhoneNumber;
 use Filament\Support\Enums\Alignment;
+use Filament\Notifications\Notification;
+use Filament\Support\Exceptions\Halt;
 
 class CreateService extends CreateRecord
 {
@@ -29,10 +31,23 @@ class CreateService extends CreateRecord
         $this->data['serviceParts'] = array_filter($this->data['serviceParts'] ?? [], fn($r) => filled($r['spare_part_id'] ?? null));
     }
 
+
+
     protected function afterCreate(): void
     {
         if ($this->record->status === ServiceStatus::Completed) {
-            $this->record->syncStock();
+            try {
+                $this->record->syncStock();
+            } catch (\RuntimeException $e) {
+                Notification::make()
+                    ->danger()
+                    ->title('Gagal menyelesaikan servis')
+                    ->body($e->getMessage())
+                    ->persistent()
+                    ->send();
+
+                throw (new Halt())->rollBackDatabaseTransaction();
+            }
         }
     }
 
