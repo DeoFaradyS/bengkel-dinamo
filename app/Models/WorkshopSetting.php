@@ -11,7 +11,7 @@ class WorkshopSetting extends Model
         'latitude',
         'longitude',
         'max_distance_km',
-        'price_per_km',
+        'fuel_price',
         'distance_method',
     ];
 

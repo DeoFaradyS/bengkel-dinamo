@@ -19,7 +19,7 @@ class WorkshopSettingSeeder extends Seeder
                 'latitude' => -7.7174465,
                 'longitude' => 113.0755426,
                 'max_distance_km' => 5,
-                'price_per_km' => 3000,
+                'fuel_price' => 10000,
             ]
         );
     }

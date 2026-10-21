@@ -13,7 +13,7 @@ function makeServiceWithItems(array $items = [], array $override = []): Service
 {
     $service = Service::create(array_merge([
         'customer_name' => 'Pak Budi',
-        'phone' => '08'.random_int(100000000, 999999999),
+        'phone' => '08' . random_int(100000000, 999999999),
         'complaint' => 'Dinamo tidak mau engkol',
         'scheduled_at' => now()->addDay(),
         'status' => 'confirmed',
@@ -39,10 +39,12 @@ it('TSJ-001: servis dengan dua jasa, dua baris tersimpan', function () {
     $b = ServiceType::factory()->create(['name' => 'Ganti bearing', 'default_price' => 100000]);
 
     Livewire::test(CreateService::class)
-        ->fillForm(serviceFormData(['items' => [
-            ['service_type_id' => $a->id, 'name' => $a->name, 'price' => 50000],
-            ['service_type_id' => $b->id, 'name' => $b->name, 'price' => 100000],
-        ]]))
+        ->fillForm(serviceFormData([
+            'items' => [
+                ['service_type_id' => $a->id, 'name' => $a->name, 'price' => 50000],
+                ['service_type_id' => $b->id, 'name' => $b->name, 'price' => 100000],
+            ]
+        ]))
         ->call('create')
         ->assertHasNoFormErrors();
 
@@ -53,10 +55,12 @@ it('TSJ-002: pilih jasa, name dan price terisi dari katalog', function () {
     $type = ServiceType::factory()->create(['name' => 'Ganti bearing', 'default_price' => 100000]);
 
     Livewire::test(CreateService::class)
-        ->fillForm(serviceFormData(['items' => [
-            ['service_type_id' => $type->id],
-        ]]))
-        ->assertFormSet(fn (array $state) => collect($state['items'])->first()['name'] === 'Ganti bearing'
+        ->fillForm(serviceFormData([
+            'items' => [
+                ['service_type_id' => $type->id],
+            ]
+        ]))
+        ->assertFormSet(fn(array $state) => collect($state['items'])->first()['name'] === 'Ganti bearing'
             && (int) collect($state['items'])->first()['price'] === 100000);
 });
 
@@ -64,9 +68,11 @@ it('TSJ-003: harga diubah admin, baris pakai harga baru, katalog tidak berubah',
     $type = ServiceType::factory()->create(['default_price' => 100000]);
 
     Livewire::test(CreateService::class)
-        ->fillForm(serviceFormData(['items' => [
-            ['service_type_id' => $type->id, 'name' => $type->name, 'price' => 60000],
-        ]]))
+        ->fillForm(serviceFormData([
+            'items' => [
+                ['service_type_id' => $type->id, 'name' => $type->name, 'price' => 60000],
+            ]
+        ]))
         ->call('create')
         ->assertHasNoFormErrors();
 
@@ -74,11 +80,29 @@ it('TSJ-003: harga diubah admin, baris pakai harga baru, katalog tidak berubah',
         ->and((float) $type->fresh()->default_price)->toBe(100000.0);
 });
 
-it('TSJ-004: jasa kosong di baris ditolak', function () {
+it('TSJ-004a: baris jasa kosong saat status Dikonfirmasi diabaikan', function () {
     Livewire::test(CreateService::class)
-        ->fillForm(serviceFormData(['items' => [
-            ['service_type_id' => null, 'name' => null, 'price' => 50000],
-        ]]))
+        ->fillForm(serviceFormData([
+            'status' => 'confirmed',
+            'items' => [
+                ['service_type_id' => null, 'name' => null, 'price' => null],
+            ]
+        ]))
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(Service::count())->toBe(1)
+        ->and(ServiceItem::count())->toBe(0);
+});
+
+it('TSJ-004b: baris jasa kosong saat status Selesai ditolak', function () {
+    Livewire::test(CreateService::class)
+        ->fillForm(serviceFormData([
+            'status' => 'completed',
+            'items' => [
+                ['service_type_id' => null, 'name' => null, 'price' => null],
+            ]
+        ]))
         ->call('create')
         ->assertHasFormErrors(['items.0.service_type_id' => 'required']);
 
@@ -89,9 +113,11 @@ it('TSJ-005: harga kosong ditolak', function () {
     $type = ServiceType::factory()->create();
 
     Livewire::test(CreateService::class)
-        ->fillForm(serviceFormData(['items' => [
-            ['service_type_id' => $type->id, 'name' => $type->name, 'price' => null],
-        ]]))
+        ->fillForm(serviceFormData([
+            'items' => [
+                ['service_type_id' => $type->id, 'name' => $type->name, 'price' => null],
+            ]
+        ]))
         ->call('create')
         ->assertHasFormErrors(['items.0.price' => 'required']);
 
@@ -102,9 +128,11 @@ it('TSJ-006: harga bukan angka ditolak', function () {
     $type = ServiceType::factory()->create();
 
     Livewire::test(CreateService::class)
-        ->fillForm(serviceFormData(['items' => [
-            ['service_type_id' => $type->id, 'name' => $type->name, 'price' => 'abc'],
-        ]]))
+        ->fillForm(serviceFormData([
+            'items' => [
+                ['service_type_id' => $type->id, 'name' => $type->name, 'price' => 'abc'],
+            ]
+        ]))
         ->call('create')
         ->assertHasFormErrors(['items.0.price']);
 
@@ -115,9 +143,11 @@ it('TSJ-007: harga negatif ditolak', function () {
     $type = ServiceType::factory()->create();
 
     Livewire::test(CreateService::class)
-        ->fillForm(serviceFormData(['items' => [
-            ['service_type_id' => $type->id, 'name' => $type->name, 'price' => -1],
-        ]]))
+        ->fillForm(serviceFormData([
+            'items' => [
+                ['service_type_id' => $type->id, 'name' => $type->name, 'price' => -1],
+            ]
+        ]))
         ->call('create')
         ->assertHasFormErrors(['items.0.price']);
 
@@ -128,9 +158,11 @@ it('TSJ-008: harga 0 diterima', function () {
     $type = ServiceType::factory()->create();
 
     Livewire::test(CreateService::class)
-        ->fillForm(serviceFormData(['items' => [
-            ['service_type_id' => $type->id, 'name' => $type->name, 'price' => 0],
-        ]]))
+        ->fillForm(serviceFormData([
+            'items' => [
+                ['service_type_id' => $type->id, 'name' => $type->name, 'price' => 0],
+            ]
+        ]))
         ->call('create')
         ->assertHasNoFormErrors();
 
@@ -185,10 +217,12 @@ it('TSJ-012: edit servis, tambah baris jasa', function () {
     $service = makeServiceWithItems([[$a, 50000]]);
 
     Livewire::test(EditService::class, ['record' => $service->getRouteKey()])
-        ->fillForm(['items' => [
-            ['service_type_id' => $a->id, 'name' => $a->name, 'price' => 50000],
-            ['service_type_id' => $b->id, 'name' => $b->name, 'price' => 100000],
-        ]])
+        ->fillForm([
+            'items' => [
+                ['service_type_id' => $a->id, 'name' => $a->name, 'price' => 50000],
+                ['service_type_id' => $b->id, 'name' => $b->name, 'price' => 100000],
+            ]
+        ])
         ->call('save')
         ->assertHasNoFormErrors();
 
@@ -201,9 +235,11 @@ it('TSJ-013: edit servis, hapus satu baris, baris lain aman', function () {
     $service = makeServiceWithItems([[$a, 50000], [$b, 100000]]);
 
     Livewire::test(EditService::class, ['record' => $service->getRouteKey()])
-        ->fillForm(['items' => [
-            ['service_type_id' => $b->id, 'name' => $b->name, 'price' => 100000],
-        ]])
+        ->fillForm([
+            'items' => [
+                ['service_type_id' => $b->id, 'name' => $b->name, 'price' => 100000],
+            ]
+        ])
         ->call('save')
         ->assertHasNoFormErrors();
 
@@ -220,10 +256,12 @@ it('TSJ-014: edit servis, ubah harga satu baris, baris lain tidak berubah', func
     $service = makeServiceWithItems([[$a, 50000], [$b, 100000]]);
 
     Livewire::test(EditService::class, ['record' => $service->getRouteKey()])
-        ->fillForm(['items' => [
-            ['service_type_id' => $a->id, 'name' => $a->name, 'price' => 70000],
-            ['service_type_id' => $b->id, 'name' => $b->name, 'price' => 100000],
-        ]])
+        ->fillForm([
+            'items' => [
+                ['service_type_id' => $a->id, 'name' => $a->name, 'price' => 70000],
+                ['service_type_id' => $b->id, 'name' => $b->name, 'price' => 100000],
+            ]
+        ])
         ->call('save')
         ->assertHasNoFormErrors();
 

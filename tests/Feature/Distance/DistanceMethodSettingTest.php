@@ -17,7 +17,7 @@ beforeEach(function () {
         'latitude' => -7.2575,
         'longitude' => 112.7521,
         'max_distance_km' => 7,
-        'price_per_km' => 3000,
+        'fuel_price' => 10000,
         'distance_method' => DistanceMethod::Haversine,
     ]);
 });

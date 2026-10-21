@@ -35,7 +35,7 @@ class JarakOngkos extends Page
 
         $this->form->fill([
             'max_distance_km' => (float) $setting->max_distance_km,
-            'price_per_km' => (int) $setting->price_per_km,
+            'fuel_price' => (int) $setting->fuel_price,
             'latitude' => $setting->latitude,
             'longitude' => $setting->longitude,
             'distance_method' => $setting->distance_method?->value ?? 'haversine',
@@ -59,15 +59,20 @@ class JarakOngkos extends Page
                                     ->numeric()
                                     ->rule('gt:0')
                                     ->maxValue(9999),
-                                TextInput::make('price_per_km')
-                                    ->label('Ongkos per km')
+                                TextInput::make('fuel_price')
+                                    ->label('Harga BBM per liter')
                                     ->required()
                                     ->numeric()
                                     ->mask(RawJs::make("\$money(\$input, ',', '.', 0)"))
                                     ->stripCharacters('.')
-                                    ->minValue(0)
-                                    ->maxValue(9999999999)
-                                    ->prefix('Rp'),
+                                    ->minValue(1)
+                                    ->rule('gt:0')
+                                    ->maxValue(99999)
+                                    ->prefix('Rp')
+                                    ->live(onBlur: true)
+                                    ->helperText(fn(Get $get) => 'Setara Rp'
+                                        . number_format((int) str_replace('.', '', (string) $get('fuel_price')) / 40, 0, ',', '.')
+                                        . ' per km (harga BBM ÷ 40 km/liter)'),
                                 TextInput::make('latitude')
                                     ->label('Latitude')
                                     ->required()

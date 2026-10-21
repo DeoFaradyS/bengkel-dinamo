@@ -113,13 +113,16 @@ it('SPF-007: qty kosong ditolak', function () {
 /* SPF: validasi part dan harga                                        */
 /* ------------------------------------------------------------------ */
 
-it('SPF-008: part kosong ditolak', function () {
+it('SPF-008: baris part kosong diabaikan, tidak error dan tidak tersimpan', function () {
     Livewire::test(CreateService::class)
         ->fillForm(partFormData([
-            ['spare_part_id' => null, 'quantity' => 1, 'unit_price' => 100000],
+            ['spare_part_id' => null, 'quantity' => 1, 'unit_price' => null],
         ]))
         ->call('create')
-        ->assertHasFormErrors(['serviceParts.0.spare_part_id' => 'required']);
+        ->assertHasNoFormErrors();
+
+    expect(Service::count())->toBe(1)
+        ->and(ServicePart::count())->toBe(0);
 });
 
 it('SPF-009: harga satuan kosong ditolak', function () {
@@ -165,7 +168,7 @@ it('SPF-012: pilih part, harga satuan terisi dari harga part', function () {
         ->fillForm(partFormData([
             ['spare_part_id' => $part->id],
         ]))
-        ->assertFormSet(fn (array $state) => (int) collect($state['serviceParts'])->first()['unit_price'] === 150000);
+        ->assertFormSet(fn(array $state) => (int) collect($state['serviceParts'])->first()['unit_price'] === 150000);
 });
 
 /* ------------------------------------------------------------------ */

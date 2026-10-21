@@ -15,7 +15,7 @@ function bkdWorkshop(DistanceMethod $method): void
         'latitude' => -7.2575,
         'longitude' => 112.7521,
         'max_distance_km' => 7,
-        'price_per_km' => 0,
+        'fuel_price' => 10000,
         'distance_method' => $method,
     ]);
 }

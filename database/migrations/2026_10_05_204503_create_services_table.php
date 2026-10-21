@@ -29,11 +29,13 @@ return new class extends Migration {
             $table->string('address')->nullable();
             $table->text('cancel_reason')->nullable();
             $table->timestamp('stock_synced_at')->nullable();
-                        $table->decimal('distance_air_km', 8, 3)->nullable();
+            $table->decimal('distance_air_km', 8, 3)->nullable();
             $table->decimal('distance_road_km', 8, 3)->nullable();
             $table->decimal('distance_km', 8, 3)->nullable();
             $table->string('distance_method', 20)->nullable();
             $table->boolean('distance_estimated')->default(false);
+            $table->unsignedInteger('fuel_price')->nullable();
+            $table->unsignedInteger('transport_fee')->default(0);
             $table->timestamps();
             $table->softDeletes();
         });

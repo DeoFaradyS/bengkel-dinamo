@@ -10,7 +10,7 @@ beforeEach(function () {
         'latitude' => -7.7174465,
         'longitude' => 113.0755426,
         'max_distance_km' => 5,
-        'price_per_km' => 3000,
+        'fuel_price' => 10000,
     ]);
 });
 
@@ -18,7 +18,7 @@ function settingData(array $override = []): array
 {
     return array_merge([
         'max_distance_km' => 7.5,
-        'price_per_km' => 5000,
+        'fuel_price' => 12000,
         'latitude' => -7.7,
         'longitude' => 113.1,
     ], $override);
@@ -31,7 +31,7 @@ it('TPG-001: halaman terbuka, nilai awal tampil', function () {
         ->assertSuccessful()
         ->assertFormSet([
             'max_distance_km' => 5,
-            'price_per_km' => 3000,
+            'fuel_price' => 10000,
             'latitude' => -7.7174465,
             'longitude' => 113.0755426,
         ]);
@@ -48,7 +48,7 @@ it('TPG-002: data valid disimpan', function () {
     $setting = WorkshopSetting::first();
 
     expect((float) $setting->max_distance_km)->toBe(7.5)
-        ->and((float) $setting->price_per_km)->toBe(5000.0)
+        ->and((float) $setting->fuel_price)->toBe(12000.0)
         ->and((float) $setting->latitude)->toBe(-7.7)
         ->and((float) $setting->longitude)->toBe(113.1);
 });
@@ -78,29 +78,27 @@ it('TPG-005: jarak maksimal desimal (0,5) diterima', function () {
     expect((float) WorkshopSetting::first()->max_distance_km)->toBe(0.5);
 });
 
-// ---------- Ongkos per km ----------
+// ---------- Harga BBM ----------
 
-it('TPG-006: ongkos per km kosong ditolak', function () {
+it('TPG-006: harga BBM kosong ditolak', function () {
     Livewire::test(JarakOngkos::class)
-        ->fillForm(settingData(['price_per_km' => null]))
+        ->fillForm(settingData(['fuel_price' => null]))
         ->call('save')
-        ->assertHasFormErrors(['price_per_km' => 'required']);
+        ->assertHasFormErrors(['fuel_price' => 'required']);
 });
 
-it('TPG-007: ongkos per km 0 diterima', function () {
+it('TPG-007: harga BBM 0 ditolak', function () {
     Livewire::test(JarakOngkos::class)
-        ->fillForm(settingData(['price_per_km' => 0]))
+        ->fillForm(settingData(['fuel_price' => 0]))
         ->call('save')
-        ->assertHasNoFormErrors();
-
-    expect((float) WorkshopSetting::first()->price_per_km)->toBe(0.0);
+        ->assertHasFormErrors(['fuel_price']);
 });
 
-it('TPG-008: ongkos per km negatif ditolak', function () {
+it('TPG-008: harga BBM negatif ditolak', function () {
     Livewire::test(JarakOngkos::class)
-        ->fillForm(settingData(['price_per_km' => -1]))
+        ->fillForm(settingData(['fuel_price' => -1]))
         ->call('save')
-        ->assertHasFormErrors(['price_per_km']);
+        ->assertHasFormErrors(['fuel_price']);
 });
 
 // ---------- Latitude ----------

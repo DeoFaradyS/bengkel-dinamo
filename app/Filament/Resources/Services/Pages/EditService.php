@@ -23,10 +23,8 @@ class EditService extends EditRecord
 
     protected function beforeSave(): void
     {
-        if ($this->isCompleting() && !$this->completeConfirmed) {
-            $this->mountAction('confirmComplete');
-            $this->halt();
-        }
+        $this->data['items'] = array_filter($this->data['items'] ?? [], fn($r) => filled($r['service_type_id'] ?? null));
+        $this->data['serviceParts'] = array_filter($this->data['serviceParts'] ?? [], fn($r) => filled($r['spare_part_id'] ?? null));
     }
 
     protected function afterSave(): void
@@ -63,10 +61,25 @@ class EditService extends EditRecord
     }
 
     protected function getFormActions(): array
-{
-    return [
-        $this->getSaveFormAction(),
-        $this->getCancelFormAction(),
-    ];
-}
+    {
+        return [
+            $this->getSaveFormAction(),
+            $this->getCancelFormAction(),
+        ];
+    }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $record = $this->record;
+
+        $type = $data['booking_type'] ?? null;
+        $type = $type instanceof \App\Enums\BookingType ? $type : \App\Enums\BookingType::tryFrom((string) $type);
+
+        $changed = $type !== $record->booking_type
+            || (float) ($data['latitude'] ?? 0) !== (float) $record->latitude
+            || (float) ($data['longitude'] ?? 0) !== (float) $record->longitude
+            || ($type === \App\Enums\BookingType::HomeService && $record->distance_km === null);
+
+        return $changed ? \App\Models\Service::withDistance($data) : $data;
+    }
 }

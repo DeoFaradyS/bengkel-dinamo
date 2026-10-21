@@ -30,6 +30,7 @@ use Filament\Schemas\Components\Flex;
 use Filament\Schemas\Components\Text;
 use Filament\Support\Enums\Alignment;
 use Illuminate\Support\HtmlString;
+use Illuminate\Support\Str;
 
 class ServiceForm
 {
@@ -226,6 +227,12 @@ class ServiceForm
                                 'min' => 'Servis selesai harus punya minimal satu jasa.',
                             ])
                             ->hiddenLabel()
+                            ->defaultItems(1)
+                            ->afterStateHydrated(function (Repeater $component, $state) {
+                                if (blank($state)) {
+                                    $component->state([(string) Str::uuid() => []]);
+                                }
+                            })
                             ->addActionLabel('Tambah jasa')
                             ->live()
                             ->table([
@@ -238,7 +245,7 @@ class ServiceForm
                                     ->options(fn() => ServiceType::query()->orderBy('name')->pluck('name', 'id'))
                                     ->searchable()
                                     ->preload()
-                                    ->required()
+                                    ->required(fn(Get $get) => in_array($get('../../status'), [ServiceStatus::Completed, ServiceStatus::Completed->value], true))
                                     ->live()
                                     ->afterStateUpdated(function ($state, Set $set) {
                                         $type = ServiceType::find($state);
@@ -248,7 +255,7 @@ class ServiceForm
                                 Hidden::make('name'),
                                 TextInput::make('price')
                                     ->label('Harga')
-                                    ->required()
+                                    ->required(fn(Get $get) => filled($get('service_type_id')))
                                     ->numeric()
                                     ->mask(RawJs::make("\$money(\$input, ',', '.', 0)"))
                                     ->stripCharacters('.')
@@ -263,6 +270,12 @@ class ServiceForm
                         Repeater::make('serviceParts')
                             ->relationship()
                             ->hiddenLabel()
+                            ->defaultItems(1)
+                            ->afterStateHydrated(function (Repeater $component, $state) {
+                                if (blank($state)) {
+                                    $component->state([(string) Str::uuid() => ['quantity' => 1]]);
+                                }
+                            })
                             ->addActionLabel('Tambah spare part')
                             ->live()
                             ->table([
@@ -276,7 +289,6 @@ class ServiceForm
                                     ->options(fn() => SparePart::query()->orderBy('name')->get()
                                         ->mapWithKeys(fn($p) => [$p->id => "{$p->code} - {$p->name} (stok {$p->stock})"]))
                                     ->searchable()
-                                    ->required()
                                     ->live()
                                     ->disableOptionsWhenSelectedInSiblingRepeaterItems()
                                     ->afterStateUpdated(function ($state, Set $set) {
@@ -284,7 +296,7 @@ class ServiceForm
                                     }),
                                 TextInput::make('quantity')
                                     ->label('Qty')
-                                    ->required()
+                                    ->required(fn(Get $get) => filled($get('spare_part_id')))
                                     ->numeric()
                                     ->minValue(1)
                                     ->maxValue(fn(Get $get) => SparePart::find($get('spare_part_id'))?->stock)
@@ -292,7 +304,7 @@ class ServiceForm
                                     ->live(onBlur: true),
                                 TextInput::make('unit_price')
                                     ->label('Harga')
-                                    ->required()
+                                    ->required(fn(Get $get) => filled($get('spare_part_id')))
                                     ->numeric()
                                     ->mask(RawJs::make("\$money(\$input, ',', '.', 0)"))
                                     ->stripCharacters('.')
@@ -357,14 +369,27 @@ class ServiceForm
                         Text::make('Belum ada spare part')
                             ->color('gray')
                             ->visible(fn(Get $get) => count(self::partRows($get)) === 0),
+                        Flex::make([
+                            Text::make('Transport (BBM)')->grow(),
+                            TextEntry::make('ringkasan_transport')
+                                ->hiddenLabel()
+                                ->state(fn($record) => (float) ($record?->transport_fee ?? 0))
+                                ->money('IDR', locale: 'id', decimalPlaces: 0)
+                                ->weight(FontWeight::SemiBold)
+                                ->alignment(Alignment::End)
+                                ->grow(false),
+                        ])
+                            ->extraAttributes(['style' => 'margin-top:1rem;'])
+                            ->visible(fn($record) => (float) ($record?->transport_fee ?? 0) > 0),
 
                         // ---- Total ----
                         Flex::make([
                             Text::make('Total servis')->weight(FontWeight::Bold)->grow(),
                             TextEntry::make('grand_total')
                                 ->hiddenLabel()
-                                ->state(fn(Get $get) => array_sum(array_column(self::jasaRows($get), 'total'))
-                                    + array_sum(array_column(self::partRows($get), 'total')))
+                                ->state(fn(Get $get, $record) => array_sum(array_column(self::jasaRows($get), 'total'))
+                                    + array_sum(array_column(self::partRows($get), 'total'))
+                                    + (float) ($record?->transport_fee ?? 0))
                                 ->money('IDR', locale: 'id', decimalPlaces: 0)
                                 ->size(TextSize::Large)
                                 ->weight(FontWeight::Bold)

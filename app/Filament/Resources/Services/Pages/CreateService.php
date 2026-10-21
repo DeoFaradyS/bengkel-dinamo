@@ -25,10 +25,8 @@ class CreateService extends CreateRecord
 
     protected function beforeCreate(): void
     {
-        if ($this->isCompleting() && !$this->completeConfirmed) {
-            $this->mountAction('confirmComplete');
-            $this->halt();
-        }
+        $this->data['items'] = array_filter($this->data['items'] ?? [], fn($r) => filled($r['service_type_id'] ?? null));
+        $this->data['serviceParts'] = array_filter($this->data['serviceParts'] ?? [], fn($r) => filled($r['spare_part_id'] ?? null));
     }
 
     protected function afterCreate(): void
@@ -66,10 +64,17 @@ class CreateService extends CreateRecord
 
 
     protected function getFormActions(): array
-{
-    return [
-        $this->getCreateFormAction(),
-        $this->getCancelFormAction(),
-    ];
-}
+    {
+        return [
+            $this->getCreateFormAction(),
+            $this->getCancelFormAction(),
+        ];
+    }
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        return \App\Models\Service::withDistance($data);
+    }
+
+
 }
