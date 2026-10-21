@@ -259,7 +259,7 @@ class ServiceForm
                                     }),
                                 Hidden::make('name'),
                                 TextInput::make('price')
-                                    ->afterStateHydrated(fn($component, $state) => $component->state(filled($state) ? (int) round((float) $state) : null))
+
                                     ->label('Harga')
                                     ->required(fn(Get $get) => filled($get('service_type_id')))
                                     ->numeric()
@@ -314,7 +314,6 @@ class ServiceForm
                                     ->default(1)
                                     ->live(onBlur: true),
                                 TextInput::make('unit_price')
-                                    ->afterStateHydrated(fn($component, $state) => $component->state(filled($state) ? (int) round((float) $state) : null))
                                     ->label('Harga')
                                     ->required(fn(Get $get) => filled($get('spare_part_id')))
                                     ->numeric()

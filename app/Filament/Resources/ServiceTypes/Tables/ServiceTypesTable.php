@@ -25,6 +25,11 @@ class ServiceTypesTable
             ])
             ->recordActions([
                 EditAction::make()
+                    ->mutateRecordDataUsing(function (array $data): array {
+                        $data['default_price'] = (int) round((float) $data['default_price']);
+
+                        return $data;
+                    })
                     ->modalHeading('Ubah Jasa')
                     ->modalSubmitActionLabel('Simpan')
                     ->modalCancelActionLabel('Batal')

@@ -20,6 +20,13 @@ class EditSparePart extends EditRecord
         ];
     }
 
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        $data['price'] = (int) round((float) $data['price']);
+
+        return $data;
+    }
+
     protected function getFormActions(): array
     {
         return [
