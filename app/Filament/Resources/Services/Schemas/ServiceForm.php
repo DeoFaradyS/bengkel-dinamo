@@ -266,6 +266,7 @@ class ServiceForm
                                     ->mask(RawJs::make("\$money(\$input, ',', '.', 0)"))
                                     ->stripCharacters('.')
                                     ->minValue(0)
+                                    ->maxValue(99999999)
                                     ->prefix('Rp')
                                     ->live(onBlur: true),
                             ]),
@@ -329,6 +330,7 @@ class ServiceForm
                                     ->mask(RawJs::make("\$money(\$input, ',', '.', 0)"))
                                     ->stripCharacters('.')
                                     ->minValue(0)
+                                    ->maxValue(99999999)
                                     ->prefix('Rp')
                                     ->live(onBlur: true),
                             ]),
