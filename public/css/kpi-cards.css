@@ -1,22 +1,36 @@
 .kpi-stat {
     position: relative;
-    padding-bottom: 1.5rem;
+    overflow: hidden;
+    padding-bottom: 2rem;
 }
 
+.kpi-stat::before,
 .kpi-stat::after {
     content: '';
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 0.4rem;
-    height: 8px;
-    background-color: var(--kpi-color);
-    -webkit-mask: url('/images/kpi/kpi-wave.svg') center / 100% 100% no-repeat;
-    mask: url('/images/kpi/kpi-wave.svg') center / 100% 100% no-repeat;
+    bottom: 0;
+    height: 16px;
     pointer-events: none;
 }
 
-.kpi-revenue   { --kpi-color: #22c55e; }
-.kpi-completed { --kpi-color: #3b82f6; }
-.kpi-bookings  { --kpi-color: #f59e0b; }
-.kpi-pending   { --kpi-color: #9ca3af; }
+/* Lapisan bawah: isian pastel (level 50). */
+.kpi-stat::before {
+    background-color: var(--kpi-fill);
+    -webkit-mask: url('/images/kpi/kpi-wave-fill.svg') center / 100% 100% no-repeat;
+    mask: url('/images/kpi/kpi-wave-fill.svg') center / 100% 100% no-repeat;
+}
+
+/* Lapisan atas: garis (level 500). */
+.kpi-stat::after {
+    background-color: var(--kpi-line);
+    -webkit-mask: url('/images/kpi/kpi-wave-line.svg') center / 100% 100% no-repeat;
+    mask: url('/images/kpi/kpi-wave-line.svg') center / 100% 100% no-repeat;
+}
+
+/* revenue = success, completed = info, bookings = warning, pending = gray */
+.kpi-revenue   { --kpi-line: #22c55e; --kpi-fill: #f0fdf4; }
+.kpi-completed { --kpi-line: #3b82f6; --kpi-fill: #eff6ff; }
+.kpi-bookings  { --kpi-line: #f59e0b; --kpi-fill: #fffbeb; }
+.kpi-pending   { --kpi-line: #9ca3af; --kpi-fill: #f3f4f6; }
