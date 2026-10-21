@@ -2,6 +2,7 @@
 
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
+@source '../../../../vendor/malzariey/filament-daterangepicker-filter/resources/views/**/*';
 
 
 .fi-ta-header-toolbar {

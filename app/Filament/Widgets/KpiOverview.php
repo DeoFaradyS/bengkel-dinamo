@@ -19,24 +19,13 @@ class KpiOverview extends StatsOverviewWidget
         return 4;
     }
 
-        protected function getStats(): array
+    protected function getStats(): array
     {
         $metrics = DashboardPeriod::metrics($this->pageFilters);
 
         return collect(KpiSummary::make($metrics))
-            ->map(fn (array $kpi) => Stat::make($kpi['label'], $kpi['value'])
-                ->description($kpi['description'])
-                ->descriptionIcon(match ($kpi['trend']) {
-                    'up' => 'heroicon-m-arrow-trending-up',
-                    'down' => 'heroicon-m-arrow-trending-down',
-                    default => null,
-                })
-                ->color(match ($kpi['positive']) {
-                    true => 'success',
-                    false => 'danger',
-                    default => 'gray',
-                })
-                ->extraAttributes(['class' => 'kpi-stat kpi-'.$kpi['key']]))
+            ->map(fn(array $kpi) => Stat::make($kpi['label'], $kpi['value'])
+                ->extraAttributes(['class' => 'kpi-stat kpi-' . $kpi['key']]))
             ->all();
     }
 }

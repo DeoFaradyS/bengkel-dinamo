@@ -9,49 +9,52 @@ use App\Filament\Widgets\TopServicesChart;
 use App\Filament\Widgets\TrendChart;
 use App\Filament\Widgets\TypeChart;
 use App\Support\Dashboard\DashboardPeriod;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Select;
 use Filament\Pages\Dashboard as BaseDashboard;
-use Filament\Pages\Dashboard\Actions\FilterAction;
-use Filament\Pages\Dashboard\Concerns\HasFiltersAction;
-use Filament\Schemas\Components\Utilities\Get;
+use Filament\Pages\Dashboard\Concerns\HasFiltersForm;
+use Filament\Schemas\Schema;
+use Malzariey\FilamentDaterangepickerFilter\Fields\DateRangePicker;
+use Filament\Schemas\Components\View;
+use Illuminate\Contracts\Support\Htmlable;
 
 class Dashboard extends BaseDashboard
 {
-    use HasFiltersAction;
+    use HasFiltersForm;
 
-    protected function getHeaderActions(): array
+    public function content(Schema $schema): Schema
     {
-        return [
-            FilterAction::make()
-                ->label(fn () => DashboardPeriod::label($this->filters))
-                ->icon('heroicon-o-calendar-days')
-                ->color('gray')
-                ->modalHeading('Pilih periode')
-                ->modalWidth('md')
-                ->modalSubmitActionLabel('Terapkan')
-                ->schema([
-                    Select::make('preset')
-                        ->label('Periode')
-                        ->options(DashboardPeriod::options())
-                        ->default(DashboardPeriod::DEFAULT)
-                        ->native(false)
-                        ->selectablePlaceholder(false)
-                        ->live(),
-                    DatePicker::make('start_date')
-                        ->label('Dari')
-                        ->native(false)
-                        ->displayFormat('d/m/Y')
-                        ->maxDate(now())
-                        ->visible(fn (Get $get) => $get('preset') === 'custom'),
-                    DatePicker::make('end_date')
-                        ->label('Sampai')
-                        ->native(false)
-                        ->displayFormat('d/m/Y')
-                        ->maxDate(now())
-                        ->visible(fn (Get $get) => $get('preset') === 'custom'),
-                ]),
-        ];
+        return $schema->components([
+            View::make('filament.pages.dashboard-top')->columnSpanFull(),
+            $this->getWidgetsContentComponent(),
+        ]);
+    }
+
+    public function filtersForm(Schema $schema): Schema
+    {
+        return $schema
+            ->columns([
+                'default' => 1,
+                'sm' => 1,
+                'md' => 1,
+                'lg' => 1,
+                'xl' => 1,
+                '2xl' => 1,
+            ])
+            ->components([
+                DateRangePicker::make('range')
+                    ->hiddenLabel()
+                    ->extraAttributes(['style' => 'width:fit-content;max-width:100%;'], merge: true)
+                    ->extraInputAttributes(['style' => 'field-sizing:content;min-width:8rem;'], merge: true)
+                    ->prefixIcon('heroicon-m-calendar-days')
+                    ->format('d/m/Y')
+                    ->ranges(DashboardPeriod::ranges())
+                    ->useRangeLabels()
+                    ->startDate(now()->startOfMonth())
+                    ->endDate(now())
+                    ->maxDate(now())
+                    ->firstDayOfWeek(1)
+                    ->autoApply()
+                    ->live(),
+            ]);
     }
 
     public function getWidgets(): array
@@ -64,5 +67,10 @@ class Dashboard extends BaseDashboard
             TopServicesChart::class,
             TopPartsChart::class,
         ];
+    }
+
+    public function getHeading(): string|Htmlable
+    {
+        return '';
     }
 }
