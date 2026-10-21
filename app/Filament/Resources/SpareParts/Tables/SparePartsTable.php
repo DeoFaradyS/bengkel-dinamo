@@ -8,6 +8,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\ImageColumn;
+use App\Filament\Resources\SpareParts\Actions\StockActions;
 
 class SparePartsTable
 {
@@ -54,6 +55,8 @@ class SparePartsTable
             ])
 
             ->recordActions([
+                StockActions::add(),
+                StockActions::correct(),
                 EditAction::make(),
                 DeleteAction::make(),
             ]);

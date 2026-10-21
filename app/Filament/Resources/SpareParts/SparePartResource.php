@@ -14,6 +14,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
+use App\Filament\Resources\SpareParts\RelationManagers\StockMovementsRelationManager;
 
 class SparePartResource extends Resource
 {
@@ -50,7 +51,9 @@ class SparePartResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            StockMovementsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

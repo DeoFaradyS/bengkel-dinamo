@@ -61,7 +61,12 @@ class SparePartForm
                                             ->integer()
                                             ->minValue(0)
                                             ->maxValue(999999)
-                                            ->default(0),
+                                            ->default(0)
+                                            ->disabled(fn(string $operation) => $operation === 'edit')
+                                            ->dehydrated(fn(string $operation) => $operation === 'create')
+                                            ->helperText(fn(string $operation) => $operation === 'edit'
+                                                ? 'Ubah lewat tombol Tambah Stok atau Koreksi Stok.'
+                                                : 'Stok awal. Setelah disimpan, ubah lewat tombol Tambah Stok.'),
                                         TextInput::make('min_stock')->label('Stok Minimal')
                                             ->required()
                                             ->integer()

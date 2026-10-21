@@ -6,6 +6,7 @@ use App\Filament\Resources\SpareParts\SparePartResource;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
+use App\Filament\Resources\SpareParts\Actions\StockActions;
 
 class EditSparePart extends EditRecord
 {
@@ -14,6 +15,8 @@ class EditSparePart extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            StockActions::add(),
+            StockActions::correct(),
             ForceDeleteAction::make(),
             RestoreAction::make(),
         ];

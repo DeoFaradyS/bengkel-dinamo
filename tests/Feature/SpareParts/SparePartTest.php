@@ -141,14 +141,15 @@ it('TSP-016: foto lebih dari 2 MB ditolak', function () {
 
 it('ESP-001: ubah data dengan valid value', function () {
     $part = makePart();
+    $stockBefore = $part->fresh()->stock;
 
     Livewire::test(EditSparePart::class, ['record' => $part->getRouteKey()])
-        ->fillForm(['name' => 'Brush Baru', 'stock' => 20])
+        ->fillForm(['name' => 'Brush Baru'])
         ->call('save')
         ->assertHasNoFormErrors();
 
     expect($part->fresh()->name)->toBe('Brush Baru')
-        ->and($part->fresh()->stock)->toBe(20);
+        ->and($part->fresh()->stock)->toBe($stockBefore);
 });
 
 it('ESP-002: simpan tanpa ubah code tidak bentrok dengan diri sendiri', function () {
@@ -315,4 +316,14 @@ it('FSP-003: tanpa filter, semua part tampil', function () {
 
     Livewire::test(ListSpareParts::class)
         ->assertCanSeeTableRecords([$a, $b]);
+});
+
+it('ESP-STK: stok tidak bisa diubah lewat form Edit', function () {
+    $part = makePart(['stock' => 10]);
+
+    Livewire::test(EditSparePart::class, ['record' => $part->getRouteKey()])
+        ->fillForm(['stock' => 99])
+        ->call('save');
+
+    expect($part->fresh()->stock)->toBe(10);
 });
