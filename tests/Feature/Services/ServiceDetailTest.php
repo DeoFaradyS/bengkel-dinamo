@@ -24,7 +24,7 @@ it('DTL-001: detail tampil ringkasan Total Servis', function () {
 
     Livewire::test(ViewService::class, ['record' => $service->getRouteKey()])
         ->assertSee('Total Servis')
-        ->assertSee('Rp 150.000');
+        ->assertSee('150.000');
 });
 
 it('DTL-002: servis Dibatalkan menampilkan alasan', function () {

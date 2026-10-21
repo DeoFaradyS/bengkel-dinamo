@@ -5,9 +5,8 @@ namespace Database\Seeders;
 use App\Models\Service;
 use App\Models\ServiceType;
 use App\Models\SparePart;
-use Illuminate\Database\Seeder;
 use App\Models\WorkshopSetting;
-use App\Support\Distance\DistanceService;
+use Illuminate\Database\Seeder;
 
 class ServiceSeeder extends Seeder
 {
@@ -15,175 +14,161 @@ class ServiceSeeder extends Seeder
     {
         $types = ServiceType::all()->keyBy('name');
         $parts = SparePart::all()->keyBy('name');
+        $method = WorkshopSetting::first()?->distance_method;
 
-        // [nama, hp, keluhan, status, jasa[[nama katalog, harga atau null]], hari, spare part[[nama, qty]], alasan batal]
-        // harga null = pakai harga katalog
+        // jasa: [[nama katalog, harga atau null]], harga null = pakai harga katalog
+        // parts: [[nama, qty]]
+        // home: ['km' => jarak sekali jalan, 'lat', 'lng', 'address']
         $data = [
-            [
-                'Pak Wawan Setiawan',
-                '081311223340',
-                'Starter pickup mati di garasi rumah, minta montir datang',
-                'pending',
-                [],
-                1,
-                [],
-                null,
-                ['lat' => -7.7188, 'lng' => 113.0790],
+            // ---- Home Service: variasi jarak dan status ----
+            [ // jarak sangat dekat: ongkos minimum Rp500
+                'name' => 'Pak Wawan Setiawan', 'phone' => '081311223340', 'status' => 'pending', 'days' => 1,
+                'complaint' => 'Starter pickup mati di garasi rumah, minta montir datang',
+                'jasa' => [], 'parts' => [],
+                'home' => ['km' => 0.8, 'lat' => -7.7188, 'lng' => 113.0790],
+            ],
+            [ // jarak sedang, belum dikerjakan
+                'name' => 'Bu Ani Rahayu', 'phone' => '081311223341', 'status' => 'confirmed', 'days' => 2,
+                'complaint' => 'Dinamo pompa air rumah tidak mau menyala',
+                'jasa' => [['Servis dinamo', null]], 'parts' => [],
+                'home' => ['km' => 5.0, 'lat' => -7.7201, 'lng' => 113.0712, 'address' => 'Gang Melati 3, depan Indomaret, pagar hijau'],
+            ],
+            [ // selesai + ongkos + spare part
+                'name' => 'Pak Rudi Hartono', 'phone' => '081311223342', 'status' => 'completed', 'days' => -4,
+                'complaint' => 'Alternator mobil di garasi tidak ngecas',
+                'jasa' => [['Servis dinamo', null]],
+                'parts' => [['Kohlen / Carbon Brush Alternator (set)', 1]],
+                'home' => ['km' => 3.0, 'lat' => -7.7165, 'lng' => 113.0830, 'address' => 'Jl. Kenanga 12, sebelah bengkel las, gerbang biru'],
+            ],
+            [ // jauh, banyak jasa dan part: total paling besar
+                'name' => 'Pak Haji Mansur', 'phone' => '081311223343', 'status' => 'completed', 'days' => -7,
+                'complaint' => 'Dinamo genset pabrik tahu bunyi kasar, panas berlebih',
+                'jasa' => [['Servis dinamo', null], ['Ganti bearing', null], ['Ganti brush karbon', null]],
+                'parts' => [['Bearing 6203', 2], ['Kohlen / Carbon Brush Starter (set)', 1]],
+                'home' => ['km' => 12.0, 'lat' => -7.6890, 'lng' => 113.1250, 'address' => 'Pabrik tahu Barokah, Jl. Raya Kraksaan km 4'],
+            ],
+            [ // sedang dikerjakan, Home Service
+                'name' => 'Bu Yuli Astuti', 'phone' => '081311223344', 'status' => 'in_progress', 'days' => 0,
+                'complaint' => 'Dinamo mesin cuci steam mati total',
+                'jasa' => [['Rewinding kumparan', null]],
+                'parts' => [['Kapasitor Motor 12uF', 1]],
+                'home' => ['km' => 7.5, 'lat' => -7.7320, 'lng' => 113.0560],
+            ],
+            [ // batal, Home Service
+                'name' => 'Pak Eko Prasetyo', 'phone' => '081311223345', 'status' => 'cancelled', 'days' => -2,
+                'complaint' => 'Alternator Carry tidak ngecas, minta dicek di rumah',
+                'jasa' => [['Servis dinamo', null]], 'parts' => [],
+                'reason' => 'Pelanggan sudah menemukan masalahnya di aki',
+                'home' => ['km' => 5.0, 'lat' => -7.7101, 'lng' => 113.0888],
+            ],
+            [ // ditolak, Home Service
+                'name' => 'Bu Lilis', 'phone' => '081377889910', 'status' => 'rejected', 'days' => -2,
+                'complaint' => 'Rotor alternator hangus total',
+                'jasa' => [], 'parts' => [],
+                'reason' => 'Kerusakan parah, biaya melebihi harga unit baru',
+                'home' => ['km' => 3.0, 'lat' => -7.7150, 'lng' => 113.0700],
+            ],
+
+            // ---- Ke bengkel: variasi jasa dan spare part ----
+            [ // jasa + part, lengkap
+                'name' => 'Pak Budi Santoso', 'phone' => '081234567801', 'status' => 'completed', 'days' => -10,
+                'complaint' => 'Dinamo starter Avanza ngik-ngik, tidak mau engkol',
+                'jasa' => [['Servis dinamo', null], ['Ganti brush karbon', null]],
+                'parts' => [['Bendix Starter 12V', 1], ['Kohlen / Carbon Brush Starter (set)', 1]],
+            ],
+            [ // harga jasa diubah admin + tiga part
+                'name' => 'CV Maju Jaya', 'phone' => '081345678902', 'status' => 'completed', 'days' => -8,
+                'complaint' => 'Starter truk Hino 24V lemah, harus didorong',
+                'jasa' => [['Servis dinamo', 100000], ['Ganti bearing', null], ['Ganti brush karbon', null]],
+                'parts' => [['Bendix Starter 24V (Truk)', 1], ['Magnetic Switch / Solenoid 24V', 1], ['Bosh / Bushing Starter', 2]],
+            ],
+            [ // selesai, jasa saja tanpa spare part
+                'name' => 'Pak Tono', 'phone' => '081311223346', 'status' => 'completed', 'days' => -5,
+                'complaint' => 'Cek dinamo, bunyi halus saat idle',
+                'jasa' => [['Servis dinamo', null]], 'parts' => [],
             ],
             [
-                'Bu Ani Rahayu',
-                '081311223341',
-                'Dinamo pompa air rumah tidak mau menyala',
-                'confirmed',
-                [['Servis dinamo', null]],
-                2,
-                [],
-                null,
-                ['lat' => -7.7201, 'lng' => 113.0712, 'address' => 'Gang Melati 3, depan Indomaret, pagar hijau'],
+                'name' => 'Bu Sari Wulandari', 'phone' => '085678901203', 'status' => 'completed', 'days' => -6,
+                'complaint' => 'Aki sering tekor, lampu indikator cas menyala',
+                'jasa' => [['Servis dinamo', null], ['Ganti brush karbon', null]],
+                'parts' => [['Regulator / IC Alternator 12V', 1], ['Kohlen / Carbon Brush Alternator (set)', 1]],
             ],
             [
-                'Pak Rudi Hartono',
-                '081311223342',
-                'Alternator mobil di garasi tidak ngecas',
-                'completed',
-                [['Servis dinamo', null]],
-                -4,
-                [['Kohlen / Carbon Brush Alternator (set)', 1]],
-                null,
-                ['lat' => -7.7165, 'lng' => 113.0830, 'address' => 'Jl. Kenanga 12, sebelah bengkel las, gerbang biru'],
+                'name' => 'Toko Sinar Terang', 'phone' => '082112345604', 'status' => 'in_progress', 'days' => -1,
+                'complaint' => 'Dinamo ampere Carry bunyi kasar dan berdecit',
+                'jasa' => [['Ganti bearing', null]],
+                'parts' => [['Pulley Alternator', 1], ['Bearing 6203', 2]],
             ],
             [
-                'Pak Budi Santoso',
-                '081234567801',
-                'Dinamo starter Avanza ngik-ngik, tidak mau engkol',
-                'completed',
-                [['Servis dinamo', null], ['Ganti brush karbon', null]],
-                -10,
-                [['Bendix Starter 12V', 1], ['Kohlen / Carbon Brush Starter (set)', 1]],
+                'name' => 'Pak Hendra', 'phone' => '081998765405', 'status' => 'in_progress', 'days' => 0,
+                'complaint' => 'Alternator tidak ngecas, kemungkinan dioda jebol',
+                'jasa' => [['Servis dinamo', null], ['Perbaikan kabel kelistrikan', null]],
+                'parts' => [['Dioda Plat / Rectifier', 1]],
             ],
             [
-                'CV Maju Jaya',
-                '081345678902',
-                'Starter truk Hino 24V lemah, harus didorong',
-                'completed',
-                [['Servis dinamo', 100000], ['Ganti bearing', null], ['Ganti brush karbon', null]],
-                -8,
-                [['Bendix Starter 24V (Truk)', 1], ['Magnetic Switch / Solenoid 24V', 1], ['Bosh / Bushing Starter', 2]],
+                'name' => 'Bu Rina Marlina', 'phone' => '087712345606', 'status' => 'in_progress', 'days' => 0,
+                'complaint' => 'Dinamo pompa air tidak mau start',
+                'jasa' => [['Servis dinamo', null]],
+                'parts' => [['Kapasitor Motor 12uF', 1], ['Seal Mekanik Pompa Air', 1]],
             ],
-            [
-                'Bu Sari Wulandari',
-                '085678901203',
-                'Aki sering tekor, lampu indikator cas menyala',
-                'completed',
-                [['Servis dinamo', null], ['Ganti brush karbon', null]],
-                -6,
-                [['Regulator / IC Alternator 12V', 1], ['Kohlen / Carbon Brush Alternator (set)', 1]],
+            [ // dikonfirmasi, belum ada jasa: baris kosong boleh
+                'name' => 'UD Tani Makmur', 'phone' => '081511223307', 'status' => 'confirmed', 'days' => 1,
+                'complaint' => 'Gulung ulang spul starter truk',
+                'jasa' => [['Rewinding kumparan', null]], 'parts' => [],
             ],
-            [
-                'Toko Sinar Terang',
-                '082112345604',
-                'Dinamo ampere Carry bunyi kasar dan berdecit',
-                'in_progress',
-                [['Ganti bearing', null]],
-                -1,
-                [['Pulley Alternator', 1], ['Bearing 6203', 2]],
+            [ // dikonfirmasi tanpa jasa sama sekali
+                'name' => 'Pak Agus Wijaya', 'phone' => '081244556608', 'status' => 'confirmed', 'days' => 2,
+                'complaint' => 'Cek starter Innova, bunyi klek saja',
+                'jasa' => [], 'parts' => [],
             ],
-            [
-                'Pak Hendra',
-                '081998765405',
-                'Alternator tidak ngecas, kemungkinan dioda jebol',
-                'in_progress',
-                [['Servis dinamo', null], ['Perbaikan kabel kelistrikan', null]],
-                0,
-                [['Dioda Plat / Rectifier', 1]],
+            [ // beli part saja, tanpa jasa
+                'name' => 'Pak Slamet', 'phone' => '081311223347', 'status' => 'confirmed', 'days' => 1,
+                'complaint' => 'Beli brush karbon, dipasang sendiri',
+                'jasa' => [], 'parts' => [['Kohlen / Carbon Brush Starter (set)', 2]],
             ],
-            [
-                'Bu Rina Marlina',
-                '087712345606',
-                'Dinamo pompa air tidak mau start',
-                'in_progress',
-                [['Servis dinamo', null]],
-                0,
-                [['Kapasitor Motor 12uF', 1], ['Seal Mekanik Pompa Air', 1]],
+            [ // baru masuk, kosong semua
+                'name' => 'Mas Dimas', 'phone' => '081311223348', 'status' => 'pending', 'days' => 3,
+                'complaint' => 'Dinamo sepeda motor listrik tidak berputar',
+                'jasa' => [], 'parts' => [],
             ],
-            [
-                'UD Tani Makmur',
-                '081511223307',
-                'Gulung ulang spul starter truk',
-                'confirmed',
-                [['Rewinding kumparan', null]],
-                1,
-                [],
+            [ // batal, bengkel
+                'name' => 'Pak Dedi', 'phone' => '085211223309', 'status' => 'cancelled', 'days' => -3,
+                'complaint' => 'Servis alternator Xenia, minta dikerjakan',
+                'jasa' => [['Servis dinamo', null]], 'parts' => [],
+                'reason' => 'Pelanggan batal, dinamo dibawa ke tempat lain',
             ],
-            [
-                'Pak Agus Wijaya',
-                '081244556608',
-                'Cek starter Innova, bunyi klek saja',
-                'confirmed',
-                [['Servis dinamo', null]],
-                2,
-                [],
-            ],
-            [
-                'Pak Dedi',
-                '085211223309',
-                'Servis alternator Xenia, minta dikerjakan',
-                'cancelled',
-                [['Servis dinamo', null]],
-                -3,
-                [],
-                'Pelanggan batal, dinamo dibawa ke tempat lain',
-            ],
-            [
-                'Bu Lilis',
-                '081377889910',
-                'Rotor alternator hangus total',
-                'rejected',
-                [],
-                -2,
-                [],
-                'Kerusakan parah, biaya melebihi harga unit baru',
+            [ // ditolak, bengkel
+                'name' => 'Pak Joko', 'phone' => '081311223349', 'status' => 'rejected', 'days' => -1,
+                'complaint' => 'Dinamo tanpa nameplate, tidak ada suku cadangnya',
+                'jasa' => [], 'parts' => [],
+                'reason' => 'Suku cadang tidak tersedia',
             ],
         ];
 
-        $workshop = WorkshopSetting::first();
-
         foreach ($data as $d) {
-            $service = Service::create([
-                'customer_name' => $d[0],
-                'phone' => $d[1],
-                'complaint' => $d[2],
-                'status' => $d[3],
-                'scheduled_at' => now()->addDays($d[5])->setTime(rand(8, 16), [0, 30][rand(0, 1)]),
-                'cancel_reason' => $d[7] ?? null,
-                'booking_type' => isset($d[8]) ? 'home_service' : 'workshop',
-                'latitude' => $d[8]['lat'] ?? null,
-                'longitude' => $d[8]['lng'] ?? null,
-                'address' => $d[8]['address'] ?? null,
+            $home = $d['home'] ?? null;
 
+            $service = Service::create([
+                'customer_name' => $d['name'],
+                'phone' => $d['phone'],
+                'complaint' => $d['complaint'],
+                'status' => $d['status'],
+                'scheduled_at' => now()->addDays($d['days'])->setTime(rand(8, 16), [0, 30][rand(0, 1)]),
+                'cancel_reason' => $d['reason'] ?? null,
+                'booking_type' => $home ? 'home_service' : 'workshop',
+                'latitude' => $home['lat'] ?? null,
+                'longitude' => $home['lng'] ?? null,
+                'address' => $home['address'] ?? null,
+
+                // Jarak diisi langsung. Model menghitung ongkos dan menyalin harga BBM saat simpan.
+                'distance_air_km' => $home ? round($home['km'] * 0.85, 3) : null,
+                'distance_road_km' => $home['km'] ?? null,
+                'distance_km' => $home['km'] ?? null,
+                'distance_method' => $home ? $method : null,
+                'distance_estimated' => false,
             ]);
 
-            
-            // Servis lewat seeder tidak melewati CreateBooking, jadi jarak diisi di sini.
-            if (isset($d[8]) && $workshop) {
-                $distance = app(DistanceService::class)->measure(
-                    (float) $workshop->latitude,
-                    (float) $workshop->longitude,
-                    (float) $d[8]['lat'],
-                    (float) $d[8]['lng'],
-                    $workshop->distance_method,
-                );
-
-                $service->update([
-                    'distance_air_km' => $distance->airKm,
-                    'distance_road_km' => $distance->roadKm,
-                    'distance_km' => $distance->officialKm,
-                    'distance_method' => $distance->method,
-                    'distance_estimated' => $distance->estimated,
-                ]);
-            }
-
-            foreach ($d[4] as [$name, $price]) {
+            foreach ($d['jasa'] as [$name, $price]) {
                 $type = $types[$name];
 
                 $service->items()->create([
@@ -193,7 +178,7 @@ class ServiceSeeder extends Seeder
                 ]);
             }
 
-            foreach ($d[6] as [$partName, $qty]) {
+            foreach ($d['parts'] as [$partName, $qty]) {
                 $part = $parts->get($partName)
                     ?? throw new \RuntimeException("Spare part tidak ada di seeder: {$partName}");
 

@@ -384,7 +384,7 @@ class ServiceForm
 
                         // ---- Total ----
                         Flex::make([
-                            Text::make('Total servis')->weight(FontWeight::Bold)->grow(),
+                            Text::make('Total Servis')->weight(FontWeight::Bold)->grow(),
                             TextEntry::make('grand_total')
                                 ->hiddenLabel()
                                 ->state(fn(Get $get, $record) => array_sum(array_column(self::jasaRows($get), 'total'))
