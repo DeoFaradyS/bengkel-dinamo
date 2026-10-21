@@ -12,6 +12,7 @@ class StatusChart extends ChartWidget
     use InteractsWithPageFilters;
 
     protected ?string $pollingInterval = null;
+    protected ?string $maxHeight = '320px';
 
     public function getHeading(): ?string
     {
@@ -21,6 +22,21 @@ class StatusChart extends ChartWidget
     protected function getType(): string
     {
         return 'doughnut';
+    }
+    protected function getOptions(): array
+    {
+        return [
+            'plugins' => [
+                'legend' => [
+                    'position' => 'right',
+                    'labels' => [
+                        'usePointStyle' => true,
+                        'pointStyle' => 'circle',
+                        'padding' => 16,
+                    ],
+                ],
+            ],
+        ];
     }
 
     protected function getData(): array
@@ -37,11 +53,13 @@ class StatusChart extends ChartWidget
         ];
 
         return [
-            'datasets' => [[
-                'data' => array_values($counts),
-                'backgroundColor' => array_map(fn ($key) => $colors[$key], array_keys($counts)),
-            ]],
-            'labels' => array_map(fn ($key) => ServiceStatus::from($key)->getLabel(), array_keys($counts)),
+            'datasets' => [
+                [
+                    'data' => array_values($counts),
+                    'backgroundColor' => array_map(fn($key) => $colors[$key], array_keys($counts)),
+                ]
+            ],
+            'labels' => array_map(fn($key) => ServiceStatus::from($key)->getLabel(), array_keys($counts)),
         ];
     }
 }
