@@ -7,6 +7,7 @@ use App\Filament\Resources\Services\ServiceResource;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
 use App\Support\PhoneNumber;
+use Filament\Support\Enums\Alignment;
 
 class CreateService extends CreateRecord
 {
@@ -14,6 +15,8 @@ class CreateService extends CreateRecord
     protected static bool $canCreateAnother = false;
 
     public bool $completeConfirmed = false;
+
+    public static string|Alignment $formActionsAlignment = Alignment::End;
 
     protected function getRedirectUrl(): string
     {
@@ -60,4 +63,13 @@ class CreateService extends CreateRecord
     {
         $this->data['phone'] = PhoneNumber::normalize($this->data['phone'] ?? null);
     }
+
+
+    protected function getFormActions(): array
+{
+    return [
+        $this->getCreateFormAction(),
+        $this->getCancelFormAction(),
+    ];
+}
 }

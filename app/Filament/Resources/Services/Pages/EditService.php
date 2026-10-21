@@ -7,12 +7,14 @@ use App\Filament\Resources\Services\ServiceResource;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
 use App\Support\PhoneNumber;
+use Filament\Support\Enums\Alignment;
 
 class EditService extends EditRecord
 {
     protected static string $resource = ServiceResource::class;
 
     public bool $completeConfirmed = false;
+    public static string|Alignment $formActionsAlignment = Alignment::End;
 
     protected function getRedirectUrl(): string
     {
@@ -59,4 +61,12 @@ class EditService extends EditRecord
     {
         $this->data['phone'] = PhoneNumber::normalize($this->data['phone'] ?? null);
     }
+
+    protected function getFormActions(): array
+{
+    return [
+        $this->getSaveFormAction(),
+        $this->getCancelFormAction(),
+    ];
+}
 }
