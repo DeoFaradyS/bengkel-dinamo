@@ -15,6 +15,7 @@ use App\Enums\DistanceMethod;
 use App\Models\WorkshopSetting;
 use App\Actions\CreateBooking;
 use Illuminate\Validation\ValidationException;
+use App\Enums\StockMovementType;
 
 class Service extends Model
 {
@@ -132,7 +133,12 @@ class Service extends Model
                     throw new \RuntimeException("Stok {$sparePart->name} kurang. Sisa {$sparePart->stock}.");
                 }
 
-                $sparePart->decrement('stock', $servicePart->quantity);
+                $sparePart->addStock(
+                    -(int) $servicePart->quantity,
+                    StockMovementType::Usage,
+                    "Servis #{$this->id}",
+                    $this->id,
+                );
             }
 
             $this->forceFill(['stock_synced_at' => now()])->save();
@@ -158,38 +164,38 @@ class Service extends Model
     }
 
     public static function withDistance(array $data): array
-{
-    $type = $data['booking_type'] ?? null;
-    $type = $type instanceof BookingType ? $type : BookingType::tryFrom((string) $type);
+    {
+        $type = $data['booking_type'] ?? null;
+        $type = $type instanceof BookingType ? $type : BookingType::tryFrom((string) $type);
 
-    if ($type !== BookingType::HomeService || blank($data['latitude'] ?? null) || blank($data['longitude'] ?? null)) {
+        if ($type !== BookingType::HomeService || blank($data['latitude'] ?? null) || blank($data['longitude'] ?? null)) {
+            return array_merge($data, [
+                'distance_air_km' => null,
+                'distance_road_km' => null,
+                'distance_km' => null,
+                'distance_method' => null,
+                'distance_estimated' => false,
+            ]);
+        }
+
+        $action = app(CreateBooking::class);
+        $result = $action->measureDistance((float) $data['latitude'], (float) $data['longitude']);
+
+        // Data bengkel belum diisi: simpan tanpa jarak, sama seperti booking pelanggan.
+        if ($result === null) {
+            return $data;
+        }
+
+        if ($message = $action->rangeError($result)) {
+            throw ValidationException::withMessages(['data.latitude' => $message]);
+        }
+
         return array_merge($data, [
-            'distance_air_km' => null,
-            'distance_road_km' => null,
-            'distance_km' => null,
-            'distance_method' => null,
-            'distance_estimated' => false,
+            'distance_air_km' => $result->airKm,
+            'distance_road_km' => $result->roadKm,
+            'distance_km' => $result->officialKm,
+            'distance_method' => $result->method,
+            'distance_estimated' => $result->estimated,
         ]);
     }
-
-    $action = app(CreateBooking::class);
-    $result = $action->measureDistance((float) $data['latitude'], (float) $data['longitude']);
-
-    // Data bengkel belum diisi: simpan tanpa jarak, sama seperti booking pelanggan.
-    if ($result === null) {
-        return $data;
-    }
-
-    if ($message = $action->rangeError($result)) {
-        throw ValidationException::withMessages(['data.latitude' => $message]);
-    }
-
-    return array_merge($data, [
-        'distance_air_km' => $result->airKm,
-        'distance_road_km' => $result->roadKm,
-        'distance_km' => $result->officialKm,
-        'distance_method' => $result->method,
-        'distance_estimated' => $result->estimated,
-    ]);
-}
 }
