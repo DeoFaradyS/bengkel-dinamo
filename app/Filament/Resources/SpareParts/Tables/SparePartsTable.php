@@ -55,8 +55,7 @@ class SparePartsTable
             ])
 
             ->recordActions([
-                StockActions::add(),
-                StockActions::correct(),
+                StockActions::change(),
                 EditAction::make(),
                 DeleteAction::make(),
             ]);

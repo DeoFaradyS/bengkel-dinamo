@@ -15,9 +15,7 @@ class EditSparePart extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            StockActions::add(),
-            StockActions::correct(),
-            ForceDeleteAction::make(),
+            StockActions::change(),
             RestoreAction::make(),
         ];
     }

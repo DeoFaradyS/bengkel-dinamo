@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use App\Enums\StockReason;
 
 class SparePart extends Model
 {
@@ -48,7 +49,7 @@ class SparePart extends Model
 
         // Kode dibebaskan saat part dihapus, supaya bisa dipakai part baru.
         static::deleting(function (SparePart $part) {
-            if (! $part->isForceDeleting()) {
+            if (!$part->isForceDeleting()) {
                 $part->code = $part->code . '-DEL-' . $part->id;
                 $part->saveQuietly();
             }
@@ -65,9 +66,9 @@ class SparePart extends Model
         return $this->hasMany(StockMovement::class);
     }
 
-    public function addStock(int $quantity, StockMovementType $type, ?string $note = null, ?int $serviceId = null): StockMovement
+    public function addStock(int $quantity, StockMovementType $type, ?string $note = null, ?int $serviceId = null, ?StockReason $reason = null): StockMovement
     {
-        return DB::transaction(function () use ($quantity, $type, $note, $serviceId) {
+        return DB::transaction(function () use ($quantity, $type, $note, $serviceId, $reason) {
             $part = static::lockForUpdate()->findOrFail($this->id);
             $after = $part->stock + $quantity;
 
@@ -84,6 +85,7 @@ class SparePart extends Model
                 'quantity' => $quantity,
                 'stock_after' => $after,
                 'note' => $note,
+                'reason' => $reason,
                 'service_id' => $serviceId,
                 'user_id' => auth()->id(),
             ]);

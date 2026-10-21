@@ -9,6 +9,7 @@ use Filament\Actions\Testing\TestAction;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
+use App\Enums\StockMovementType;
 
 beforeEach(function () {
     Storage::fake('public');
@@ -324,6 +325,75 @@ it('ESP-STK: stok tidak bisa diubah lewat form Edit', function () {
     Livewire::test(EditSparePart::class, ['record' => $part->getRouteKey()])
         ->fillForm(['stock' => 99])
         ->call('save');
+
+    expect($part->fresh()->stock)->toBe(10);
+});
+
+/* ------------------------------------------------------------------ */
+/* USP: ubah stok                                                      */
+/* ------------------------------------------------------------------ */
+
+it('USP-001: tambah stok dari supplier', function () {
+    $part = makePart(['stock' => 10]);
+
+    Livewire::test(ListSpareParts::class)
+        ->callAction(TestAction::make('changeStock')->table($part), data: [
+            'direction' => 'in',
+            'reason' => 'supplier',
+            'quantity' => 5,
+        ])
+        ->assertHasNoActionErrors();
+
+    $movement = $part->stockMovements()->where('reason', 'supplier')->first();
+
+    expect($part->fresh()->stock)->toBe(15)
+        ->and($movement->quantity)->toBe(5)
+        ->and($movement->stock_after)->toBe(15)
+        ->and($movement->type)->toBe(StockMovementType::Purchase);
+});
+
+it('USP-002: kurangi stok karena rusak', function () {
+    $part = makePart(['stock' => 10]);
+
+    Livewire::test(ListSpareParts::class)
+        ->callAction(TestAction::make('changeStock')->table($part), data: [
+            'direction' => 'out',
+            'reason' => 'damaged',
+            'quantity' => 2,
+        ])
+        ->assertHasNoActionErrors();
+
+    $movement = $part->stockMovements()->where('reason', 'damaged')->first();
+
+    expect($part->fresh()->stock)->toBe(8)
+        ->and($movement->quantity)->toBe(-2)
+        ->and($movement->type)->toBe(StockMovementType::Correction);
+});
+
+it('USP-003: kurangi stok melebihi sisa ditolak', function () {
+    $part = makePart(['stock' => 3]);
+
+    Livewire::test(ListSpareParts::class)
+        ->callAction(TestAction::make('changeStock')->table($part), data: [
+            'direction' => 'out',
+            'reason' => 'lost',
+            'quantity' => 999,
+        ]);
+
+    expect($part->fresh()->stock)->toBe(3)
+        ->and($part->stockMovements()->where('reason', 'lost')->exists())->toBeFalse();
+});
+
+it('USP-004: alasan Lainnya wajib keterangan', function () {
+    $part = makePart(['stock' => 10]);
+
+    Livewire::test(ListSpareParts::class)
+        ->callAction(TestAction::make('changeStock')->table($part), data: [
+            'direction' => 'out',
+            'reason' => 'other_out',
+            'quantity' => 1,
+        ])
+        ->assertHasActionErrors(['note' => 'required']);
 
     expect($part->fresh()->stock)->toBe(10);
 });

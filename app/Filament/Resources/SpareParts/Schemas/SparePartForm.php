@@ -12,6 +12,9 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Support\RawJs;
+use Filament\Actions\Action;
+use Filament\Support\Enums\Alignment;
+use Filament\Support\Enums\Width;
 
 class SparePartForm
 {
@@ -44,18 +47,37 @@ class SparePartForm
                                             ->createOptionForm([
                                                 TextInput::make('name')->label('Nama Kategori')
                                                     ->required()
+                                                    ->trim()
                                                     ->maxLength(255)
                                                     ->unique('categories', 'name'),
-                                                Textarea::make('description')->label('Deskripsi'),
-                                            ]),
+                                                Textarea::make('description')->label('Deskripsi')
+                                                    ->rows(3),
+                                            ])
+                                            ->createOptionAction(fn(Action $action) => $action
+                                                ->modalHeading('Tambah Kategori')
+                                                ->modalSubmitActionLabel('Simpan')
+                                                ->modalCancelActionLabel('Batal')
+                                                ->stickyModalHeader()
+                                                ->stickyModalFooter()
+                                                ->modalWidth(Width::Large)
+                                                ->modalFooterActionsAlignment(Alignment::End)),
                                         TextInput::make('location')->label('Lokasi')
                                             ->maxLength(255)
                                             ->placeholder('Contoh: Rak A1'),
                                     ]),
 
                                 Section::make('Stok & Harga')
-                                    ->columns(3)
+                                    ->columns(2)
                                     ->schema([
+                                        TextInput::make('price')->label('Harga')
+                                            ->columnSpanFull()
+                                            ->required()
+                                            ->numeric()
+                                            ->mask(RawJs::make("\$money(\$input, ',', '.', 0)"))
+                                            ->stripCharacters('.')
+                                            ->minValue(0)
+                                            ->maxValue(9999999999)
+                                            ->prefix('Rp'),
                                         TextInput::make('stock')->label('Stok')
                                             ->required()
                                             ->integer()
@@ -65,22 +87,14 @@ class SparePartForm
                                             ->disabled(fn(string $operation) => $operation === 'edit')
                                             ->dehydrated(fn(string $operation) => $operation === 'create')
                                             ->helperText(fn(string $operation) => $operation === 'edit'
-                                                ? 'Ubah lewat tombol Tambah Stok atau Koreksi Stok.'
-                                                : 'Stok awal. Setelah disimpan, ubah lewat tombol Tambah Stok.'),
+                                                ? 'Ubah lewat tombol Ubah Stok.'
+                                                : 'Stok awal. Setelah disimpan, ubah lewat tombol Ubah Stok.'),
                                         TextInput::make('min_stock')->label('Stok Minimal')
                                             ->required()
                                             ->integer()
                                             ->minValue(0)
                                             ->maxValue(999999)
                                             ->default(1),
-                                        TextInput::make('price')->label('Harga')
-                                            ->required()
-                                            ->numeric()
-                                            ->mask(RawJs::make("\$money(\$input, ',', '.', 0)"))
-                                            ->stripCharacters('.')
-                                            ->minValue(0)
-                                            ->maxValue(9999999999)
-                                            ->prefix('Rp'),
                                     ]),
                             ]),
 

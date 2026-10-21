@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\StockMovementType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Enums\StockReason;
 
 class StockMovement extends Model
 {
@@ -14,6 +15,7 @@ class StockMovement extends Model
         'quantity',
         'stock_after',
         'note',
+        'reason',
         'service_id',
         'user_id',
     ];
@@ -22,6 +24,7 @@ class StockMovement extends Model
         'type' => StockMovementType::class,
         'quantity' => 'integer',
         'stock_after' => 'integer',
+        'reason' => StockReason::class,
     ];
 
     public function sparePart(): BelongsTo

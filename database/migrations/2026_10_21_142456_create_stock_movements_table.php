@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->integer('quantity');
             $table->unsignedInteger('stock_after');
             $table->string('note')->nullable();
+            $table->string('reason', 30)->nullable();
             $table->foreignId('service_id')->nullable()->constrained('services')->nullOnDelete();
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
