@@ -155,3 +155,50 @@ it('STK-008: edit servis aktif jadi Selesai, stok berkurang', function () {
     expect($part->fresh()->stock)->toBe(8)
         ->and($service->fresh()->stock_synced_at)->not->toBeNull();
 });
+
+it('STK-012: edit simpan Selesai tanpa konfirmasi, modal muncul dan stok tidak berubah', function () {
+    $type = ServiceType::factory()->create();
+    [$service, [$part]] = serviceWithParts([[10, 2]]);
+    $service->update(['status' => ServiceStatus::InProgress]);
+
+    $service->items()->create([
+        'service_type_id' => $type->id,
+        'name' => $type->name,
+        'price' => 50000,
+    ]);
+
+    Livewire::test(EditService::class, ['record' => $service->getRouteKey()])
+        ->fillForm(['status' => 'completed'])
+        ->call('save')
+        ->assertActionMounted('confirmComplete');
+
+    expect($service->fresh()->status)->toBe(ServiceStatus::InProgress)
+        ->and($part->fresh()->stock)->toBe(10)
+        ->and($service->fresh()->stock_synced_at)->toBeNull();
+});
+
+it('STK-013: buat servis Selesai tanpa konfirmasi, modal muncul dan tidak tersimpan', function () {
+    $type = ServiceType::factory()->create();
+    $part = SparePart::factory()->create(['stock' => 10]);
+    $before = Service::count();
+
+    Livewire::test(CreateService::class)
+        ->fillForm([
+            'customer_name' => 'Pak Budi',
+            'phone' => fake()->unique()->numerify('08##########'),
+            'complaint' => 'Dinamo tidak mau engkol',
+            'scheduled_at' => now()->addDay()->format('Y-m-d H:i:s'),
+            'status' => 'completed',
+            'items' => [
+                ['service_type_id' => $type->id, 'name' => $type->name, 'price' => 50000],
+            ],
+            'serviceParts' => [
+                ['spare_part_id' => $part->id, 'quantity' => 2, 'unit_price' => 100000],
+            ],
+        ])
+        ->call('create')
+        ->assertActionMounted('confirmComplete');
+
+    expect(Service::count())->toBe($before)
+        ->and($part->fresh()->stock)->toBe(10);
+});

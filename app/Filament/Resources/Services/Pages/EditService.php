@@ -25,10 +25,14 @@ class EditService extends EditRecord
 
     protected function beforeSave(): void
     {
+        if ($this->isCompleting() && !$this->completeConfirmed) {
+            $this->mountAction('confirmComplete');
+            $this->halt();
+        }
+
         $this->data['items'] = array_filter($this->data['items'] ?? [], fn($r) => filled($r['service_type_id'] ?? null));
         $this->data['serviceParts'] = array_filter($this->data['serviceParts'] ?? [], fn($r) => filled($r['spare_part_id'] ?? null));
     }
-
     protected function afterSave(): void
     {
         if ($this->record->status === ServiceStatus::Completed) {

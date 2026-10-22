@@ -27,6 +27,11 @@ class CreateService extends CreateRecord
 
     protected function beforeCreate(): void
     {
+        if ($this->isCompleting() && !$this->completeConfirmed) {
+            $this->mountAction('confirmComplete');
+            $this->halt();
+        }
+
         $this->data['items'] = array_filter($this->data['items'] ?? [], fn($r) => filled($r['service_type_id'] ?? null));
         $this->data['serviceParts'] = array_filter($this->data['serviceParts'] ?? [], fn($r) => filled($r['spare_part_id'] ?? null));
     }
