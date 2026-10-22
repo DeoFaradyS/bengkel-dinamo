@@ -81,6 +81,7 @@ it('SUS-004: servis aktif jadi Selesai lewat halaman Edit, stok turun dan riwaya
     ]);
 
     Livewire::test(EditService::class, ['record' => $service->getKey()])
+        ->set('completeConfirmed', true)
         ->fillForm(['status' => ServiceStatus::Completed->value])
         ->call('save')
         ->assertHasNoFormErrors();
