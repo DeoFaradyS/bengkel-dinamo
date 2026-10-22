@@ -4,8 +4,8 @@ namespace App\Filament\Resources\Services\Pages;
 
 use App\Enums\ServiceStatus;
 use App\Filament\Resources\Services\ServiceResource;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Actions\Action;
+use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Support\Icons\Heroicon;
 
@@ -16,6 +16,8 @@ class ViewService extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
+            EditAction::make()
+                ->visible(fn() => ! $this->record->status->isFinal()),
             Action::make('invoice')
                 ->label('Cetak Invoice')
                 ->icon(Heroicon::OutlinedPrinter)

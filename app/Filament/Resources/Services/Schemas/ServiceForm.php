@@ -31,6 +31,7 @@ use Filament\Schemas\Components\Text;
 use Filament\Support\Enums\Alignment;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
+use App\Models\Service;
 
 class ServiceForm
 {
@@ -45,6 +46,20 @@ class ServiceForm
         $status = $status instanceof ServiceStatus ? $status : ServiceStatus::tryFrom((string) $status);
 
         return in_array($status, [ServiceStatus::Cancelled, ServiceStatus::Rejected], true);
+    }
+
+    private static function statusOptions(?Service $record): array
+    {
+        $current = $record?->status;
+
+        // Create: semua status. Edit: status sekarang + yang sah.
+        $cases = $current instanceof ServiceStatus
+            ? [$current, ...$current->allowedNext()]
+            : ServiceStatus::cases();
+
+        return collect($cases)
+            ->mapWithKeys(fn(ServiceStatus $s) => [$s->value => $s->getLabel()])
+            ->all();
     }
 
     private static function isHome(Get $get): bool
@@ -155,7 +170,13 @@ class ServiceForm
 
                         ToggleButtons::make('status')->label('Status')
                             ->columnSpanFull()
-                            ->options(ServiceStatus::class)
+                            ->options(fn(?Service $record) => self::statusOptions($record))
+                            ->colors(fn() => collect(ServiceStatus::cases())
+                                ->mapWithKeys(fn(ServiceStatus $s) => [$s->value => $s->getColor()])
+                                ->all())
+                            ->icons(fn() => collect(ServiceStatus::cases())
+                                ->mapWithKeys(fn(ServiceStatus $s) => [$s->value => $s->getIcon()])
+                                ->all())
                             ->default(ServiceStatus::Confirmed)
                             ->live()
                             ->inline()

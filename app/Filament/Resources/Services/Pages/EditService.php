@@ -95,4 +95,23 @@ class EditService extends EditRecord
 
         return $changed ? \App\Models\Service::withDistance($data) : $data;
     }
+
+    private function statusAction(Action $action): Action
+    {
+        return $action
+            ->record($this->record)
+            ->after(function () {
+                $this->record->refresh();
+
+                // Servis jadi final (tolak/batal): keluar dari halaman Edit
+                if ($this->record->status->isFinal()) {
+                    $this->redirect(ServiceResource::getUrl('view', ['record' => $this->record]));
+
+                    return;
+                }
+
+                // Servis masih aktif: segarkan form biar status tidak tertimpa saat Simpan
+                $this->refreshFormData(['status', 'cancel_reason']);
+            });
+    }
 }

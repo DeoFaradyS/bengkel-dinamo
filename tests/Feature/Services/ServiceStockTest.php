@@ -68,7 +68,7 @@ it('STK-004: stok kurang, error dan semua part batal berkurang', function () {
     // part1 cukup, part2 kurang. Part1 tidak boleh ikut berkurang.
     [$service, [$a, $b]] = serviceWithParts([[5, 2], [1, 3]]);
 
-    expect(fn () => $service->syncStock())->toThrow(RuntimeException::class);
+    expect(fn() => $service->syncStock())->toThrow(RuntimeException::class);
 
     expect($a->fresh()->stock)->toBe(5)
         ->and($b->fresh()->stock)->toBe(1)
@@ -138,6 +138,7 @@ it('STK-007: buat servis langsung Selesai, stok langsung berkurang', function ()
 it('STK-008: edit servis aktif jadi Selesai, stok berkurang', function () {
     $type = ServiceType::factory()->create();
     [$service, [$part]] = serviceWithParts([[10, 2]]);
+    $service->update(['status' => ServiceStatus::InProgress]);
 
     $service->items()->create([
         'service_type_id' => $type->id,

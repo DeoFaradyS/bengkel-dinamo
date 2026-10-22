@@ -39,7 +39,7 @@ it('STK-010: stok kurang saat Selesai lewat form, tidak error, status dan stok t
 });
 
 it('STK-011: edit ke status batal atau tolak, stok tidak berkurang', function (ServiceStatus $status) {
-    $service = Service::factory()->create();
+    $service = Service::factory()->create(['status' => ServiceStatus::Pending]);
     $part = SparePart::factory()->create(['stock' => 10]);
 
     ServicePart::factory()->create([

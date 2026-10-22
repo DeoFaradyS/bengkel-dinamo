@@ -62,7 +62,29 @@ it('KNC-007: buka halaman Lihat servis final berhasil', function (ServiceStatus 
 /* KNC: tombol di tabel                                                */
 /* ------------------------------------------------------------------ */
 
-it('KNC-008: servis aktif, tabel tampil Edit tanpa Lihat', function () {
+it('KNC-008: servis aktif, klik baris ke halaman Edit', function () {
+    $service = Service::factory()->create();
+
+    $url = Livewire::test(ListServices::class)
+        ->instance()
+        ->getTable()
+        ->getRecordUrl($service);
+
+    expect($url)->toBe(ServiceResource::getUrl('edit', ['record' => $service]));
+});
+
+it('KNC-009: servis final, klik baris ke halaman Lihat', function (ServiceStatus $status) {
+    $service = Service::factory()->status($status)->create();
+
+    $url = Livewire::test(ListServices::class)
+        ->instance()
+        ->getTable()
+        ->getRecordUrl($service);
+
+    expect($url)->toBe(ServiceResource::getUrl('view', ['record' => $service]));
+})->with('statusFinal');
+
+it('KNC-010: servis aktif punya tombol Ubah tanpa Lihat', function () {
     $service = Service::factory()->create();
 
     Livewire::test(ListServices::class)
@@ -70,7 +92,7 @@ it('KNC-008: servis aktif, tabel tampil Edit tanpa Lihat', function () {
         ->assertActionHidden(TestAction::make('view')->table($service));
 });
 
-it('KNC-009: servis final, tabel tampil Lihat tanpa Edit', function (ServiceStatus $status) {
+it('KNC-011: servis final punya tombol Lihat tanpa Ubah', function (ServiceStatus $status) {
     $service = Service::factory()->status($status)->create();
 
     Livewire::test(ListServices::class)

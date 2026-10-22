@@ -64,4 +64,20 @@ enum ServiceStatus: string implements HasColor, HasIcon, HasLabel
     {
         return !in_array($this->value, self::activeValues(), true);
     }
+
+    /** @return array<self> */
+    public function allowedNext(): array
+    {
+        return match ($this) {
+            self::Pending => [self::Confirmed, self::Rejected, self::Cancelled],
+            self::Confirmed => [self::InProgress, self::Cancelled],
+            self::InProgress => [self::Completed, self::Cancelled],
+            self::Completed, self::Cancelled, self::Rejected => [],
+        };
+    }
+
+    public function canMoveTo(self $to): bool
+    {
+        return $this === $to || in_array($to, $this->allowedNext(), true);
+    }
 }

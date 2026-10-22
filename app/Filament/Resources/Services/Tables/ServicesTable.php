@@ -4,15 +4,15 @@ namespace App\Filament\Resources\Services\Tables;
 
 use App\Enums\BookingType;
 use App\Enums\ServiceStatus;
-use App\Support\WhatsAppLink;
 use Filament\Actions\Action;
-use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\DB;
+use App\Filament\Resources\Services\ServiceResource;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 
 class ServicesTable
 {
@@ -60,18 +60,14 @@ class ServicesTable
                     ->label('Tipe')
                     ->options(BookingType::class),
             ])
+            ->recordUrl(fn($record) => $record->status->isFinal()
+                ? ServiceResource::getUrl('view', ['record' => $record])
+                : ServiceResource::getUrl('edit', ['record' => $record]))
             ->recordActions([
-                ViewAction::make()
-                    ->visible(fn($record) => $record->status->isFinal()),
                 EditAction::make()
                     ->visible(fn($record) => !$record->status->isFinal()),
-                Action::make('map')
-                    ->label('Buka Peta')
-                    ->icon(Heroicon::OutlinedMapPin)
-                    ->color('info')
-                    ->visible(fn($record) => $record->latitude !== null && $record->longitude !== null)
-                    ->url(fn($record) => "https://www.google.com/maps?q={$record->latitude},{$record->longitude}")
-                    ->openUrlInNewTab(),
+                ViewAction::make()
+                    ->visible(fn($record) => $record->status->isFinal()),
                 Action::make('invoice')
                     ->label('Invoice')
                     ->icon(Heroicon::OutlinedPrinter)
@@ -80,20 +76,6 @@ class ServicesTable
                         fn() => print ($record->invoicePdf()),
                         $record->invoiceNumber() . '.pdf',
                     )),
-                Action::make('whatsapp')
-                    ->label('Chat WA')
-                    ->icon(Heroicon::OutlinedChatBubbleLeftRight)
-                    ->color('success')
-                    ->visible(fn($record) => filled($record->phone))
-                    ->url(fn($record) => WhatsAppLink::make(
-                        $record->phone,
-                        match ($record->status) {
-                            ServiceStatus::Pending => "Halo {$record->customer_name}, booking servis Anda sudah kami terima. Kami konfirmasi jadwalnya segera.",
-                            ServiceStatus::Completed => "Halo {$record->customer_name}, servis motor Anda sudah selesai. Silakan diambil. Terima kasih.",
-                            default => "Halo {$record->customer_name}, kami dari bengkel menghubungi soal servis Anda.",
-                        },
-                    ))
-                    ->openUrlInNewTab(),
             ]);
     }
 }

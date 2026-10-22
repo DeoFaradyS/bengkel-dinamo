@@ -90,4 +90,5 @@ class ServiceResource extends Resource
     {
         return ServiceInfolist::configure($schema);
     }
+
 }
