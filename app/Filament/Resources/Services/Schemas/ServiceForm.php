@@ -32,6 +32,8 @@ use Filament\Support\Enums\Alignment;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use App\Models\Service;
+use App\Support\Booking\Slots;
+use Illuminate\Support\Carbon;
 
 class ServiceForm
 {
@@ -154,18 +156,25 @@ class ServiceForm
                             ->seconds(false)
                             ->displayFormat('d/m/Y H:i')
                             ->default(now())
-                            ->required(),
-                        Select::make('booking_type')->label('Tipe Layanan')
-                            ->options(BookingType::class)
-                            ->default(BookingType::Workshop)
                             ->live()
-                            ->afterStateUpdated(function ($state, Set $set) {
-                                if (self::typeOf($state) !== BookingType::HomeService) {
-                                    $set('latitude', null);
-                                    $set('longitude', null);
-                                    $set('address', null);
+                            ->hint(function (Get $get, ?Service $record): ?string {
+                                $state = $get('scheduled_at');
+
+                                if (blank($state)) {
+                                    return null;
                                 }
+
+                                try {
+                                    $time = Carbon::parse($state)->startOfMinute();
+                                } catch (\Throwable) {
+                                    return null;
+                                }
+
+                                return Slots::isAvailable($time, $record?->id)
+                                    ? null
+                                    : 'Jam ini sudah terisi servis lain. Tetap boleh disimpan.';
                             })
+                            ->hintColor('warning')
                             ->required(),
 
                         ToggleButtons::make('status')->label('Status')
