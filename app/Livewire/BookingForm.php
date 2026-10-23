@@ -8,6 +8,9 @@ use App\Support\PhoneNumber;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use App\Support\Booking\Slots;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -18,7 +21,7 @@ class BookingForm extends Component
     public string $phone = '';
     public string $complaint = '';
     public string $scheduled_at = '';
-
+    public string $slot_date = '';
     public string $booking_type = 'workshop';
     public ?float $latitude = null;
     public ?float $longitude = null;
@@ -30,6 +33,17 @@ class BookingForm extends Component
     public bool $submitted = false;
     public ?string $distanceText = null;
     public ?string $distanceError = null;
+
+    public function mount(): void
+    {
+        $this->slot_date = now()->format('Y-m-d');
+    }
+
+    public function updatedSlotDate(): void
+    {
+        // Ganti tanggal, jam yang dipilih sebelumnya tidak berlaku lagi.
+        $this->scheduled_at = '';
+    }
 
     public function submit(): void
     {
@@ -66,6 +80,7 @@ class BookingForm extends Component
         }
 
         $this->validate($rules, [
+            'scheduled_at.required' => 'Pilih tanggal dan jam.',
             'latitude.required' => 'Pilih lokasi di peta.',
             'longitude.required' => 'Pilih lokasi di peta.',
         ], [
@@ -157,6 +172,28 @@ class BookingForm extends Component
 
     public function render()
     {
-        return view('livewire.booking-form');
+        return view('livewire.booking-form', ['daftarSlot' => $this->daftarSlot()]);
+    }
+
+    public function pilihSlot(string $time): void
+    {
+        $valid = $this->daftarSlot()->contains(
+            fn($s) => $s['available'] && $s['time']->format('Y-m-d H:i') === $time
+        );
+
+        if ($valid) {
+            $this->scheduled_at = $time;
+            $this->resetErrorBag('scheduled_at');
+        }
+    }
+    protected function daftarSlot(): Collection
+    {
+        try {
+            $date = Carbon::createFromFormat('!Y-m-d', $this->slot_date);
+        } catch (\Throwable) {
+            return collect();
+        }
+
+        return $date ? Slots::bookable($date) : collect();
     }
 }

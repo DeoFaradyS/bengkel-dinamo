@@ -17,9 +17,15 @@ function serviceFormData(array $override = []): array
         'customer_name' => 'Pak Budi',
         'phone' => fake()->unique()->numerify('08##########'),
         'complaint' => 'Dinamo tidak mau engkol',
-        'scheduled_at' => now()->addDay()->format('Y-m-d H:i:s'),
+        'scheduled_at' => nextSlot()->format('Y-m-d H:i:s'),
         'status' => 'confirmed',
         'items' => [],
         'serviceParts' => [],
     ], $override);
+}
+
+/** Jam slot sah: besok 09.00. Selalu lolos jarak minimal dan batas hari. */
+function nextSlot(int $daysAhead = 1, int $hour = 9): \Illuminate\Support\Carbon
+{
+    return now()->addDays($daysAhead)->setTime($hour, 0, 0);
 }

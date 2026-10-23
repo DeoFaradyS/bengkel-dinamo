@@ -16,7 +16,7 @@ function lokasiData(array $override = []): array
         'customer_name' => 'Pak Budi',
         'phone' => '081234500002',
         'complaint' => 'Dinamo starter mati',
-        'scheduled_at' => now()->addDay(),
+        'scheduled_at' => nextSlot(),
     ], $override);
 }
 
@@ -26,7 +26,7 @@ function isiFormLokasi(array $override = [])
         'customer_name' => 'Pak Budi',
         'phone' => '081234500002',
         'complaint' => 'Dinamo starter mati',
-        'scheduled_at' => now()->addDay()->format('Y-m-d H:i'),
+        'scheduled_at' => nextSlot()->format('Y-m-d H:i'),
     ], $override);
 
     $component = Livewire::test(BookingForm::class);

@@ -19,7 +19,7 @@ function alamatData(array $override = []): array
         'customer_name' => 'Bu Rina',
         'phone' => '081234500020',
         'complaint' => 'Dinamo mati total',
-        'scheduled_at' => now()->addDay(),
+        'scheduled_at' => nextSlot(),
         'booking_type' => BookingType::HomeService->value,
         'latitude' => -7.7174465,
         'longitude' => 113.0755426,
@@ -72,7 +72,7 @@ it('ADR-005: form pelanggan Home Service tanpa alamat tetap terkirim', function 
         ->set('customer_name', 'Bu Rina')
         ->set('phone', '081234500021')
         ->set('complaint', 'Dinamo mati')
-        ->set('scheduled_at', now()->addDay()->format('Y-m-d\TH:i'))
+        ->set('scheduled_at', nextSlot()->format('Y-m-d\TH:i'))
         ->set('booking_type', BookingType::HomeService->value)
         ->set('latitude', -7.7174465)
         ->set('longitude', 113.0755426)
@@ -87,7 +87,7 @@ it('ADR-006: form pelanggan Home Service dengan alamat tersimpan', function () {
         ->set('customer_name', 'Bu Rina')
         ->set('phone', '081234500022')
         ->set('complaint', 'Dinamo mati')
-        ->set('scheduled_at', now()->addDay()->format('Y-m-d\TH:i'))
+        ->set('scheduled_at', nextSlot()->format('Y-m-d\TH:i'))
         ->set('booking_type', BookingType::HomeService->value)
         ->set('latitude', -7.7174465)
         ->set('longitude', 113.0755426)

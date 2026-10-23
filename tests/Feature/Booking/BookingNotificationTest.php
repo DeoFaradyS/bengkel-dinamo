@@ -11,7 +11,7 @@ function notifBookingData(array $override = []): array
         'customer_name' => 'Bu Sari',
         'phone' => '081234500001',
         'complaint' => 'Dinamo panas',
-        'scheduled_at' => now()->addDay(),
+        'scheduled_at' => nextSlot(),
     ], $override);
 }
 

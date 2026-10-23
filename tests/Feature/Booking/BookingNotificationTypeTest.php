@@ -10,7 +10,7 @@ function notifTipeData(array $override = []): array
         'customer_name' => 'Pak Budi',
         'phone' => '081234500004',
         'complaint' => 'Dinamo starter mati',
-        'scheduled_at' => now()->addDay(),
+        'scheduled_at' => nextSlot(),
     ], $override);
 }
 

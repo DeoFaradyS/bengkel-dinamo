@@ -15,6 +15,10 @@ use App\Enums\DistanceMethod;
 use App\Models\WorkshopSetting;
 use App\Support\Distance\DistanceResult;
 use App\Support\Distance\DistanceService;
+use App\Support\Booking\Slots;
+use Illuminate\Contracts\Cache\LockTimeoutException;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class CreateBooking
 {
@@ -53,38 +57,54 @@ class CreateBooking
             $this->assertWithinRange($distance);
         }
 
+        $slot = $this->resolveSlot($data['scheduled_at']);
+
         $phone = PhoneNumber::normalize($data['phone']);
 
-        $service = DB::transaction(function () use ($data, $phone, $type, $latitude, $longitude, $address, $distance) {
-            $hasActive = Service::query()
-                ->where('phone', $phone)
-                ->whereIn('status', ServiceStatus::activeValues())
-                ->lockForUpdate()
-                ->exists();
+        try {
+            $service = Cache::lock('booking-slot:' . $slot->timestamp, 10)->block(5, function () use ($data, $phone, $type, $latitude, $longitude, $address, $distance, $slot) {
+                return DB::transaction(function () use ($data, $phone, $type, $latitude, $longitude, $address, $distance, $slot) {
+                    $hasActive = Service::query()
+                        ->where('phone', $phone)
+                        ->whereIn('status', ServiceStatus::activeValues())
+                        ->lockForUpdate()
+                        ->exists();
 
-            if ($hasActive) {
-                throw ValidationException::withMessages([
-                    'phone' => 'Nomor ini masih punya servis yang belum selesai.',
-                ]);
-            }
+                    if ($hasActive) {
+                        throw ValidationException::withMessages([
+                            'phone' => 'Nomor ini masih punya servis yang belum selesai.',
+                        ]);
+                    }
 
-            return Service::create([
-                'customer_name' => $data['customer_name'],
-                'phone' => $phone,
-                'complaint' => $data['complaint'],
-                'scheduled_at' => $data['scheduled_at'],
-                'status' => ServiceStatus::Pending,
-                'booking_type' => $type,
-                'latitude' => $latitude,
-                'longitude' => $longitude,
-                'address' => $address,
-                'distance_air_km' => $distance?->airKm,
-                'distance_road_km' => $distance?->roadKm,
-                'distance_km' => $distance?->officialKm,
-                'distance_method' => $distance?->method,
-                'distance_estimated' => $distance?->estimated ?? false,
+                    if (!Slots::isAvailable($slot)) {
+                        throw ValidationException::withMessages([
+                            'scheduled_at' => 'Jam ini sudah terisi. Pilih jam lain.',
+                        ]);
+                    }
+
+                    return Service::create([
+                        'customer_name' => $data['customer_name'],
+                        'phone' => $phone,
+                        'complaint' => $data['complaint'],
+                        'scheduled_at' => $slot,
+                        'status' => ServiceStatus::Pending,
+                        'booking_type' => $type,
+                        'latitude' => $latitude,
+                        'longitude' => $longitude,
+                        'address' => $address,
+                        'distance_air_km' => $distance?->airKm,
+                        'distance_road_km' => $distance?->roadKm,
+                        'distance_km' => $distance?->officialKm,
+                        'distance_method' => $distance?->method,
+                        'distance_estimated' => $distance?->estimated ?? false,
+                    ]);
+                });
+            });
+        } catch (LockTimeoutException) {
+            throw ValidationException::withMessages([
+                'scheduled_at' => 'Sistem sedang sibuk, coba lagi sebentar.',
             ]);
-        });
+        }
 
         Notification::make()
             ->title('Booking baru')
@@ -111,6 +131,28 @@ class CreateBooking
         }
 
         return $type;
+    }
+
+    private function resolveSlot(mixed $value): Carbon
+    {
+        try {
+            $slot = Carbon::parse($value);
+        } catch (\Throwable) {
+            throw ValidationException::withMessages(['scheduled_at' => 'Jadwal tidak valid.']);
+        }
+
+        if (!Slots::isSlot($slot)) {
+            throw ValidationException::withMessages(['scheduled_at' => 'Pilih salah satu jam yang tersedia.']);
+        }
+
+        $earliest = now()->addMinutes((int) config('booking.min_lead_minutes'));
+        $latest = now()->addDays((int) config('booking.max_days_ahead'))->endOfDay();
+
+        if ($slot->lt($earliest) || $slot->gt($latest)) {
+            throw ValidationException::withMessages(['scheduled_at' => 'Jadwal di luar waktu yang bisa dipesan.']);
+        }
+
+        return $slot;
     }
 
     public function measureDistance(float $latitude, float $longitude): ?DistanceResult

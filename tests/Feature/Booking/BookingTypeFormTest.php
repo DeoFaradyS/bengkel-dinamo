@@ -39,7 +39,7 @@ it('TIP-005: home service tanpa lokasi, pesan error tampil di layar', function (
         ->set('customer_name', 'Pak Budi')
         ->set('phone', '081234500003')
         ->set('complaint', 'Dinamo starter mati')
-        ->set('scheduled_at', now()->addDay()->format('Y-m-d H:i'))
+        ->set('scheduled_at', nextSlot()->format('Y-m-d H:i'))
         ->set('booking_type', BookingType::HomeService->value)
         ->call('submit')
         ->assertHasErrors(['latitude'])

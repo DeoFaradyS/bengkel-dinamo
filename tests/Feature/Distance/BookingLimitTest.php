@@ -35,7 +35,7 @@ function limBook(BookingType $type = BookingType::HomeService): Service
         'customer_name' => 'Pak Budi',
         'phone' => '081234567890',
         'complaint' => 'Dinamo tidak mau engkol',
-        'scheduled_at' => now()->addDay(),
+        'scheduled_at' => nextSlot(),
         'booking_type' => $type,
     ];
 

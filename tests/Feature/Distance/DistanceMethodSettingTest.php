@@ -47,27 +47,30 @@ it('SET-003: metode tidak dikenal ditolak', function () {
 
 it('SET-004: skenario demo, ganti metode hanya berlaku untuk booking berikutnya', function () {
     config(['services.ors.key' => 'test-key']);
-    Http::fake(['api.openrouteservice.org/*' => Http::response(
-        ['routes' => [['summary' => ['distance' => 4090.7]]]], 200
-    )]);
+    Http::fake([
+        'api.openrouteservice.org/*' => Http::response(
+            ['routes' => [['summary' => ['distance' => 4090.7]]]],
+            200
+        )
+    ]);
 
-    $book = fn (string $phone) => app(CreateBooking::class)->handle([
+    $book = fn(string $phone, int $day) => app(CreateBooking::class)->handle([
         'customer_name' => 'Pak Budi',
         'phone' => $phone,
         'complaint' => 'Dinamo tidak mau engkol',
-        'scheduled_at' => now()->addDay(),
+        'scheduled_at' => nextSlot($day),
         'booking_type' => BookingType::HomeService,
         'latitude' => -7.2800,
         'longitude' => 112.7600,
     ])->fresh();
 
-    $a = $book('081234567890');
+    $a = $book('081234567890', 1);
 
     Livewire::test(JarakOngkos::class)
         ->fillForm(['distance_method' => 'ors'])
         ->call('save');
 
-    $b = $book('081234567891');
+    $b = $book('081234567891', 2);
 
     expect($a->distance_method)->toBe(DistanceMethod::Haversine)
         ->and($a->distance_km)->toEqualWithDelta(2.649, 0.001)

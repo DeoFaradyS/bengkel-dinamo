@@ -12,7 +12,7 @@ function dataServis(array $extra = []): array
         'customer_name' => 'Budi',
         'phone' => '081234567890',
         'complaint' => 'Dinamo starter mati',
-        'scheduled_at' => now()->addDay(),
+        'scheduled_at' => nextSlot(),
     ], $extra);
 }
 
