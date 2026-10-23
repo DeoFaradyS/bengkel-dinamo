@@ -177,6 +177,19 @@ class ServiceForm
                             ->hintColor('warning')
                             ->required(),
 
+                        Select::make('booking_type')->label('Tipe Layanan')
+                            ->options(BookingType::class)
+                            ->default(BookingType::Workshop)
+                            ->live()
+                            ->afterStateUpdated(function ($state, Set $set) {
+                                if (self::typeOf($state) !== BookingType::HomeService) {
+                                    $set('latitude', null);
+                                    $set('longitude', null);
+                                    $set('address', null);
+                                }
+                            })
+                            ->required(),
+
                         ToggleButtons::make('status')->label('Status')
                             ->columnSpanFull()
                             ->options(fn(?Service $record) => self::statusOptions($record))
