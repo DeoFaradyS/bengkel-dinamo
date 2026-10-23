@@ -14,6 +14,7 @@ use Illuminate\Support\Collection;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
+
 #[Layout('layouts.booking')]
 class BookingForm extends Component
 {
@@ -43,6 +44,25 @@ class BookingForm extends Component
     {
         // Ganti tanggal, jam yang dipilih sebelumnya tidak berlaku lagi.
         $this->scheduled_at = '';
+
+        try {
+            $date = Carbon::createFromFormat('!Y-m-d', $this->slot_date);
+        } catch (\Throwable) {
+            return;
+        }
+
+        if (!$date) {
+            return;
+        }
+
+        $min = now()->startOfDay();
+        $max = now()->addDays((int) config('booking.max_days_ahead'))->startOfDay();
+
+        if ($date->lt($min)) {
+            $this->slot_date = $min->format('Y-m-d');
+        } elseif ($date->gt($max)) {
+            $this->slot_date = $max->format('Y-m-d');
+        }
     }
 
     public function submit(): void

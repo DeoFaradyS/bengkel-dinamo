@@ -108,3 +108,14 @@ it('BKG-017: slot penuh tidak bisa dipilih', function () {
         ->call('pilihSlot', '2026-10-23 09:00')
         ->assertSet('scheduled_at', '');
 });
+
+it('BKG-018: tanggal kemarin dan terlalu jauh dikoreksi ke batas', function () {
+    config(['booking.max_days_ahead' => 14]);
+    $this->travelTo(\Illuminate\Support\Carbon::parse('2026-10-23 06:00'));
+
+    Livewire::test(BookingForm::class)
+        ->set('slot_date', '2026-10-22')
+        ->assertSet('slot_date', '2026-10-23')
+        ->set('slot_date', '2026-12-31')
+        ->assertSet('slot_date', '2026-11-06');
+});
