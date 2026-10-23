@@ -12,6 +12,7 @@ dataset('statusFinal', [
     'Completed' => ServiceStatus::Completed,
     'Cancelled' => ServiceStatus::Cancelled,
     'Rejected' => ServiceStatus::Rejected,
+    'Expired' => ServiceStatus::Expired,
 ]);
 
 dataset('statusNonSelesai', [

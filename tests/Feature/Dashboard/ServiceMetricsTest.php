@@ -129,6 +129,7 @@ it('MET-008: komposisi status lengkap, status kosong bernilai nol', function () 
         'completed' => 1,
         'cancelled' => 0,
         'rejected' => 0,
+        'expired' => 0,
     ]);
 });
 

@@ -50,13 +50,14 @@ class StatusChart extends ChartWidget
             'completed' => '#22c55e',
             'cancelled' => '#64748b',
             'rejected' => '#ef4444',
+            'expired' => '#d6d3d1',
         ];
 
         return [
             'datasets' => [
                 [
                     'data' => array_values($counts),
-                    'backgroundColor' => array_map(fn($key) => $colors[$key], array_keys($counts)),
+                    'backgroundColor' => array_map(fn($key) => $colors[$key] ?? '#d1d5db', array_keys($counts)),
                 ]
             ],
             'labels' => array_map(fn($key) => ServiceStatus::from($key)->getLabel(), array_keys($counts)),

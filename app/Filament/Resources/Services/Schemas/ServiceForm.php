@@ -52,10 +52,10 @@ class ServiceForm
     {
         $current = $record?->status;
 
-        // Create: semua status. Edit: status sekarang + yang sah.
+        // Create: semua status kecuali Kedaluwarsa (hanya diberi sistem). Edit: status sekarang + yang sah.
         $cases = $current instanceof ServiceStatus
             ? [$current, ...$current->allowedNext()]
-            : ServiceStatus::cases();
+            : array_filter(ServiceStatus::cases(), fn(ServiceStatus $s) => $s !== ServiceStatus::Expired);
 
         return collect($cases)
             ->mapWithKeys(fn(ServiceStatus $s) => [$s->value => $s->getLabel()])

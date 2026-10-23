@@ -18,7 +18,7 @@ class Slots
         $slots = collect();
 
         while ($cursor->copy()->addMinutes($step)->lte($close)) {
-            if (! self::inBreak($cursor, $step)) {
+            if (!self::inBreak($cursor, $step)) {
                 $slots->push($cursor->copy());
             }
 
@@ -31,7 +31,7 @@ class Slots
     /** Apakah jam ini tepat di awal salah satu slot. */
     public static function isSlot(CarbonInterface $time): bool
     {
-        return self::forDate($time)->contains(fn ($s) => $s->equalTo($time));
+        return self::forDate($time)->contains(fn($s) => $s->equalTo($time));
     }
 
     /** Berapa servis aktif yang sudah menahan slot ini. */
@@ -40,7 +40,7 @@ class Slots
         return Service::query()
             ->where('scheduled_at', $slot)
             ->whereIn('status', ServiceStatus::activeValues())
-            ->when($ignoreServiceId, fn ($q) => $q->where('id', '!=', $ignoreServiceId))
+            ->when($ignoreServiceId, fn($q) => $q->where('id', '!=', $ignoreServiceId))
             ->count();
     }
 
@@ -49,15 +49,18 @@ class Slots
         return self::taken($slot, $ignoreServiceId) < (int) config('booking.capacity');
     }
 
-    /** Slot yang boleh ditampilkan ke pelanggan, beserta status tersedia atau penuh. */
+    /** Slot yang ditampilkan ke pelanggan. Terlalu dekat atau penuh tetap tampil, tapi tidak tersedia. */
     public static function bookable(CarbonInterface $date): Collection
     {
         $earliest = now()->addMinutes((int) config('booking.min_lead_minutes'));
         $latest = now()->addDays((int) config('booking.max_days_ahead'))->endOfDay();
 
         return self::forDate($date)
-            ->filter(fn ($s) => $s->gte($earliest) && $s->lte($latest))
-            ->map(fn ($s) => ['time' => $s, 'available' => self::isAvailable($s)])
+            ->filter(fn($s) => $s->gte(now()->startOfDay()) && $s->lte($latest))
+            ->map(fn($s) => [
+                'time' => $s,
+                'available' => $s->gte($earliest) && self::isAvailable($s),
+            ])
             ->values();
     }
 

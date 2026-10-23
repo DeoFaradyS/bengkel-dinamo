@@ -80,9 +80,12 @@ it('FLW-005: form Edit cuma tampilkan status sekarang dan yang sah', function (S
     'in progress' => [ServiceStatus::InProgress, [ServiceStatus::InProgress, ServiceStatus::Completed, ServiceStatus::Cancelled]],
 ]);
 
-it('FLW-006: form Create menampilkan semua status', function () {
+it('FLW-006: form Create menampilkan semua status kecuali Kedaluwarsa', function () {
     Livewire::test(CreateService::class)
         ->assertFormFieldExists('status', function (ToggleButtons $field) {
-            return count($field->getOptions()) === count(ServiceStatus::cases());
+            $options = $field->getOptions();
+
+            return count($options) === count(ServiceStatus::cases()) - 1
+                && ! array_key_exists(ServiceStatus::Expired->value, $options);
         });
 });

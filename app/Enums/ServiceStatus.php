@@ -14,6 +14,7 @@ enum ServiceStatus: string implements HasColor, HasIcon, HasLabel
     case Completed = 'completed';
     case Cancelled = 'cancelled';
     case Rejected = 'rejected';
+    case Expired = 'expired';
 
     public function getLabel(): string
     {
@@ -24,6 +25,7 @@ enum ServiceStatus: string implements HasColor, HasIcon, HasLabel
             self::Completed => 'Selesai',
             self::Cancelled => 'Dibatalkan',
             self::Rejected => 'Ditolak',
+            self::Expired => 'Kedaluwarsa',
         };
     }
 
@@ -36,6 +38,7 @@ enum ServiceStatus: string implements HasColor, HasIcon, HasLabel
             self::Completed => 'success',
             self::Cancelled => 'gray',
             self::Rejected => 'danger',
+            self::Expired => 'gray',
         };
     }
 
@@ -48,6 +51,7 @@ enum ServiceStatus: string implements HasColor, HasIcon, HasLabel
             self::Completed => 'heroicon-o-check-badge',
             self::Cancelled => 'heroicon-o-no-symbol',
             self::Rejected => 'heroicon-o-x-circle',
+            self::Expired => 'heroicon-o-archive-box-x-mark',
         };
     }
 
@@ -72,7 +76,7 @@ enum ServiceStatus: string implements HasColor, HasIcon, HasLabel
             self::Pending => [self::Confirmed, self::Rejected, self::Cancelled],
             self::Confirmed => [self::InProgress, self::Cancelled],
             self::InProgress => [self::Completed, self::Cancelled],
-            self::Completed, self::Cancelled, self::Rejected => [],
+            self::Completed, self::Cancelled, self::Rejected, self::Expired => [],
         };
     }
 

@@ -45,11 +45,18 @@ it('SLT-005: servis yang sedang diedit tidak menghalangi slotnya sendiri', funct
 });
 
 it('SLT-006: slot yang tampil ke pelanggan menghormati jarak minimal dan batas hari', function () {
+    config(['booking.min_lead_minutes' => 30]);
     $this->travelTo(Carbon::parse('2026-10-23 10:30'));
 
-    // Hari ini: 11.00 terlalu dekat (butuh 1 jam), 12.00 istirahat. Sisa 13, 14, 15, 16.
+    // Semua 9 slot hari ini tampil. Yang tersedia: 11.00 (tepat 30 menit lagi), 13, 14, 15, 16.
     $today = Slots::bookable(now());
-    expect($today->map(fn ($s) => $s['time']->format('H:i'))->all())->toBe(['13:00', '14:00', '15:00', '16:00']);
+    expect($today)->toHaveCount(9);
+
+    $available = $today->filter(fn ($s) => $s['available'])
+        ->map(fn ($s) => $s['time']->format('H:i'))
+        ->values()
+        ->all();
+    expect($available)->toBe(['11:00', '13:00', '14:00', '15:00', '16:00']);
 
     // Lewat 14 hari: tidak ada slot.
     expect(Slots::bookable(now()->addDays(15)))->toBeEmpty();
@@ -62,4 +69,18 @@ it('SLT-007: slot penuh tetap tampil tapi ditandai tidak tersedia', function () 
     $slot = Slots::bookable(now())->first(fn ($s) => $s['time']->format('H:i') === '09:00');
 
     expect($slot['available'])->toBeFalse();
+});
+
+it('SLT-008: slot kurang dari 30 menit lagi tetap tampil tapi tidak tersedia', function () {
+    config(['booking.min_lead_minutes' => 30]);
+    $slot11 = fn () => Slots::bookable(now())->first(fn ($s) => $s['time']->format('H:i') === '11:00');
+
+    // 10.30: slot 11.00 tepat 30 menit lagi, tersedia.
+    $this->travelTo(Carbon::parse('2026-10-23 10:30'));
+    expect($slot11()['available'])->toBeTrue();
+
+    // 10.31: slot 11.00 tinggal 29 menit, tampil tapi tidak tersedia.
+    $this->travelTo(Carbon::parse('2026-10-23 10:31'));
+    expect($slot11())->not->toBeNull()
+        ->and($slot11()['available'])->toBeFalse();
 });
