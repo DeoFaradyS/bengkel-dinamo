@@ -1,5 +1,7 @@
 import "leaflet/dist/leaflet.css";
 import { mountPinMap } from "./map-pin";
+import { Calendar } from "vanilla-calendar-pro";
+import "vanilla-calendar-pro/styles/index.css";
 
 // Dipanggil dari Blade: x-init="bookingMap($el, $wire)"
 window.bookingMap = (el, wire) => {
@@ -33,4 +35,31 @@ window.bookingMap = (el, wire) => {
     if (!Number.isFinite(parseFloat(wire.latitude))) {
         pin.locate({ onStart: () => {}, onDone: () => {}, onError: () => {} });
     }
+};
+
+// Dipanggil dari Blade: x-init="bookingDate($el, $wire)"
+window.bookingDate = (el, wire) => {
+    const format = new Intl.DateTimeFormat("id-ID", { dateStyle: "full" });
+    const tampil = (ymd) => format.format(new Date(ymd + "T00:00:00"));
+
+    const cal = new Calendar("#" + el.id, {
+        inputMode: true,
+        locale: "id-ID",
+        selectedTheme: "light",
+        selectionDatesMode: "single",
+        selectedDates: [el.dataset.value],
+        dateMin: el.dataset.min,
+        dateMax: el.dataset.max,
+        onChangeToInput(self) {
+            const ymd = self.context.selectedDates[0];
+
+            if (!ymd) return;
+
+            el.value = tampil(ymd);
+            wire.$set("slot_date", ymd);
+        },
+    });
+
+    cal.init();
+    el.value = tampil(el.dataset.value);
 };

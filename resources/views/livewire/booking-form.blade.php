@@ -36,9 +36,12 @@
             </div>
 
             <div class="flex flex-col gap-2">
-                <input type="date" wire:model.live="slot_date" min="{{ now()->format('Y-m-d') }}"
-                    max="{{ now()->addDays((int) config('booking.max_days_ahead'))->format('Y-m-d') }}"
-                    class="w-full p-4 bg-neutral-100 rounded-[10px] text-neutral-800 outline-none focus:ring-2 focus:ring-red-500">
+                <div wire:ignore>
+                    <input type="text" id="slot-date" readonly x-init="bookingDate($el, $wire)"
+                        data-value="{{ $slot_date }}" data-min="{{ now()->format('Y-m-d') }}"
+                        data-max="{{ now()->addDays((int) config('booking.max_days_ahead'))->format('Y-m-d') }}"
+                        class="w-full p-4 bg-neutral-100 rounded-[10px] text-neutral-800 outline-none cursor-pointer focus:ring-2 focus:ring-red-500">
+                </div>
 
                 @if ($daftarSlot->isEmpty())
                     <p class="text-sm text-neutral-500">Tidak ada jam tersedia di tanggal ini. Pilih tanggal lain.</p>
@@ -73,10 +76,10 @@
                             data-center-lng="113.0755426" class="w-full h-64 rounded-lg z-0"></div>
                     </div>
                     <button type="button" x-bind:disabled="locating" x-on:click="locateError = ''; document.getElementById('booking-map').pinMap.locate({
-                                                                    onStart: () => locating = true,
-                                                                    onDone: () => locating = false,
-                                                                    onError: (msg) => locateError = msg,
-                                                                })"
+                                                                            onStart: () => locating = true,
+                                                                            onDone: () => locating = false,
+                                                                            onError: (msg) => locateError = msg,
+                                                                        })"
                         class="px-4 py-3 bg-white border border-neutral-200 rounded-[10px] text-sm font-semibold text-neutral-700 disabled:opacity-60">
                         <span x-show="!locating">Lokasi saya</span>
                         <span x-show="locating" style="display:none">Mencari lokasi...</span>
