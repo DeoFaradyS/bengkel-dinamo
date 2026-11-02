@@ -1,0 +1,99 @@
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Inter
+skinparam defaultFontSize 13
+skinparam defaultFontColor #1F2937
+skinparam ArrowColor #9CA3AF
+skinparam ArrowFontColor #6B7280
+skinparam ArrowFontSize 11
+skinparam ArrowThickness 1
+skinparam ActorBorderColor #374151
+skinparam ActorBackgroundColor #FFFFFF
+skinparam ActorFontColor #1F2937
+skinparam UsecaseBorderColor #3B82F6
+skinparam UsecaseBackgroundColor #FFFFFF
+skinparam UsecaseBorderThickness 1
+skinparam RectangleBorderColor #D1D5DB
+skinparam RectangleBackgroundColor #FFFFFF
+skinparam RectangleBorderThickness 1
+skinparam RectangleFontColor #6B7280
+
+actor "Pelanggan" as P
+actor "Pemilik" as O
+actor "Sistem" as S
+
+rectangle "SIM Bengkel Cak Budi Dinamo" {
+
+
+    usecase "Lihat Halaman Bengkel" as UC01
+    usecase "Hubungi via WhatsApp" as UC02
+    usecase "Booking Servis" as UC03
+    usecase "Pilih Slot Jam" as UC04
+    usecase "Tandai Lokasi\ndan Hitung Ongkos" as UC05
+
+  rectangle "Akun" {
+    usecase "Login" as UC06
+  }
+
+  rectangle "Katalog" {
+    usecase "Kelola Sparepart" as UC07
+    usecase "Cari dan Filter Sparepart" as UC08
+    usecase "Lihat Stok Menipis" as UC09
+    usecase "Lihat Riwayat Stok" as UC10
+    usecase "Kelola Kategori" as UC11
+  }
+
+  rectangle "Operasional" {
+    usecase "Konfirmasi atau Tolak Booking" as UC12
+    usecase "Kelola Servis" as UC13
+    usecase "Kelola Jasa dan Part" as UC14
+    usecase "Ubah Status Servis" as UC15
+    usecase "Cetak Invoice PDF" as UC16
+    usecase "Kelola Jenis Layanan" as UC17
+  }
+
+  rectangle "Laporan dan Pengaturan" {
+    usecase "Lihat Dashboard" as UC18
+    usecase "Atur Pengaturan Bengkel" as UC19
+  }
+
+  rectangle "Proses Otomatis" {
+    usecase "Kirim Notifikasi\nBooking Baru" as UC20
+    usecase "Kedaluwarsakan\nBooking Pending" as UC21
+    usecase "Kurangi Stok\nSaat Selesai" as UC22
+  }
+}
+
+P --> UC01
+P --> UC02
+P --> UC03
+
+O --> UC06
+O --> UC07
+O --> UC10
+O --> UC11
+O --> UC12
+O --> UC13
+O --> UC15
+O --> UC16
+O --> UC17
+O --> UC18
+O --> UC19
+
+S --> UC20
+S --> UC21
+S --> UC22
+
+UC03 ..> UC04 : <<include>>
+UC03 ..> UC20 : <<include>>
+UC05 .up.> UC03 : <<extend>>
+
+UC08 .up.> UC07 : <<extend>>
+UC09 .up.> UC07 : <<extend>>
+
+UC13 ..> UC14 : <<include>>
+UC22 .up.> UC15 : <<extend>>
+UC16 .up.> UC13 : <<extend>>
+@enduml
