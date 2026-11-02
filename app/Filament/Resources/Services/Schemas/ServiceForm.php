@@ -368,14 +368,11 @@ class ServiceForm
                                     ->live(onBlur: true),
                                 TextInput::make('unit_price')
                                     ->label('Harga')
-                                    ->required(fn(Get $get) => filled($get('spare_part_id')))
-                                    ->numeric()
+                                    ->disabled()
+                                    ->dehydrated(false)
                                     ->mask(RawJs::make("\$money(\$input, ',', '.', 0)"))
                                     ->stripCharacters('.')
-                                    ->minValue(0)
-                                    ->maxValue(99999999)
-                                    ->prefix('Rp')
-                                    ->live(onBlur: true),
+                                    ->prefix('Rp'),
                             ]),
                     ]),
 

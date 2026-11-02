@@ -125,26 +125,25 @@ it('SPF-008: baris part kosong diabaikan, tidak error dan tidak tersimpan', func
         ->and(ServicePart::count())->toBe(0);
 });
 
-it('SPF-009: harga satuan kosong ditolak', function () {
-    $part = SparePart::factory()->create(['stock' => 10]);
+it('SPF-009: harga satuan baris baru disalin dari sparepart', function () {
+    $part = SparePart::factory()->create(['price' => 75000]);
+    $service = Service::factory()->create();
 
-    Livewire::test(CreateService::class)
-        ->fillForm(partFormData([
-            ['spare_part_id' => $part->id, 'quantity' => 1, 'unit_price' => null],
-        ]))
-        ->call('create')
-        ->assertHasFormErrors(['serviceParts.0.unit_price' => 'required']);
+    $row = ServicePart::create([
+        'service_id' => $service->id,
+        'spare_part_id' => $part->id,
+        'quantity' => 1,
+    ]);
+
+    expect((float) $row->fresh()->unit_price)->toBe(75000.0);
 });
 
-it('SPF-010: harga satuan negatif ditolak', function () {
-    $part = SparePart::factory()->create(['stock' => 10]);
+it('SPF-010: harga satuan baris lama tidak bisa diubah', function () {
+    $row = ServicePart::factory()->create(['unit_price' => 50000]);
 
-    Livewire::test(CreateService::class)
-        ->fillForm(partFormData([
-            ['spare_part_id' => $part->id, 'quantity' => 1, 'unit_price' => -1],
-        ]))
-        ->call('create')
-        ->assertHasFormErrors(['serviceParts.0.unit_price']);
+    $row->update(['unit_price' => 1]);
+
+    expect((float) $row->fresh()->unit_price)->toBe(50000.0);
 });
 
 it('SPF-011: part yang sama dua kali di satu servis ditolak', function () {
