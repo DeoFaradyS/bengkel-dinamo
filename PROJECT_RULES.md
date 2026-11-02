@@ -39,10 +39,10 @@ Metode: prototype, 4 iterasi. Pengujian: Black Box.
 - [x] US-08 Dashboard: KPI, tren, top part, top layanan, tipe, status (`app/Support/Dashboard/*`, `app/Filament/Widgets/*`)
 - [ ] Rekap stok per periode: perlu dicek
 
-**Fitur tambahan di luar PRD awal (sudah ada):** home service dengan peta, jarak (Haversine/ORS) dan ongkos transport; riwayat stok (`stock_movements`); master kategori dan jenis layanan; pengaturan bengkel (`workshop_settings`); kedaluwarsa booking otomatis; halaman `JarakOngkos`.
+**Fitur tambahan di luar PRD awal (sudah ada):** home service dengan peta, jarak udara (Haversine) dan ongkos transport; riwayat stok (`stock_movements`); master kategori dan jenis layanan; pengaturan bengkel (`workshop_settings`); kedaluwarsa booking otomatis; halaman `JarakOngkos`.
 
-**Sedang dikerjakan:** ISI
-**Catatan terakhir:** harga part di servis dikunci lewat hook model `ServicePart` (`creating` dan `updating`). Tes SPF-009 dan SPF-010 diganti menjadi tes level model.
+**Sedang dikerjakan:** (kosong)
+**Catatan terakhir:** ORS dibuang, jarak hanya Haversine (jarak udara). Kolom `distance_air_km`, `distance_road_km`, `distance_method`, `distance_estimated` dihapus, sisa `distance_km`. Migrasi lama diedit langsung karena masih tahap dev.
 
 ## 4. Model data (sumber kebenaran: file migrasi di konteks)
 
@@ -51,12 +51,12 @@ Metode: prototype, 4 iterasi. Pengujian: Black Box.
 | `users` | name, email, password |
 | `categories` | name, description |
 | `spare_parts` | code (unik), name, photo, category_id (FK nullable), stock, min_stock (unsigned, default 1), location, price, soft delete |
-| `services` | customer_name, phone, complaint, scheduled_at, status, booking_type, latitude, longitude, address, cancel_reason, stock_synced_at, distance_*_km, distance_method, distance_estimated, fuel_price, transport_fee, soft delete. **Tidak ada** `source`, `labor_cost`, `notes`. |
+| `services` | customer_name, phone, complaint, scheduled_at, status, booking_type, latitude, longitude, address, cancel_reason, stock_synced_at, distance_km, fuel_price, transport_fee, soft delete. **Tidak ada** `source`, `labor_cost`, `notes`. |
 | `service_types` | name, default_price |
 | `service_items` | service_id, service_type_id (nullable), name, price (jasa per baris) |
 | `service_parts` | service_id, spare_part_id, quantity, unit_price. Unik (service_id, spare_part_id). Tanpa timestamps. |
 | `stock_movements` | spare_part_id, type, quantity (bertanda), stock_after, note, reason, service_id, user_id |
-| `workshop_settings` | latitude, longitude, max_distance_km, fuel_price, distance_method |
+| `workshop_settings` | latitude, longitude, max_distance_km, fuel_price |distance_method |
 | `notifications`, `cache`, `jobs` | bawaan Laravel |
 
 Relasi utama: `Service hasMany ServiceItem`, `Service hasMany ServicePart`, `SparePart hasMany StockMovement`, `SparePart belongsTo Category`, `ServicePart belongsTo SparePart` (withTrashed).
@@ -74,7 +74,7 @@ Config yang dipakai kode tapi tidak ikut konteks: `config/booking.php`, `config/
 5. Booking pending otomatis menjadi `expired` lewat `bookings:expire` (batas waktu di `config/booking.php`).
 6. `unit_price` di `service_parts` disalin dari `spare_parts.price` saat part dipakai.
 7. Total servis: `grand_total = labor_total + parts_total + transport_fee`. `labor_total` = jumlah `service_items.price`. `parts_total` = jumlah `quantity * unit_price`.
-8. Ongkos transport hanya untuk `home_service`: dihitung dari jarak, harga BBM, dan `config/transport.*`. Di luar `max_distance_km` booking ditolak.
+8. Ongkos transport hanya untuk `home_service`: dihitung dari jarak udara (Haversine), harga BBM, dan `config/transport.*`. Di luar `max_distance_km` booking ditolak.
 9. Hapus sparepart memakai soft delete. Kode part diberi akhiran `-DEL-{id}` agar kode bisa dipakai ulang.
 10. Notifikasi booking baru dikirim ke semua `User` lewat database notification.
 
@@ -103,7 +103,7 @@ Login pelanggan, pembayaran online, banyak role (montir/kasir), aplikasi mobile 
 - Semua perubahan stok harus lewat `SparePart::addStock()` atau `Service::syncStock()`. Jangan `update` kolom `stock` langsung.
 - Logika status mengikuti `ServiceStatus::allowedNext()`. Jangan menambah status atau transisi tanpa persetujuan.
 - Jangan mengubah versi Laravel/Filament, jangan menyarankan upgrade, jangan menambah paket tanpa bertanya.
-- Jangan mengubah struktur tabel yang sudah ada tanpa persetujuan. Perubahan skema selalu lewat migrasi baru.
+- Jangan mengubah struktur tabel yang sudah ada tanpa persetujuan. Perubahan skema lewat migrasi baru. Pengecualian: selama proyek masih tahap dev (belum ada data produksi), pemilik boleh memutuskan mengedit migrasi lama lalu `php artisan migrate:fresh --seed`. Tanya dulu dan tunggu persetujuan, jangan memutuskan sendiri.
 - Ikuti pola `app/Filament/Resources` (folder `Pages`, `Schemas`, `Tables`, `RelationManagers`, `Actions`), pola `app/Support` dan `app/Actions`.
 - Pesan error dan label untuk pengguna berbahasa Indonesia.
 - Jawaban kode: file lengkap dengan path-nya. Perubahan kecil: bagian yang berubah plus 1-2 baris konteks.
@@ -123,6 +123,8 @@ Tujuan: setiap perubahan langsung ketahuan kalau merusak fitur lain, tanpa menge
 - Perbaikan bug: tulis tes yang gagal karena bug itu lebih dulu, lalu perbaiki kodenya.
 - Sebelum dianggap selesai, seluruh tes harus lulus: `php artisan test` (atau `./vendor/bin/pest`). Laporkan hasilnya, contoh "469 lulus".
 - Perubahan di `Service::syncStock()`, `SparePart::addStock()`, `ServiceStatus::allowedNext()`, atau hitungan total wajib punya tes regresi, karena area ini menyentuh banyak fitur.
+
+11. Antrian servis: hanya satu servis `in_progress` sekali waktu. Servis hanya boleh pindah ke `in_progress` (atau dibuat langsung berstatus itu) kalau tidak ada servis `in_progress` lain dan tidak ada servis `confirmed` yang antre lebih dulu. Urutan antre: `scheduled_at`, lalu `created_at`, lalu `id`, berlaku sama untuk booking aplikasi dan walk-in. Booking `pending` tidak menghalangi. Servis yang dibatalkan, diselesaikan, atau dikonfirmasi/ditolak tidak terkena aturan ini. Pengecekan lewat `Service::startBlockerMessage()`. Kalau terblokir, form buat dan ubah servis menampilkan modal `queueBlocked`. Tes: ANT-001 sampai ANT-012 di `tests/Feature/Services/ServiceQueueTest.php`.
 
 ## Halaman publik (landing page `/`)
 
