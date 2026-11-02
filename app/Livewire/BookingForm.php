@@ -161,7 +161,7 @@ class BookingForm extends Component
             return;
         }
 
-        // Melindungi kuota ORS dari pemanggilan beruntun.
+        // Membatasi pemanggilan beruntun.
         $key = 'distance:' . request()->ip();
 
         if (RateLimiter::tooManyAttempts($key, 20)) {
@@ -186,8 +186,7 @@ class BookingForm extends Component
         }
 
         $this->distanceText = 'Jarak ke bengkel sekitar '
-            . number_format($distance->officialKm, 1, ',', '.') . ' km'
-            . ($distance->estimated ? ' (perkiraan)' : '');
+            . number_format($distance->airKm, 1, ',', '.') . ' km';
     }
 
     public function render()

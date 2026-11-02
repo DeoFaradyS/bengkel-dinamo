@@ -13,9 +13,6 @@ return [
     | a conventional file to locate the various service credentials.
     |
     */
-    'ors' => [
-        'key' => env('ORS_API_KEY'),
-    ],
 
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),

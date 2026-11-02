@@ -15,7 +15,6 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Support\RawJs;
 use UnitEnum;
-use Filament\Forms\Components\ToggleButtons;
 
 class JarakOngkos extends Page
 {
@@ -38,7 +37,6 @@ class JarakOngkos extends Page
             'fuel_price' => (int) $setting->fuel_price,
             'latitude' => $setting->latitude,
             'longitude' => $setting->longitude,
-            'distance_method' => $setting->distance_method?->value ?? 'haversine',
         ]);
     }
 
@@ -87,15 +85,6 @@ class JarakOngkos extends Page
                                     ->minValue(-180)
                                     ->maxValue(180)
                                     ->live(onBlur: true),
-                                ToggleButtons::make('distance_method')
-                                    ->label('Metode Jarak')
-                                    ->options([
-                                        'haversine' => 'Haversine (garis lurus)',
-                                        'ors' => 'ORS (lewat jalan)',
-                                    ])
-                                    ->inline()
-                                    ->required()
-                                    ->columnSpanFull(),
                             ]),
 
                         Section::make('Pratinjau')

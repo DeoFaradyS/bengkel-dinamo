@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Enums\BookingType;
-use App\Enums\DistanceMethod;
 use App\Models\WorkshopSetting;
 use App\Actions\CreateBooking;
 use Illuminate\Validation\ValidationException;
@@ -33,11 +32,7 @@ class Service extends Model
         'latitude',
         'longitude',
         'address',
-        'distance_air_km',
-        'distance_road_km',
         'distance_km',
-        'distance_method',
-        'distance_estimated',
         'fuel_price',
         'transport_fee',
     ];
@@ -49,11 +44,7 @@ class Service extends Model
         'longitude' => 'float',
         'scheduled_at' => 'datetime',
         'stock_synced_at' => 'datetime',
-        'distance_air_km' => 'float',
-        'distance_road_km' => 'float',
         'distance_km' => 'float',
-        'distance_method' => DistanceMethod::class,
-        'distance_estimated' => 'boolean',
         'fuel_price' => 'integer',
         'transport_fee' => 'integer',
     ];
@@ -219,11 +210,7 @@ class Service extends Model
 
         if ($type !== BookingType::HomeService || blank($data['latitude'] ?? null) || blank($data['longitude'] ?? null)) {
             return array_merge($data, [
-                'distance_air_km' => null,
-                'distance_road_km' => null,
                 'distance_km' => null,
-                'distance_method' => null,
-                'distance_estimated' => false,
             ]);
         }
 
@@ -240,11 +227,7 @@ class Service extends Model
         }
 
         return array_merge($data, [
-            'distance_air_km' => $result->airKm,
-            'distance_road_km' => $result->roadKm,
-            'distance_km' => $result->officialKm,
-            'distance_method' => $result->method,
-            'distance_estimated' => $result->estimated,
+            'distance_km' => $result->airKm,
         ]);
     }
 }

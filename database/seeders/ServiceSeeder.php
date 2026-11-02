@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\Service;
 use App\Models\ServiceType;
 use App\Models\SparePart;
-use App\Models\WorkshopSetting;
 use Illuminate\Database\Seeder;
 
 class ServiceSeeder extends Seeder
@@ -14,7 +13,7 @@ class ServiceSeeder extends Seeder
     {
         $types = ServiceType::all()->keyBy('name');
         $parts = SparePart::all()->keyBy('name');
-        $method = WorkshopSetting::first()?->distance_method;
+
 
         // jasa: [[nama katalog, harga atau null]], harga null = pakai harga katalog
         // parts: [[nama, qty]]
@@ -260,11 +259,7 @@ class ServiceSeeder extends Seeder
                 'address' => $home['address'] ?? null,
 
                 // Jarak diisi langsung. Model menghitung ongkos dan menyalin harga BBM saat simpan.
-                'distance_air_km' => $home ? round($home['km'] * 0.85, 3) : null,
-                'distance_road_km' => $home['km'] ?? null,
                 'distance_km' => $home['km'] ?? null,
-                'distance_method' => $home ? $method : null,
-                'distance_estimated' => false,
             ]);
 
             foreach ($d['jasa'] as [$name, $price]) {

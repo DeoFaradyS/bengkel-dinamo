@@ -11,7 +11,6 @@ use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
-use App\Enums\DistanceMethod;
 use App\Models\WorkshopSetting;
 use App\Support\Distance\DistanceResult;
 use App\Support\Distance\DistanceService;
@@ -48,7 +47,7 @@ class CreateBooking
             $address = filled($coordinates['address'] ?? null) ? trim($coordinates['address']) : null;
         }
 
-        // Dihitung di luar transaksi: panggilan ORS bisa sampai 5 detik.
+        // Dihitung di luar transaksi.
         $distance = $type === BookingType::HomeService
             ? $this->measureDistance($latitude, $longitude)
             : null;
@@ -92,11 +91,7 @@ class CreateBooking
                         'latitude' => $latitude,
                         'longitude' => $longitude,
                         'address' => $address,
-                        'distance_air_km' => $distance?->airKm,
-                        'distance_road_km' => $distance?->roadKm,
-                        'distance_km' => $distance?->officialKm,
-                        'distance_method' => $distance?->method,
-                        'distance_estimated' => $distance?->estimated ?? false,
+                        'distance_km' => $distance?->airKm,
                     ]);
                 });
             });
@@ -169,7 +164,6 @@ class CreateBooking
             (float) $workshop->longitude,
             $latitude,
             $longitude,
-            $workshop->distance_method ?? DistanceMethod::Haversine,
         );
     }
 
@@ -177,13 +171,13 @@ class CreateBooking
     {
         $max = (float) WorkshopSetting::first()?->max_distance_km;
 
-        if ($max <= 0 || $distance->officialKm <= $max) {
+        if ($max <= 0 || $distance->airKm <= $max) {
             return null;
         }
 
         return sprintf(
             'Lokasi di luar jangkauan. Jarak sekitar %s km, maksimal %s km.',
-            number_format($distance->officialKm, 1, ',', '.'),
+            number_format($distance->airKm, 1, ',', '.'),
             number_format($max, 1, ',', '.'),
         );
     }
