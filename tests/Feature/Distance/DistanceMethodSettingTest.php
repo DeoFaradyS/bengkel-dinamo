@@ -1,13 +1,8 @@
 <?php
 
-use App\Actions\CreateBooking;
-use App\Enums\BookingType;
-use App\Enums\DistanceMethod;
 use App\Filament\Pages\JarakOngkos;
-use App\Models\Service;
 use App\Models\User;
 use App\Models\WorkshopSetting;
-use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
 
 beforeEach(function () {
@@ -18,63 +13,26 @@ beforeEach(function () {
         'longitude' => 112.7521,
         'max_distance_km' => 7,
         'fuel_price' => 10000,
-        'distance_method' => DistanceMethod::Haversine,
     ]);
 });
 
-it('SET-001: halaman menampilkan metode yang sedang aktif', function () {
+it('SET-001: admin ubah jarak maksimal dan harga BBM, tersimpan', function () {
     Livewire::test(JarakOngkos::class)
-        ->assertFormSet(['distance_method' => 'haversine']);
-});
-
-it('SET-002: admin ganti metode ke ORS, tersimpan', function () {
-    Livewire::test(JarakOngkos::class)
-        ->fillForm(['distance_method' => 'ors'])
+        ->fillForm(['max_distance_km' => 10, 'fuel_price' => 12000])
         ->call('save')
         ->assertHasNoFormErrors();
 
-    expect(WorkshopSetting::first()->distance_method)->toBe(DistanceMethod::Ors);
+    $s = WorkshopSetting::first();
+
+    expect((float) $s->max_distance_km)->toBe(10.0)
+        ->and($s->fuel_price)->toBe(12000);
 });
 
-it('SET-003: metode tidak dikenal ditolak', function () {
+it('SET-002: jarak maksimal nol ditolak', function () {
     Livewire::test(JarakOngkos::class)
-        ->fillForm(['distance_method' => 'google'])
+        ->fillForm(['max_distance_km' => 0])
         ->call('save')
-        ->assertHasFormErrors(['distance_method']);
+        ->assertHasFormErrors(['max_distance_km']);
 
-    expect(WorkshopSetting::first()->distance_method)->toBe(DistanceMethod::Haversine);
-});
-
-it('SET-004: skenario demo, ganti metode hanya berlaku untuk booking berikutnya', function () {
-    config(['services.ors.key' => 'test-key']);
-    Http::fake([
-        'api.openrouteservice.org/*' => Http::response(
-            ['routes' => [['summary' => ['distance' => 4090.7]]]],
-            200
-        )
-    ]);
-
-    $book = fn(string $phone, int $day) => app(CreateBooking::class)->handle([
-        'customer_name' => 'Pak Budi',
-        'phone' => $phone,
-        'complaint' => 'Dinamo tidak mau engkol',
-        'scheduled_at' => nextSlot($day),
-        'booking_type' => BookingType::HomeService,
-        'latitude' => -7.2800,
-        'longitude' => 112.7600,
-    ])->fresh();
-
-    $a = $book('081234567890', 1);
-
-    Livewire::test(JarakOngkos::class)
-        ->fillForm(['distance_method' => 'ors'])
-        ->call('save');
-
-    $b = $book('081234567891', 2);
-
-    expect($a->distance_method)->toBe(DistanceMethod::Haversine)
-        ->and($a->distance_km)->toEqualWithDelta(2.649, 0.001)
-        ->and($b->distance_method)->toBe(DistanceMethod::Ors)
-        ->and($b->distance_km)->toEqualWithDelta(4.091, 0.001)
-        ->and(Service::find($a->id)->distance_km)->toEqualWithDelta(2.649, 0.001);
+    expect((float) WorkshopSetting::first()->max_distance_km)->toBe(7.0);
 });
