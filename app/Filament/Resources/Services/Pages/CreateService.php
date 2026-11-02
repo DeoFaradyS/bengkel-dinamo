@@ -27,6 +27,11 @@ class CreateService extends CreateRecord
 
     protected function beforeCreate(): void
     {
+        if ($this->queueBlockMessage()) {
+            $this->mountAction('queueBlocked');
+            $this->halt();
+        }
+
         if ($this->isCompleting() && !$this->completeConfirmed) {
             $this->mountAction('confirmComplete');
             $this->halt();
@@ -36,7 +41,29 @@ class CreateService extends CreateRecord
         $this->data['serviceParts'] = array_filter($this->data['serviceParts'] ?? [], fn($r) => filled($r['spare_part_id'] ?? null));
     }
 
+    // Alasan servis belum boleh dikerjakan, atau null kalau boleh.
+    private function queueBlockMessage(): ?string
+    {
+        $status = $this->data['status'] ?? null;
+        $status = $status instanceof ServiceStatus ? $status : ServiceStatus::tryFrom((string) $status);
 
+        if ($status !== ServiceStatus::InProgress) {
+            return null;
+        }
+
+        return \App\Models\Service::startBlockerMessage(null, $this->data['scheduled_at'] ?? null);
+    }
+
+    public function queueBlockedAction(): Action
+    {
+        return Action::make('queueBlocked')
+            ->modalHeading('Belum bisa dikerjakan')
+            ->modalDescription(fn() => $this->queueBlockMessage())
+            ->modalIcon('heroicon-o-exclamation-triangle')
+            ->modalIconColor('warning')
+            ->modalSubmitAction(false)
+            ->modalCancelActionLabel('Mengerti');
+    }
 
     protected function afterCreate(): void
     {

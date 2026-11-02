@@ -16,6 +16,7 @@ use App\Models\WorkshopSetting;
 use App\Actions\CreateBooking;
 use Illuminate\Validation\ValidationException;
 use App\Enums\StockMovementType;
+use Illuminate\Support\Carbon;
 
 class Service extends Model
 {
@@ -149,6 +150,48 @@ class Service extends Model
 
             $this->forceFill(['stock_synced_at' => now()])->save();
         });
+    }
+
+    // Alasan servis belum boleh dikerjakan, atau null kalau boleh.
+    // $record null berarti servis baru: dianggap paling akhir dibuat.
+    public static function startBlockerMessage(?self $record, mixed $scheduledAt): ?string
+    {
+        $running = self::query()
+            ->where('status', ServiceStatus::InProgress->value)
+            ->when($record, fn($q) => $q->whereKeyNot($record->id))
+            ->exists();
+
+        if ($running) {
+            return 'Masih ada servis yang sedang dikerjakan.';
+        }
+
+        $scheduledAt = Carbon::parse($scheduledAt)->startOfMinute();
+
+        $ahead = self::query()
+            ->where('status', ServiceStatus::Confirmed->value)
+            ->when($record, fn($q) => $q->whereKeyNot($record->id))
+            ->where(function ($q) use ($scheduledAt, $record) {
+                $q->where('scheduled_at', '<', $scheduledAt);
+
+                // Jam sama: yang dibuat lebih dulu antre lebih dulu.
+                $q->orWhere(function ($q) use ($scheduledAt, $record) {
+                    $q->where('scheduled_at', $scheduledAt);
+
+                    if ($record) {
+                        $q->where(fn($q) => $q
+                            ->where('created_at', '<', $record->created_at)
+                            ->orWhere(fn($q) => $q
+                                ->where('created_at', $record->created_at)
+                                ->where('id', '<', $record->id)));
+                    }
+                });
+            })
+            ->orderBy('scheduled_at')->orderBy('created_at')->orderBy('id')
+            ->first();
+
+        return $ahead
+            ? "Servis atas nama {$ahead->customer_name} lebih dulu antre."
+            : null;
     }
 
     public function invoiceNumber(): string

@@ -40,6 +40,7 @@ class ServicesTable
                     ->badge(),
                 TextColumn::make('status')->label('Status')
                     ->badge(),
+
                 TextColumn::make('total')->label('Total')
                     ->state(fn($record) => (float) ($record->items_sum_price ?? 0)
                         + (float) ($record->parts_sum ?? 0))
