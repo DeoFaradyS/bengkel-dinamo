@@ -23,23 +23,23 @@ Metode: prototype, 4 iterasi. Pengujian: Black Box.
 **Iterasi 1: Sparepart + login**
 - [x] US-01 Login pemilik (`->login()` aktif)
 - [x] US-02 CRUD sparepart (SoftDeletes, kode unik, foto, kategori)
-- [ ] US-03 Pencarian + filter kategori: perlu dicek di `SparePartsTable.php`
-- [ ] US-04 Penanda dan urutan stok menipis: perlu dicek di `SparePartsTable.php`
+- [x] US-03 Pencarian + filter kategori (`SparePartsTable.php`: kolom kode, nama, kategori, lokasi bisa dicari; filter kategori multi-pilih; tes SSP-001..003, FSP-001..003)
+- [x] US-04 Penanda dan urutan stok menipis (`SparePartsTable.php`: baris merah saat stok <= min_stock, urut paling kritis di atas; tes LSP-001..003)
 
 **Iterasi 2: Servis**
-- [x] US-05 Kelola servis: buat/ubah, status, jasa (service_items), part (service_parts), filter, invoice PDF, kurangi stok saat selesai
+- [x] US-05 Kelola servis: buat/ubah, status, jasa (service_items), part (service_parts), filter, invoice PDF, kurangi stok saat selesai, antrian (aturan 11)
 
 **Iterasi 3: Sisi publik**
 - [x] US-09 Halaman publik `/` (hero, layanan, galeri, testimoni, peta, footer, tombol WhatsApp)
 - [x] US-10 Booking `/booking` (Livewire + `CreateBooking`, slot jam, anti-ganda, notifikasi ke pemilik)
-- [ ] US-06 Pemilik konfirmasi/tolak booking: status `pending → confirmed/rejected` ada di enum; perlu dicek UI-nya
+- [x] US-06 Pemilik konfirmasi/tolak booking (lewat form ubah servis; tombol cepat di tabel belum ada, opsional)
 - [ ] US-07 Kelola info layanan dan promo dari panel: belum ada (halaman publik masih Blade statis)
 
 **Iterasi 4: Laporan**
 - [x] US-08 Dashboard: KPI, tren, top part, top layanan, tipe, status (`app/Support/Dashboard/*`, `app/Filament/Widgets/*`)
-- [ ] Rekap stok per periode: perlu dicek
+- [ ] Rekap stok per periode: belum ada. Yang ada baru riwayat per sparepart (`StockMovementsRelationManager`), bukan rekap seluruh stok per periode.
 
-**Fitur tambahan di luar PRD awal (sudah ada):** home service dengan peta, jarak udara (Haversine) dan ongkos transport; riwayat stok (`stock_movements`); master kategori dan jenis layanan; pengaturan bengkel (`workshop_settings`); kedaluwarsa booking otomatis; halaman `JarakOngkos`.
+**Fitur tambahan di luar PRD awal (sudah ada):** home service dengan peta, jarak udara (Haversine) dan ongkos transport; riwayat stok (`stock_movements`) per sparepart di halaman ubah sparepart; master kategori dan jenis layanan; pengaturan bengkel (`workshop_settings`); kedaluwarsa booking otomatis; halaman `JarakOngkos`; antrian servis (aturan 11).
 
 **Sedang dikerjakan:** (kosong)
 **Catatan terakhir:** ORS dibuang, jarak hanya Haversine (jarak udara). Kolom `distance_air_km`, `distance_road_km`, `distance_method`, `distance_estimated` dihapus, sisa `distance_km`. Migrasi lama diedit langsung karena masih tahap dev.
@@ -56,12 +56,12 @@ Metode: prototype, 4 iterasi. Pengujian: Black Box.
 | `service_items` | service_id, service_type_id (nullable), name, price (jasa per baris) |
 | `service_parts` | service_id, spare_part_id, quantity, unit_price. Unik (service_id, spare_part_id). Tanpa timestamps. |
 | `stock_movements` | spare_part_id, type, quantity (bertanda), stock_after, note, reason, service_id, user_id |
-| `workshop_settings` | latitude, longitude, max_distance_km, fuel_price |distance_method |
+| `workshop_settings` | latitude, longitude, max_distance_km, fuel_price |
 | `notifications`, `cache`, `jobs` | bawaan Laravel |
 
 Relasi utama: `Service hasMany ServiceItem`, `Service hasMany ServicePart`, `SparePart hasMany StockMovement`, `SparePart belongsTo Category`, `ServicePart belongsTo SparePart` (withTrashed).
 
-Enum: `ServiceStatus` (pending, confirmed, in_progress, completed, cancelled, rejected, expired), `BookingType` (workshop, home_service), `DistanceMethod` (haversine, ors), `StockMovementType` (opening, purchase, usage, correction), `StockReason`.
+Enum: `ServiceStatus` (pending, confirmed, in_progress, completed, cancelled, rejected, expired), `BookingType` (workshop, home_service), `StockMovementType` (opening, purchase, usage, correction), `StockReason`.
 
 Config yang dipakai kode tapi tidak ikut konteks: `config/booking.php`, `config/transport.php`.
 
@@ -72,11 +72,12 @@ Config yang dipakai kode tapi tidak ikut konteks: `config/booking.php`, `config/
 3. Alur status (`ServiceStatus::allowedNext`): pending → confirmed/rejected/cancelled; confirmed → in_progress/cancelled; in_progress → completed/cancelled. `completed`, `cancelled`, `rejected`, `expired` adalah final. Status aktif: pending, confirmed, in_progress.
 4. Satu nomor HP hanya boleh punya satu servis aktif. Satu slot jam hanya untuk satu booking (dikunci dengan `Cache::lock`).
 5. Booking pending otomatis menjadi `expired` lewat `bookings:expire` (batas waktu di `config/booking.php`).
-6. `unit_price` di `service_parts` disalin dari `spare_parts.price` saat part dipakai.
+6. `unit_price` di `service_parts` disalin dari `spare_parts.price` saat part dipakai, dan tidak bisa diubah: field harga di form read-only dan hook model `ServicePart` (`creating` dan `updating`) mengabaikan input harga. Harga jasa (`service_items.price`) tetap boleh diubah.
 7. Total servis: `grand_total = labor_total + parts_total + transport_fee`. `labor_total` = jumlah `service_items.price`. `parts_total` = jumlah `quantity * unit_price`.
 8. Ongkos transport hanya untuk `home_service`: dihitung dari jarak udara (Haversine), harga BBM, dan `config/transport.*`. Di luar `max_distance_km` booking ditolak.
 9. Hapus sparepart memakai soft delete. Kode part diberi akhiran `-DEL-{id}` agar kode bisa dipakai ulang.
 10. Notifikasi booking baru dikirim ke semua `User` lewat database notification.
+11. Antrian servis: hanya satu servis `in_progress` sekali waktu. Servis hanya boleh pindah ke `in_progress` (atau dibuat langsung berstatus itu) kalau tidak ada servis `in_progress` lain dan tidak ada servis `confirmed` yang antre lebih dulu. Urutan antre: `scheduled_at`, lalu `created_at`, lalu `id`, berlaku sama untuk booking aplikasi dan walk-in. Booking `pending` tidak menghalangi. Servis yang dibatalkan, diselesaikan, atau dikonfirmasi/ditolak tidak terkena aturan ini. Pengecekan lewat `Service::startBlockerMessage()`. Kalau terblokir, form buat dan ubah servis menampilkan modal `queueBlocked`. Tes: ANT-001 sampai ANT-012 di `tests/Feature/Services/ServiceQueueTest.php`. Fitur apa pun yang mengubah status ke `in_progress` (termasuk tombol cepat di tabel) wajib memanggil `startBlockerMessage()`.
 
 ## 6. UX dan tampilan
 
@@ -95,6 +96,10 @@ Login pelanggan, pembayaran online, banyak role (montir/kasir), aplikasi mobile 
 - Harga part: satu `price`, belum dibedakan beli dan jual.
 - Pelanggan perlu melihat status servisnya sendiri atau tidak.
 - Halaman info layanan/promo dikelola dari panel (US-07) atau tetap statis.
+- Servis selesai tapi barang tidak diambil (`picked_up_at`) dan konfirmasi pelanggan akan datang: ditunda, maksudnya belum jelas.
+- Grace period no-show: sementara pemilik membatalkan manual.
+- Kedaluwarsa sparepart (`expired_at`): opsional.
+- Rekap stok per periode: belum diputuskan dibangun atau ditulis sebagai pengembangan lanjutan.
 
 ## 9. Aturan wajib untuk AI
 
@@ -122,11 +127,9 @@ Tujuan: setiap perubahan langsung ketahuan kalau merusak fitur lain, tanpa menge
 - Fitur baru: minimal satu tes jalur normal, satu tes jalur gagal (validasi atau aturan bisnis ditolak), dan satu tes batas (stok 0, status final, nomor HP ganda, dan sejenisnya).
 - Perbaikan bug: tulis tes yang gagal karena bug itu lebih dulu, lalu perbaiki kodenya.
 - Sebelum dianggap selesai, seluruh tes harus lulus: `php artisan test` (atau `./vendor/bin/pest`). Laporkan hasilnya, contoh "469 lulus".
-- Perubahan di `Service::syncStock()`, `SparePart::addStock()`, `ServiceStatus::allowedNext()`, atau hitungan total wajib punya tes regresi, karena area ini menyentuh banyak fitur.
+- Perubahan di `Service::syncStock()`, `SparePart::addStock()`, `ServiceStatus::allowedNext()`, `Service::startBlockerMessage()`, atau hitungan total wajib punya tes regresi, karena area ini menyentuh banyak fitur.
 
-11. Antrian servis: hanya satu servis `in_progress` sekali waktu. Servis hanya boleh pindah ke `in_progress` (atau dibuat langsung berstatus itu) kalau tidak ada servis `in_progress` lain dan tidak ada servis `confirmed` yang antre lebih dulu. Urutan antre: `scheduled_at`, lalu `created_at`, lalu `id`, berlaku sama untuk booking aplikasi dan walk-in. Booking `pending` tidak menghalangi. Servis yang dibatalkan, diselesaikan, atau dikonfirmasi/ditolak tidak terkena aturan ini. Pengecekan lewat `Service::startBlockerMessage()`. Kalau terblokir, form buat dan ubah servis menampilkan modal `queueBlocked`. Tes: ANT-001 sampai ANT-012 di `tests/Feature/Services/ServiceQueueTest.php`.
-
-## Halaman publik (landing page `/`)
+## 11. Halaman publik (landing page `/`)
 
 Satu halaman, dipecah jadi section Blade karena animasi dan gambar.
 `resources/views/welcome.blade.php` extends `layouts.booking` dan

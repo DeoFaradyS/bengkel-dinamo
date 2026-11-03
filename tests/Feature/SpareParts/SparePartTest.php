@@ -248,6 +248,37 @@ it('LSP-003: stock di atas min_stock, tidak merah', function () {
         ->assertDontSeeHtml('bg-red-50!');
 });
 
+it('LSP-004: stok menipis tampil di atas stok aman', function () {
+    $menipis = makePart(['code' => 'SP-M', 'name' => 'Menipis', 'stock' => 1, 'min_stock' => 5]);
+
+    // Stok aman dibuat belakangan, jadi lebih baru. Tanpa aturan urutan stok, ia akan tampil duluan.
+    $this->travel(1)->minute();
+    $aman = makePart(['code' => 'SP-A', 'name' => 'Aman', 'stock' => 20, 'min_stock' => 5]);
+
+    Livewire::test(ListSpareParts::class)
+        ->assertCanSeeTableRecords([$menipis, $aman], inOrder: true);
+});
+
+it('LSP-005: antar yang menipis, selisih stok terhadap min_stock terbesar paling atas', function () {
+    $ringan = makePart(['code' => 'SP-R', 'name' => 'Ringan', 'stock' => 4, 'min_stock' => 5]);  // selisih 1
+    $berat = makePart(['code' => 'SP-B', 'name' => 'Berat', 'stock' => 0, 'min_stock' => 5]);    // selisih 5
+    $sedang = makePart(['code' => 'SP-S', 'name' => 'Sedang', 'stock' => 2, 'min_stock' => 5]);  // selisih 3
+
+    Livewire::test(ListSpareParts::class)
+        ->assertCanSeeTableRecords([$berat, $sedang, $ringan], inOrder: true);
+});
+
+it('LSP-006: stok sama dengan min_stock ikut kelompok menipis, di bawah yang lebih kritis', function () {
+    $kritis = makePart(['code' => 'SP-K', 'name' => 'Kritis', 'stock' => 0, 'min_stock' => 5]);
+    $batas = makePart(['code' => 'SP-T', 'name' => 'Batas', 'stock' => 3, 'min_stock' => 3]);
+
+    $this->travel(1)->minute();
+    $aman = makePart(['code' => 'SP-A', 'name' => 'Aman', 'stock' => 10, 'min_stock' => 3]);
+
+    Livewire::test(ListSpareParts::class)
+        ->assertCanSeeTableRecords([$kritis, $batas, $aman], inOrder: true);
+});
+
 /* ------------------------------------------------------------------ */
 /* SSP: search                                                         */
 /* ------------------------------------------------------------------ */
