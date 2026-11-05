@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources\ServiceTypes\Tables;
 
+use App\Models\ServiceType;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
-use Filament\Support\Enums\Alignment;
-use Filament\Support\Enums\Width;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -18,25 +18,21 @@ class ServiceTypesTable
                 TextColumn::make('index')->label('No')->rowIndex()
                     ->alignCenter()
                     ->extraHeaderAttributes(['style' => 'width: 4rem']),
+                ImageColumn::make('photo')->label('Foto')
+                    ->disk('public')
+                    ->square()
+                    ->imageSize(48),
                 TextColumn::make('name')->label('Nama Jasa')->searchable()->sortable(),
                 TextColumn::make('default_price')->label('Harga Acuan')
                     ->money('IDR', locale: 'id', decimalPlaces: 0)
                     ->sortable(),
+                TextColumn::make('description')->label('Deskripsi')
+                    ->limit(60)
+                    ->tooltip(fn(ServiceType $record): ?string => $record->description)
+                    ->placeholder('-'),
             ])
             ->recordActions([
-                EditAction::make()
-                    ->mutateRecordDataUsing(function (array $data): array {
-                        $data['default_price'] = (int) round((float) $data['default_price']);
-
-                        return $data;
-                    })
-                    ->modalHeading('Ubah Jasa')
-                    ->modalSubmitActionLabel('Simpan')
-                    ->modalCancelActionLabel('Batal')
-                    ->stickyModalHeader()
-                    ->stickyModalFooter()
-                    ->modalFooterActionsAlignment(Alignment::End)
-                    ->modalWidth(Width::Large),
+                EditAction::make(),
                 DeleteAction::make(),
             ]);
     }

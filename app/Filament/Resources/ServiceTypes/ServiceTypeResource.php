@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources\ServiceTypes;
 
-use App\Filament\Resources\ServiceTypes\Pages\ManageServiceTypes;
+use App\Filament\Resources\ServiceTypes\Pages\CreateServiceType;
+use App\Filament\Resources\ServiceTypes\Pages\EditServiceType;
+use App\Filament\Resources\ServiceTypes\Pages\ListServiceTypes;
 use App\Filament\Resources\ServiceTypes\Schemas\ServiceTypeForm;
 use App\Filament\Resources\ServiceTypes\Tables\ServiceTypesTable;
 use App\Models\ServiceType;
@@ -48,10 +50,12 @@ class ServiceTypeResource extends Resource
         ];
     }
 
-    public static function getPages(): array
+     public static function getPages(): array
     {
         return [
-            'index' => ManageServiceTypes::route('/'),
+            'index' => ListServiceTypes::route('/'),
+            'create' => CreateServiceType::route('/create'),
+            'edit' => EditServiceType::route('/{record}/edit'),
         ];
     }
 }
