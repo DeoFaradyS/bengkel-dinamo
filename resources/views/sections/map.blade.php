@@ -1,6 +1,7 @@
 {{-- resources/views/sections/map.blade.php --}}
-<section id="lokasi" class="p-10">
+<section id="lokasi" class="p-10 flex flex-col items-center gap-6">
     <iframe
+        title="Peta lokasi bengkel Cak Budi Dinamo"
         src="https://www.google.com/maps?q=-7.7174465,113.0755426&hl=id&z=17&output=embed"
         class="w-full h-[600px] border border-gray-200 rounded-3xl"
         loading="lazy"

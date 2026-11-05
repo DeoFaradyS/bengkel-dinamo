@@ -1,18 +1,23 @@
-<section id="appointment" class="pt-16 flex flex-col items-center gap-16 overflow-hidden">
-  <div class="w-full max-w-[1200px] px-6 flex flex-col lg:flex-row justify-between items-start gap-12">
+<section id="appointment" class="pt-16 pb-16 lg:pb-20">
+  <div
+    class="w-full max-w-[1200px] mx-auto px-1 grid gap-8 lg:gap-x-12 lg:gap-y-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,500px)] lg:grid-rows-[auto_1fr]">
 
     <!-- Judul + checklist -->
-    <div class="w-full lg:max-w-[560px] flex flex-col gap-10">
+    <div class="w-full lg:col-start-1 lg:row-start-1 flex flex-col gap-8">
       <div>
         <h1 class="text-4xl lg:text-6xl font-bold leading-tight">
           <span class="text-neutral-800">Bengkel Dinamo <br>Terpercaya di </span><span
             class="text-red-600 underline decoration-4 underline-offset-8">Nguling.</span>
         </h1>
+        <p class="mt-5 max-w-[46ch] text-neutral-500 text-base font-medium">
+          Budi Dinamo melayani servis dinamo starter, alternator, dan kelistrikan mobil
+          dengan teknisi berpengalaman.
+        </p>
       </div>
 
-      <ul class="flex flex-wrap gap-10">
+      <ul class="flex flex-wrap gap-x-8 gap-y-3">
         @foreach (['Sparepart Original', 'Garansi Servis', 'Pelayanan Ramah'] as $item)
-          <li class="flex items-center gap-4">
+          <li class="flex items-center gap-3">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"
               aria-hidden="true">
               <path
@@ -25,20 +30,14 @@
       </ul>
     </div>
 
-    <!-- Teks + form booking -->
-    <div class="w-full lg:max-w-[500px] relative flex flex-col items-center lg:pb-40">
-      <p class="text-neutral-500 text-base font-medium">
-        Budi Dinamo melayani servis dinamo starter, alternator, dan kelistrikan mobil
-        dengan teknisi berpengalaman.
-      </p>
-
-      <div
-        class="w-full mt-8 p-8 bg-white rounded-[10px] shadow-[0px_-30px_60px_0px_rgba(0,0,0,0.08)] lg:mt-0 lg:absolute lg:left-0 lg:top-24 lg:z-10">
-        <livewire:booking-form />
-      </div>
+    <!-- Teks + form booking (teks sudah pindah ke kolom kiri) -->
+    <div
+      class="w-full lg:col-start-2 lg:row-start-1 lg:row-span-2 p-6 sm:p-8 bg-white rounded-[10px] border border-neutral-100 shadow-[0px_10px_40px_0px_rgba(0,0,0,0.08)]">
+      <livewire:booking-form />
     </div>
-  </div>
 
-  <img src="https://placehold.co/1440x600?text=Foto+Bengkel+Budi+Dinamo" alt="Bengkel Budi Dinamo"
-    class="w-full h-[600px] object-cover">
+    <div class="relative lg:col-start-1 lg:row-start-2 min-h-56 lg:min-h-64 rounded-[10px] overflow-hidden">
+      <img src="{{ asset('images/bengkel.png') }}" alt="Bengkel Budi Dinamo"
+        decoding="async" class="absolute inset-0 size-full object-cover">
+    </div>
 </section>

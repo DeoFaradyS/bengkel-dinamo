@@ -29,12 +29,6 @@ window.bookingMap = (el, wire) => {
 
     // Pelanggan pindah tab lalu balik: pin lama dipulihkan.
     pin.sync();
-
-    // Belum ada pin: coba ambil lokasi pelanggan sekarang.
-    // Gagal atau ditolak: diam, peta tetap di bengkel.
-    if (!Number.isFinite(parseFloat(wire.latitude))) {
-        pin.locate({ onStart: () => {}, onDone: () => {}, onError: () => {} });
-    }
 };
 
 // Dipanggil dari Blade: x-init="bookingDate($el, $wire)"

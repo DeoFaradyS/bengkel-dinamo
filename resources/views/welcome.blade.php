@@ -4,7 +4,6 @@
     @include('sections.hero')
     @include('sections.services')
     @include('sections.benefis')
-    @include('sections.gallery')
-    @include('sections.testimonials')
+    @include('sections.cek-booking')
     @include('sections.map')
 @endsection
