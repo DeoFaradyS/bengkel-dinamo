@@ -10,7 +10,7 @@ function dataServis(array $extra = []): array
 {
     return array_merge([
         'customer_name' => 'Budi',
-        'phone' => '081234567890',
+        'customer_phone' => '081234567890',
         'complaint' => 'Dinamo starter mati',
         'scheduled_at' => nextSlot(),
     ], $extra);

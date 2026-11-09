@@ -15,7 +15,7 @@ function serviceFormData(array $override = []): array
 {
     return array_merge([
         'customer_name' => 'Pak Budi',
-        'phone' => fake()->unique()->numerify('08##########'),
+        'customer_phone' => fake()->unique()->numerify('08##########'),
         'complaint' => 'Dinamo tidak mau engkol',
         'scheduled_at' => nextSlot()->format('Y-m-d H:i:s'),
         'status' => 'confirmed',

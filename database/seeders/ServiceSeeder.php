@@ -27,7 +27,7 @@ class ServiceSeeder extends Seeder
             // ---- Home Service: variasi jarak dan status ----
             [ // jarak sangat dekat: ongkos minimum Rp500
                 'name' => 'Pak Wawan Setiawan',
-                'phone' => '081311223340',
+                'customer_phone' => '081311223340',
                 'status' => 'pending',
                 'days' => 1,
                 'complaint' => 'Starter pickup mati di garasi rumah, minta montir datang',
@@ -37,7 +37,7 @@ class ServiceSeeder extends Seeder
             ],
             [ // kedaluwarsa: home service, admin tidak menjawab sampai jadwal lewat
                 'name' => 'Pak Anwar',
-                'phone' => '081311223350',
+                'customer_phone' => '081311223350',
                 'status' => 'expired',
                 'days' => -1,
                 'complaint' => 'Alternator pickup tidak ngecas, minta dicek di rumah',
@@ -47,7 +47,7 @@ class ServiceSeeder extends Seeder
             ],
             [ // jarak sedang, belum dikerjakan
                 'name' => 'Bu Ani Rahayu',
-                'phone' => '081311223341',
+                'customer_phone' => '081311223341',
                 'status' => 'confirmed',
                 'days' => 2,
                 'complaint' => 'Dinamo pompa air rumah tidak mau menyala',
@@ -57,7 +57,7 @@ class ServiceSeeder extends Seeder
             ],
             [ // selesai + ongkos + spare part
                 'name' => 'Pak Rudi Hartono',
-                'phone' => '081311223342',
+                'customer_phone' => '081311223342',
                 'status' => 'completed',
                 'days' => -4,
                 'complaint' => 'Alternator mobil di garasi tidak ngecas',
@@ -69,7 +69,7 @@ class ServiceSeeder extends Seeder
             ],
             [ // jauh, banyak jasa dan part: total paling besar
                 'name' => 'Pak Haji Mansur',
-                'phone' => '081311223343',
+                'customer_phone' => '081311223343',
                 'status' => 'completed',
                 'days' => -7,
                 'complaint' => 'Dinamo genset pabrik tahu bunyi kasar, panas berlebih',
@@ -81,7 +81,7 @@ class ServiceSeeder extends Seeder
             [ // sedang dikerjakan, Home Service
                 'name' => 'Bu Yuli Astuti',
                 'mechanic' => 'Mas Andi',
-                'phone' => '081311223344',
+                'customer_phone' => '081311223344',
                 'status' => 'in_progress',
                 'days' => 0,
                 'complaint' => 'Dinamo mesin cuci steam mati total',
@@ -91,7 +91,7 @@ class ServiceSeeder extends Seeder
             ],
             [ // batal, Home Service
                 'name' => 'Pak Eko Prasetyo',
-                'phone' => '081311223345',
+                'customer_phone' => '081311223345',
                 'status' => 'cancelled',
                 'days' => -2,
                 'complaint' => 'Alternator Carry tidak ngecas, minta dicek di rumah',
@@ -102,7 +102,7 @@ class ServiceSeeder extends Seeder
             ],
             [ // ditolak, Home Service
                 'name' => 'Bu Lilis',
-                'phone' => '081377889910',
+                'customer_phone' => '081377889910',
                 'status' => 'rejected',
                 'days' => -2,
                 'complaint' => 'Rotor alternator hangus total',
@@ -115,7 +115,7 @@ class ServiceSeeder extends Seeder
             // ---- Ke bengkel: variasi jasa dan spare part ----
             [ // jasa + part, lengkap
                 'name' => 'Pak Budi Santoso',
-                'phone' => '081234567801',
+                'customer_phone' => '081234567801',
                 'status' => 'completed',
                 'days' => -10,
                 'complaint' => 'Dinamo starter Avanza ngik-ngik, tidak mau engkol',
@@ -125,7 +125,7 @@ class ServiceSeeder extends Seeder
             ],
             [ // harga jasa diubah admin + tiga part
                 'name' => 'CV Maju Jaya',
-                'phone' => '081345678902',
+                'customer_phone' => '081345678902',
                 'status' => 'completed',
                 'days' => -8,
                 'complaint' => 'Starter truk Hino 24V lemah, harus didorong',
@@ -134,7 +134,7 @@ class ServiceSeeder extends Seeder
             ],
             [ // selesai, jasa saja tanpa spare part
                 'name' => 'Pak Tono',
-                'phone' => '081311223346',
+                'customer_phone' => '081311223346',
                 'status' => 'completed',
                 'days' => -5,
                 'complaint' => 'Cek dinamo, bunyi halus saat idle',
@@ -144,7 +144,7 @@ class ServiceSeeder extends Seeder
             ],
             [ // kedaluwarsa: admin tidak menjawab sampai jadwal lewat
                 'name' => 'Mas Rizky',
-                'phone' => '081234567811',
+                'customer_phone' => '081234567811',
                 'status' => 'expired',
                 'days' => -2,
                 'complaint' => 'Starter Brio susah hidup pagi hari',
@@ -153,7 +153,7 @@ class ServiceSeeder extends Seeder
             ],
             [ // kedaluwarsa: booking jauh hari, tidak dikonfirmasi 24 jam
                 'name' => 'Bu Wati',
-                'phone' => '081234567812',
+                'customer_phone' => '081234567812',
                 'status' => 'expired',
                 'days' => -1,
                 'complaint' => 'Dinamo kipas radiator bunyi kasar',
@@ -162,7 +162,7 @@ class ServiceSeeder extends Seeder
             ],
             [
                 'name' => 'Bu Sari Wulandari',
-                'phone' => '085678901203',
+                'customer_phone' => '085678901203',
                 'status' => 'completed',
                 'days' => -6,
                 'complaint' => 'Aki sering tekor, lampu indikator cas menyala',
@@ -171,7 +171,7 @@ class ServiceSeeder extends Seeder
             ],
             [
                 'name' => 'Toko Sinar Terang',
-                'phone' => '082112345604',
+                'customer_phone' => '082112345604',
                 'status' => 'in_progress',
                 'days' => -1,
                 'complaint' => 'Dinamo ampere Carry bunyi kasar dan berdecit',
@@ -180,7 +180,7 @@ class ServiceSeeder extends Seeder
             ],
             [
                 'name' => 'Pak Hendra',
-                'phone' => '081998765405',
+                'customer_phone' => '081998765405',
                 'status' => 'in_progress',
                 'days' => 0,
                 'complaint' => 'Alternator tidak ngecas, kemungkinan dioda jebol',
@@ -189,7 +189,7 @@ class ServiceSeeder extends Seeder
             ],
             [
                 'name' => 'Bu Rina Marlina',
-                'phone' => '087712345606',
+                'customer_phone' => '087712345606',
                 'status' => 'in_progress',
                 'days' => 0,
                 'complaint' => 'Dinamo pompa air tidak mau start',
@@ -198,7 +198,7 @@ class ServiceSeeder extends Seeder
             ],
             [ // dikonfirmasi, belum ada jasa: baris kosong boleh
                 'name' => 'UD Tani Makmur',
-                'phone' => '081511223307',
+                'customer_phone' => '081511223307',
                 'status' => 'confirmed',
                 'days' => 1,
                 'complaint' => 'Gulung ulang spul starter truk',
@@ -207,7 +207,7 @@ class ServiceSeeder extends Seeder
             ],
             [ // dikonfirmasi tanpa jasa sama sekali
                 'name' => 'Pak Agus Wijaya',
-                'phone' => '081244556608',
+                'customer_phone' => '081244556608',
                 'status' => 'confirmed',
                 'days' => 2,
                 'complaint' => 'Cek starter Innova, bunyi klek saja',
@@ -216,7 +216,7 @@ class ServiceSeeder extends Seeder
             ],
             [ // beli part saja, tanpa jasa
                 'name' => 'Pak Slamet',
-                'phone' => '081311223347',
+                'customer_phone' => '081311223347',
                 'status' => 'confirmed',
                 'days' => 1,
                 'complaint' => 'Beli brush karbon, dipasang sendiri',
@@ -225,7 +225,7 @@ class ServiceSeeder extends Seeder
             ],
             [ // baru masuk, kosong semua
                 'name' => 'Mas Dimas',
-                'phone' => '081311223348',
+                'customer_phone' => '081311223348',
                 'status' => 'pending',
                 'days' => 3,
                 'complaint' => 'Dinamo sepeda motor listrik tidak berputar',
@@ -234,7 +234,7 @@ class ServiceSeeder extends Seeder
             ],
             [ // batal, bengkel
                 'name' => 'Pak Dedi',
-                'phone' => '085211223309',
+                'customer_phone' => '085211223309',
                 'status' => 'cancelled',
                 'days' => -3,
                 'complaint' => 'Servis alternator Xenia, minta dikerjakan',
@@ -244,7 +244,7 @@ class ServiceSeeder extends Seeder
             ],
             [ // ditolak, bengkel
                 'name' => 'Pak Joko',
-                'phone' => '081311223349',
+                'customer_phone' => '081311223349',
                 'status' => 'rejected',
                 'days' => -1,
                 'complaint' => 'Dinamo tanpa nameplate, tidak ada suku cadangnya',
@@ -255,7 +255,7 @@ class ServiceSeeder extends Seeder
 
             [ // milik customer demo: selesai dan lunas
                 'name' => 'Pelanggan Demo',
-                'phone' => '081234567890',
+                'customer_phone' => '081234567890',
                 'user' => true,
                 'status' => 'completed',
                 'paid' => true,
@@ -267,7 +267,7 @@ class ServiceSeeder extends Seeder
             ],
             [ // milik customer demo: selesai, belum lunas
                 'name' => 'Pelanggan Demo',
-                'phone' => '081234567890',
+                'customer_phone' => '081234567890',
                 'user' => true,
                 'status' => 'completed',
                 'mechanic' => 'Mas Andi',
@@ -278,7 +278,7 @@ class ServiceSeeder extends Seeder
             ],
             [ // milik customer demo: sudah dikonfirmasi
                 'name' => 'Pelanggan Demo',
-                'phone' => '081234567890',
+                'customer_phone' => '081234567890',
                 'user' => true,
                 'status' => 'confirmed',
                 'days' => 2,
@@ -293,7 +293,7 @@ class ServiceSeeder extends Seeder
 
             $service = Service::create([
                 'customer_name' => $d['name'],
-                'phone' => $d['phone'],
+                'customer_phone' => $d['customer_phone'],
                 'complaint' => $d['complaint'],
                 'status' => $d['status'],
                 'scheduled_at' => now()->addDays($d['days'])->setTime(rand(8, 16), [0, 30][rand(0, 1)]),

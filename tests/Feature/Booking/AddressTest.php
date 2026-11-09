@@ -108,20 +108,20 @@ it('ADR-007: form admin, alamat tampil hanya untuk Home Service', function () {
 
 it('ADR-008: form admin Home Service tanpa alamat tetap tersimpan', function () {
     Livewire::test(CreateService::class)
-        ->fillForm(alamatFormData(['phone' => '081234500023', 'address' => null]))
+        ->fillForm(alamatFormData(['customer_phone' => '081234500023', 'address' => null]))
         ->call('create')
         ->assertHasNoFormErrors();
 
-    expect(Service::where('phone', '081234500023')->first()->address)->toBeNull();
+    expect(Service::where('customer_phone', '081234500023')->first()->address)->toBeNull();
 });
 
 it('ADR-009: form admin Home Service dengan alamat tersimpan', function () {
     Livewire::test(CreateService::class)
-        ->fillForm(alamatFormData(['phone' => '081234500024']))
+        ->fillForm(alamatFormData(['customer_phone' => '081234500024']))
         ->call('create')
         ->assertHasNoFormErrors();
 
-    expect(Service::where('phone', '081234500024')->first()->address)
+    expect(Service::where('customer_phone', '081234500024')->first()->address)
         ->toBe('depan Indomaret, pagar hijau');
 });
 

@@ -25,7 +25,7 @@ class Service extends Model
     protected $fillable = [
         'user_id',
         'customer_name',
-        'phone',
+        'customer_phone',
         'complaint',
         'scheduled_at',
         'status',

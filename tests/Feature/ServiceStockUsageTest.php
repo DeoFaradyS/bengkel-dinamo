@@ -19,7 +19,7 @@ function serviceWithPart(int $stock, int $qty): array
 
     $service = Service::create([
         'customer_name' => 'Budi',
-        'phone' => '081234567890',
+        'customer_phone' => '081234567890',
         'complaint' => 'Mati total',
         'scheduled_at' => now(),
         'status' => ServiceStatus::Completed,

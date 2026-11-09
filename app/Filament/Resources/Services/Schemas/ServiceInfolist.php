@@ -37,7 +37,7 @@ class ServiceInfolist
                     ->columns(['default' => 1, 'md' => 2])
                     ->schema([
                         TextEntry::make('customer_name')->label('Nama Pelanggan'),
-                        TextEntry::make('phone')->label('No. HP'),
+                        TextEntry::make('customer_phone')->label('No. HP'),
                         TextEntry::make('scheduled_at')->label('Tanggal & Jam')->dateTime('d/m/Y H:i'),
                         TextEntry::make('booking_type')->label('Tipe Layanan')->badge(),
                         TextEntry::make('status')->label('Status')->badge()

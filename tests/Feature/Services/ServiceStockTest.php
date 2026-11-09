@@ -96,7 +96,7 @@ it('STK-006: buat servis status non-Selesai, stok tidak berkurang', function (Se
     Livewire::test(CreateService::class)
         ->fillForm([
             'customer_name' => 'Pak Budi',
-            'phone' => fake()->unique()->numerify('08##########'),
+            'customer_phone' => fake()->unique()->numerify('08##########'),
             'complaint' => 'Dinamo tidak mau engkol',
             'scheduled_at' => now()->addDay()->format('Y-m-d H:i:s'),
             'status' => $status->value,
@@ -121,7 +121,7 @@ it('STK-007: buat servis langsung Selesai, stok langsung berkurang', function ()
         ->set('completeConfirmed', true)
         ->fillForm([
             'customer_name' => 'Pak Budi',
-            'phone' => fake()->unique()->numerify('08##########'),
+            'customer_phone' => fake()->unique()->numerify('08##########'),
             'complaint' => 'Dinamo tidak mau engkol',
             'scheduled_at' => now()->addDay()->format('Y-m-d H:i:s'),
             'status' => 'completed',
@@ -188,7 +188,7 @@ it('STK-013: buat servis Selesai tanpa konfirmasi, modal muncul dan tidak tersim
     Livewire::test(CreateService::class)
         ->fillForm([
             'customer_name' => 'Pak Budi',
-            'phone' => fake()->unique()->numerify('08##########'),
+            'customer_phone' => fake()->unique()->numerify('08##########'),
             'complaint' => 'Dinamo tidak mau engkol',
             'scheduled_at' => now()->addDay()->format('Y-m-d H:i:s'),
             'status' => 'completed',

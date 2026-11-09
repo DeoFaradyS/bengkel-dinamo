@@ -16,7 +16,7 @@ return new class extends Migration {
 
             // Snapshot data pelanggan: dipakai tamu dan Cek Status Booking.
             $table->string('customer_name');
-            $table->string('phone', 16);
+            $table->string('customer_phone', 16);
 
             $table->text('complaint');
             $table->dateTime('scheduled_at')->index();

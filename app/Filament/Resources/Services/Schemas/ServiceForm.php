@@ -136,7 +136,7 @@ class ServiceForm
                     ->schema([
                         TextInput::make('customer_name')->label('Nama Pelanggan')
                             ->required(),
-                        TextInput::make('phone')->label('No. HP')
+                        TextInput::make('customer_phone')->label('No. HP')
                             ->tel()
                             ->required()
                             ->maxLength(16)

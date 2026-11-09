@@ -18,7 +18,7 @@ function makeService(array $override = []): Service
 {
     return Service::create(array_merge([
         'customer_name' => 'Budi',
-        'phone' => '081234567890',
+        'customer_phone' => '081234567890',
         'complaint' => 'Dinamo panas',
         'scheduled_at' => now(),
         'status' => ServiceStatus::Pending,
