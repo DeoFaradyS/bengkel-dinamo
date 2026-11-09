@@ -134,13 +134,13 @@ ERD final dan seluruh keputusannya ada di `PROJECT_RULES.md` bagian 4a. Cara: ed
 - [x] Tes yang terdampak disesuaikan, alasan dicatat.
 
 **Tahap 2: rename kolom (satu rename per commit, cari-ganti di `app`, `resources`, `database`, `tests`, lalu `php artisan test`)**
-- [ ] `services.phone` jadi `customer_phone`
-- [ ] `services.address` jadi `address_note`
-- [ ] `services.stock_synced_at` jadi `stock_deducted_at`
-- [ ] `stock_movements.quantity` jadi `quantity_change`
-- [ ] `spare_parts.location` jadi `storage_location`
-- [ ] Cek `cancel_reason`: `git grep -n "cancel_reason" -- app`. Ganti jadi `status_note` hanya kalau juga dipakai untuk penolakan.
-- [ ] Cek `ServiceMetrics`: `git grep -n "updated_at" -- app`. Periode servis selesai memakai `scheduled_at`, bukan `updated_at`.
+- [x] `services.phone` jadi `customer_phone`
+- [x] `services.address` jadi `address_note`
+- [x] `services.stock_synced_at` jadi `stock_deducted_at`
+- [x] `stock_movements.quantity` jadi `quantity_change`
+- [x] `spare_parts.location` jadi `storage_location`
+- [x] Cek `cancel_reason`: dipakai untuk Ditolak dan Dibatalkan, nama dipertahankan sesuai ERD final.
+- [x] Cek `ServiceMetrics`: periode pakai `scheduled_at`, tidak ada `updated_at`.
 
 **Tahap 3: fitur**
 - [ ] Login dan register customer (email + password, `role` customer).
