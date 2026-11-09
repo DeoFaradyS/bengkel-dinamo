@@ -91,7 +91,7 @@
         </tr>
         <tr>
             <td>No. HP</td>
-            <td>: {{ $service->phone }}</td>
+            <td>: {{ $service->customer_phone }}</td>
             <td>Status</td>
             <td>: Selesai</td>
         </tr>

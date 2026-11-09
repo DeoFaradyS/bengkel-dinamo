@@ -16,14 +16,16 @@ use App\Actions\CreateBooking;
 use Illuminate\Validation\ValidationException;
 use App\Enums\StockMovementType;
 use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Service extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'user_id',
         'customer_name',
-        'phone',
+        'customer_phone',
         'complaint',
         'scheduled_at',
         'status',
@@ -31,10 +33,11 @@ class Service extends Model
         'booking_type',
         'latitude',
         'longitude',
-        'address',
+        'address_note',
         'distance_km',
         'fuel_price',
         'transport_fee',
+        'mechanic_names',
     ];
 
     protected $casts = [
@@ -43,15 +46,21 @@ class Service extends Model
         'latitude' => 'float',
         'longitude' => 'float',
         'scheduled_at' => 'datetime',
-        'stock_synced_at' => 'datetime',
+        'stock_deducted_at' => 'datetime',
         'distance_km' => 'float',
         'fuel_price' => 'integer',
         'transport_fee' => 'integer',
+        'paid_at' => 'datetime',
     ];
 
     public function items(): HasMany
     {
         return $this->hasMany(ServiceItem::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     protected static function booted(): void
@@ -113,7 +122,7 @@ class Service extends Model
 
     public function syncStock(): void
     {
-        if ($this->stock_synced_at) {
+        if ($this->stock_deducted_at) {
             return;
         }
 
@@ -121,7 +130,7 @@ class Service extends Model
 
             $fresh = self::lockForUpdate()->find($this->id);
 
-            if ($fresh->stock_synced_at) {
+            if ($fresh->stock_deducted_at) {
                 return;
             }
             foreach ($this->serviceParts()->get() as $servicePart) {
@@ -139,7 +148,7 @@ class Service extends Model
                 );
             }
 
-            $this->forceFill(['stock_synced_at' => now()])->save();
+            $this->forceFill(['stock_deducted_at' => now()])->save();
         });
     }
 

@@ -29,7 +29,7 @@ it('BKG-010: halaman booking terbuka tanpa login', function () {
     $this->get('/')->assertOk();
 });
 
-it('BKG-011: kirim booking valid, tersimpan Menunggu Konfirmasi', function () {
+it('BKG-011: kirim booking valid, tersimpan Menunggu', function () {
     fillBooking(Livewire::test(BookingForm::class), ['phone' => '+62 812 3450 0001'])
         ->call('submit')
         ->assertHasNoErrors();
@@ -37,7 +37,7 @@ it('BKG-011: kirim booking valid, tersimpan Menunggu Konfirmasi', function () {
     $service = Service::first();
 
     expect($service->status)->toBe(ServiceStatus::Pending)
-        ->and($service->phone)->toBe('081234500001');
+        ->and($service->customer_phone)->toBe('081234500001');
 });
 
 it('BKG-012: field wajib kosong ditolak', function (string $field) {
@@ -49,7 +49,7 @@ it('BKG-012: field wajib kosong ditolak', function (string $field) {
 })->with(['customer_name', 'phone', 'complaint', 'scheduled_at']);
 
 it('BKG-013: HP aktif ditolak, data orang lain tidak bocor', function () {
-    Service::factory()->create(['phone' => '081234500001', 'customer_name' => 'Rahasia Orang']);
+    Service::factory()->create(['customer_phone' => '081234500001', 'customer_name' => 'Rahasia Orang']);
 
     fillBooking(Livewire::test(BookingForm::class))
         ->call('submit')

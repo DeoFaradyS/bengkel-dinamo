@@ -31,7 +31,7 @@ class ServicesTable
                 TextColumn::make('index')->label('No')->rowIndex(),
                 TextColumn::make('customer_name')->label('Pelanggan')
                     ->searchable(),
-                TextColumn::make('phone')->label('No. HP')
+                TextColumn::make('customer_phone')->label('No. HP')
                     ->searchable(),
                 TextColumn::make('scheduled_at')->label('Tanggal & Jam')
                     ->dateTime('d/m/Y H:i')

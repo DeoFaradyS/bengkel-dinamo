@@ -18,7 +18,7 @@ return new class extends Migration {
                 ->nullOnDelete();
             $table->unsignedInteger('stock')->default(0);
             $table->unsignedInteger('min_stock')->default(1);
-            $table->string('location')->nullable();
+            $table->string('storage_location')->nullable();
             $table->decimal('price', 12, 2)->default(0);
             $table->timestamps();
             $table->softDeletes();

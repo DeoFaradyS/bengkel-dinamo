@@ -37,7 +37,7 @@ class ServiceInfolist
                     ->columns(['default' => 1, 'md' => 2])
                     ->schema([
                         TextEntry::make('customer_name')->label('Nama Pelanggan'),
-                        TextEntry::make('phone')->label('No. HP'),
+                        TextEntry::make('customer_phone')->label('No. HP'),
                         TextEntry::make('scheduled_at')->label('Tanggal & Jam')->dateTime('d/m/Y H:i'),
                         TextEntry::make('booking_type')->label('Tipe Layanan')->badge(),
                         TextEntry::make('status')->label('Status')->badge()
@@ -47,9 +47,9 @@ class ServiceInfolist
                             ->visible(fn($record) => filled($record->cancel_reason)),
                         TextEntry::make('complaint')->label('Keluhan')
                             ->columnSpanFull(),
-                        TextEntry::make('address')->label('Alamat atau patokan')
+                        TextEntry::make('address_note')->label('Alamat atau patokan')
                             ->columnSpanFull()
-                            ->visible(fn($record) => filled($record->address)),
+                            ->visible(fn($record) => filled($record->address_note)),
                         TextEntry::make('maps_link')->label('Peta')
                             ->columnSpanFull()
                             ->state('Buka di Google Maps')

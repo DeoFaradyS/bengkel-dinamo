@@ -11,13 +11,15 @@ use Database\Seeders\ServiceSeeder;
 use Livewire\Livewire;
 use App\Models\ServiceType;
 
+beforeEach(fn () => $this->actingAs(User::factory()->create()));
+
 function serviceWithPart(int $stock, int $qty): array
 {
     $part = SparePart::create(['code' => 'SP-900', 'name' => 'Bendix', 'stock' => $stock]);
 
     $service = Service::create([
         'customer_name' => 'Budi',
-        'phone' => '081234567890',
+        'customer_phone' => '081234567890',
         'complaint' => 'Mati total',
         'scheduled_at' => now(),
         'status' => ServiceStatus::Completed,
@@ -41,7 +43,7 @@ it('SUS-001: servis selesai mencatat pemakaian di riwayat stok', function () {
     $movement = $part->stockMovements()->where('type', StockMovementType::Usage)->first();
 
     expect($part->fresh()->stock)->toBe(8)
-        ->and($movement->quantity)->toBe(-2)
+        ->and($movement->quantity_change)->toBe(-2)
         ->and($movement->stock_after)->toBe(8)
         ->and($movement->service_id)->toBe($service->id);
 });
@@ -93,6 +95,6 @@ it('SUS-004: servis aktif jadi Selesai lewat halaman Edit, stok turun dan riwaya
 it('SUS-005: seeder hanya menandai sinkron servis Selesai', function () {
     $this->seed();
 
-    expect(Service::whereNotNull('stock_synced_at')->where('status', '!=', 'completed')->count())->toBe(0)
-        ->and(Service::where('status', 'completed')->whereNull('stock_synced_at')->count())->toBe(0);
+    expect(Service::whereNotNull('stock_deducted_at')->where('status', '!=', 'completed')->count())->toBe(0)
+        ->and(Service::where('status', 'completed')->whereNull('stock_deducted_at')->count())->toBe(0);
 });

@@ -10,7 +10,7 @@ class ExpireBookings extends Command
 {
     protected $signature = 'bookings:expire';
 
-    protected $description = 'Ubah booking Menunggu Konfirmasi yang lewat batas waktu menjadi Kedaluwarsa';
+    protected $description = 'Ubah booking Menunggu yang lewat batas waktu menjadi Kedaluwarsa';
 
     public function handle(): int
     {

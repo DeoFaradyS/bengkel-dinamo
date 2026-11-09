@@ -13,7 +13,7 @@ function makeServiceWithItems(array $items = [], array $override = []): Service
 {
     $service = Service::create(array_merge([
         'customer_name' => 'Pak Budi',
-        'phone' => '08' . random_int(100000000, 999999999),
+        'customer_phone' => '08' . random_int(100000000, 999999999),
         'complaint' => 'Dinamo tidak mau engkol',
         'scheduled_at' => now()->addDay(),
         'status' => 'confirmed',

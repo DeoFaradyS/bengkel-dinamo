@@ -64,7 +64,7 @@ class CreateBooking
             $service = Cache::lock('booking-slot:' . $slot->timestamp, 10)->block(5, function () use ($data, $phone, $type, $latitude, $longitude, $address, $distance, $slot) {
                 return DB::transaction(function () use ($data, $phone, $type, $latitude, $longitude, $address, $distance, $slot) {
                     $hasActive = Service::query()
-                        ->where('phone', $phone)
+                        ->where('customer_phone', $phone)
                         ->whereIn('status', ServiceStatus::activeValues())
                         ->lockForUpdate()
                         ->exists();
@@ -83,14 +83,14 @@ class CreateBooking
 
                     return Service::create([
                         'customer_name' => $data['customer_name'],
-                        'phone' => $phone,
+                        'customer_phone' => $phone,
                         'complaint' => $data['complaint'],
                         'scheduled_at' => $slot,
                         'status' => ServiceStatus::Pending,
                         'booking_type' => $type,
                         'latitude' => $latitude,
                         'longitude' => $longitude,
-                        'address' => $address,
+                        'address_note' => $address,
                         'distance_km' => $distance?->airKm,
                     ]);
                 });
@@ -103,7 +103,7 @@ class CreateBooking
 
         Notification::make()
             ->title('Booking baru')
-            ->body("{$service->customer_name} ({$service->phone}) booking {$type->getLabel()}, menunggu konfirmasi." . ($address ? " Alamat: {$address}." : ''))
+            ->body("{$service->customer_name} ({$service->customer_phone}) booking {$type->getLabel()}, menunggu konfirmasi." . ($address ? " Alamat: {$address}." : ''))
             ->icon('heroicon-o-clock')
             ->warning()
             ->sendToDatabase(User::all());

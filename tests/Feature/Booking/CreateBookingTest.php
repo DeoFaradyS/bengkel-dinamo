@@ -15,7 +15,7 @@ function bookingData(array $override = []): array
     ], $override);
 }
 
-it('BKG-001: booking baru masuk status Menunggu Konfirmasi', function () {
+it('BKG-001: booking baru masuk status Menunggu', function () {
     $service = app(CreateBooking::class)->handle(bookingData());
 
     expect($service->status)->toBe(ServiceStatus::Pending)
@@ -25,11 +25,11 @@ it('BKG-001: booking baru masuk status Menunggu Konfirmasi', function () {
 it('BKG-002: HP disimpan dalam format 08...', function () {
     $service = app(CreateBooking::class)->handle(bookingData(['phone' => '+62 812 3450 0001']));
 
-    expect($service->phone)->toBe('081234500001');
+    expect($service->customer_phone)->toBe('081234500001');
 });
 
 it('BKG-003: HP punya servis aktif ditolak, format apa pun', function (string $phone) {
-    Service::factory()->create(['phone' => '081234500001']);
+    Service::factory()->create(['customer_phone' => '081234500001']);
 
     expect(fn () => app(CreateBooking::class)->handle(bookingData(['phone' => $phone])))
         ->toThrow(ValidationException::class);
@@ -41,7 +41,7 @@ it('BKG-003: HP punya servis aktif ditolak, format apa pun', function (string $p
     'format 62' => ['6281234500001'],
 ]);
 
-it('BKG-004: HP dengan booking Menunggu Konfirmasi juga ditolak', function () {
+it('BKG-004: HP dengan booking Menunggu juga ditolak', function () {
     app(CreateBooking::class)->handle(bookingData());
 
     expect(fn () => app(CreateBooking::class)->handle(bookingData()))
@@ -51,7 +51,7 @@ it('BKG-004: HP dengan booking Menunggu Konfirmasi juga ditolak', function () {
 });
 
 it('BKG-005: HP dengan servis Selesai boleh booking lagi', function () {
-    Service::factory()->completed()->create(['phone' => '081234500001']);
+    Service::factory()->completed()->create(['customer_phone' => '081234500001']);
 
     $service = app(CreateBooking::class)->handle(bookingData());
 
@@ -60,7 +60,7 @@ it('BKG-005: HP dengan servis Selesai boleh booking lagi', function () {
 });
 
 it('BKG-006: HP dengan servis yang di-soft-delete boleh booking lagi', function () {
-    Service::factory()->create(['phone' => '081234500001'])->delete();
+    Service::factory()->create(['customer_phone' => '081234500001'])->delete();
 
     app(CreateBooking::class)->handle(bookingData());
 

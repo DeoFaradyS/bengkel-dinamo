@@ -50,7 +50,7 @@ it('DTL-004: Home Service menampilkan alamat dan link peta', function () {
         'booking_type' => BookingType::HomeService,
         'latitude' => -7.7174465,
         'longitude' => 113.0755426,
-        'address' => 'depan Indomaret, pagar hijau',
+        'address_note' => 'depan Indomaret, pagar hijau',
     ]);
 
     Livewire::test(ViewService::class, ['record' => $service->getRouteKey()])

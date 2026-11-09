@@ -17,7 +17,7 @@ it('PRC-001: harga jasa tampil bulat saat edit, tidak kali 100', function () {
 
     $service = Service::create([
         'customer_name' => 'Budi',
-        'phone' => '081234567890',
+        'customer_phone' => '081234567890',
         'complaint' => 'Mati total',
         'scheduled_at' => now(),
         'status' => ServiceStatus::Pending,

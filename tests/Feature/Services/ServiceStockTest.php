@@ -8,6 +8,9 @@ use App\Models\ServicePart;
 use App\Models\ServiceType;
 use App\Models\SparePart;
 use Livewire\Livewire;
+use App\Models\User;
+
+beforeEach(fn () => $this->actingAs(User::factory()->create()));
 
 // Servis dengan part. Tiap baris: [stok awal, qty dipakai].
 // Hasil: [servis, [part1, part2, ...]]
@@ -47,12 +50,12 @@ it('STK-001: dua part, stok tiap part berkurang sesuai qty', function () {
         ->and($b->fresh()->stock)->toBe(4);
 });
 
-it('STK-002: stock_synced_at terisi setelah sync', function () {
+it('STK-002: stock_deducted_at terisi setelah sync', function () {
     [$service] = serviceWithParts([[10, 2]]);
 
     $service->syncStock();
 
-    expect($service->fresh()->stock_synced_at)->not->toBeNull();
+    expect($service->fresh()->stock_deducted_at)->not->toBeNull();
 });
 
 it('STK-003: sync dua kali, stok hanya berkurang sekali', function () {
@@ -72,7 +75,7 @@ it('STK-004: stok kurang, error dan semua part batal berkurang', function () {
 
     expect($a->fresh()->stock)->toBe(5)
         ->and($b->fresh()->stock)->toBe(1)
-        ->and($service->fresh()->stock_synced_at)->toBeNull();
+        ->and($service->fresh()->stock_deducted_at)->toBeNull();
 });
 
 it('STK-005: servis tanpa spare part, sync tidak error', function () {
@@ -80,7 +83,7 @@ it('STK-005: servis tanpa spare part, sync tidak error', function () {
 
     $service->syncStock();
 
-    expect($service->fresh()->stock_synced_at)->not->toBeNull();
+    expect($service->fresh()->stock_deducted_at)->not->toBeNull();
 });
 
 /* ------------------------------------------------------------------ */
@@ -93,7 +96,7 @@ it('STK-006: buat servis status non-Selesai, stok tidak berkurang', function (Se
     Livewire::test(CreateService::class)
         ->fillForm([
             'customer_name' => 'Pak Budi',
-            'phone' => fake()->unique()->numerify('08##########'),
+            'customer_phone' => fake()->unique()->numerify('08##########'),
             'complaint' => 'Dinamo tidak mau engkol',
             'scheduled_at' => now()->addDay()->format('Y-m-d H:i:s'),
             'status' => $status->value,
@@ -118,7 +121,7 @@ it('STK-007: buat servis langsung Selesai, stok langsung berkurang', function ()
         ->set('completeConfirmed', true)
         ->fillForm([
             'customer_name' => 'Pak Budi',
-            'phone' => fake()->unique()->numerify('08##########'),
+            'customer_phone' => fake()->unique()->numerify('08##########'),
             'complaint' => 'Dinamo tidak mau engkol',
             'scheduled_at' => now()->addDay()->format('Y-m-d H:i:s'),
             'status' => 'completed',
@@ -153,7 +156,7 @@ it('STK-008: edit servis aktif jadi Selesai, stok berkurang', function () {
         ->assertHasNoFormErrors();
 
     expect($part->fresh()->stock)->toBe(8)
-        ->and($service->fresh()->stock_synced_at)->not->toBeNull();
+        ->and($service->fresh()->stock_deducted_at)->not->toBeNull();
 });
 
 it('STK-012: edit simpan Selesai tanpa konfirmasi, modal muncul dan stok tidak berubah', function () {
@@ -174,7 +177,7 @@ it('STK-012: edit simpan Selesai tanpa konfirmasi, modal muncul dan stok tidak b
 
     expect($service->fresh()->status)->toBe(ServiceStatus::InProgress)
         ->and($part->fresh()->stock)->toBe(10)
-        ->and($service->fresh()->stock_synced_at)->toBeNull();
+        ->and($service->fresh()->stock_deducted_at)->toBeNull();
 });
 
 it('STK-013: buat servis Selesai tanpa konfirmasi, modal muncul dan tidak tersimpan', function () {
@@ -185,7 +188,7 @@ it('STK-013: buat servis Selesai tanpa konfirmasi, modal muncul dan tidak tersim
     Livewire::test(CreateService::class)
         ->fillForm([
             'customer_name' => 'Pak Budi',
-            'phone' => fake()->unique()->numerify('08##########'),
+            'customer_phone' => fake()->unique()->numerify('08##########'),
             'complaint' => 'Dinamo tidak mau engkol',
             'scheduled_at' => now()->addDay()->format('Y-m-d H:i:s'),
             'status' => 'completed',

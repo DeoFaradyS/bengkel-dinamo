@@ -61,7 +61,7 @@ class SparePartForm
                                                 ->stickyModalFooter()
                                                 ->modalWidth(Width::Large)
                                                 ->modalFooterActionsAlignment(Alignment::End)),
-                                        TextInput::make('location')->label('Lokasi')
+                                        TextInput::make('storage_location')->label('Lokasi')
                                             ->maxLength(255)
                                             ->placeholder('Contoh: Rak A1'),
                                     ]),

@@ -40,7 +40,7 @@ class SparePartsTable
                 TextColumn::make('stock')->label('Stok')
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('location')->label('Lokasi')
+                TextColumn::make('storage_location')->label('Lokasi')
                     ->searchable(),
                 TextColumn::make('price')->label('Harga')
                     ->money('IDR', locale: 'id', decimalPlaces: 0)

@@ -136,7 +136,7 @@ class ServiceForm
                     ->schema([
                         TextInput::make('customer_name')->label('Nama Pelanggan')
                             ->required(),
-                        TextInput::make('phone')->label('No. HP')
+                        TextInput::make('customer_phone')->label('No. HP')
                             ->tel()
                             ->required()
                             ->maxLength(16)
@@ -185,7 +185,7 @@ class ServiceForm
                                 if (self::typeOf($state) !== BookingType::HomeService) {
                                     $set('latitude', null);
                                     $set('longitude', null);
-                                    $set('address', null);
+                                    $set('address_note', null);
                                 }
                             })
                             ->required(),
@@ -239,7 +239,7 @@ class ServiceForm
                         View::make('filament.forms.pin-map')
                             ->columnSpanFull()
                             ->visible(fn(Get $get) => self::isHome($get)),
-                        TextInput::make('address')->label('Alamat atau patokan (opsional)')
+                        TextInput::make('address_note')->label('Alamat atau patokan (opsional)')
                             ->columnSpanFull()
                             ->maxLength(255)
                             ->visible(fn(Get $get) => self::isHome($get))

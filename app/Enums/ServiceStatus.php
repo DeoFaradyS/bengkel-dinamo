@@ -19,9 +19,9 @@ enum ServiceStatus: string implements HasColor, HasIcon, HasLabel
     public function getLabel(): string
     {
         return match ($this) {
-            self::Pending => 'Menunggu Konfirmasi',
+            self::Pending => 'Menunggu',
             self::Confirmed => 'Dikonfirmasi',
-            self::InProgress => 'Sedang Dikerjakan',
+            self::InProgress => 'Dikerjakan',
             self::Completed => 'Selesai',
             self::Cancelled => 'Dibatalkan',
             self::Rejected => 'Ditolak',

@@ -106,7 +106,7 @@ class CreateService extends CreateRecord
 
     protected function beforeValidate(): void
     {
-        $this->data['phone'] = PhoneNumber::normalize($this->data['phone'] ?? null);
+        $this->data['customer_phone'] = PhoneNumber::normalize($this->data['customer_phone'] ?? null);
     }
 
 

@@ -14,7 +14,7 @@ function formTipeData(array $override = []): array
 {
     return array_merge([
         'customer_name' => 'Pak Joko',
-        'phone' => '081234500010',
+        'customer_phone' => '081234500010',
         'complaint' => 'Dinamo bunyi kasar',
         'scheduled_at' => now()->addDay(),
         'status' => ServiceStatus::Confirmed->value,
@@ -69,7 +69,7 @@ it('FRM-006: Home Service dengan koordinat tersimpan', function () {
         ->call('create')
         ->assertHasNoFormErrors();
 
-    $service = Service::where('phone', '081234500010')->first();
+    $service = Service::where('customer_phone', '081234500010')->first();
 
     expect($service->booking_type)->toBe(BookingType::HomeService)
         ->and($service->latitude)->toEqual(-7.7174465)
@@ -82,7 +82,7 @@ it('FRM-007: Ke Bengkel tersimpan tanpa koordinat', function () {
         ->call('create')
         ->assertHasNoFormErrors();
 
-    $service = Service::where('phone', '081234500010')->first();
+    $service = Service::where('customer_phone', '081234500010')->first();
 
     expect($service->booking_type)->toBe(BookingType::Workshop)
         ->and($service->latitude)->toBeNull()

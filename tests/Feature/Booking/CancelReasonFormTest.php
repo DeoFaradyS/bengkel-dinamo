@@ -12,7 +12,7 @@ function alasanData(array $override = []): array
 {
     return array_merge([
         'customer_name' => 'Pak Tono',
-        'phone' => '081234500030',
+        'customer_phone' => '081234500030',
         'complaint' => 'Dinamo rusak berat',
         'scheduled_at' => now()->addDay(),
         'status' => ServiceStatus::Rejected->value,
@@ -55,6 +55,6 @@ it('RSN-005: Ditolak dengan alasan tersimpan', function () {
         ->call('create')
         ->assertHasNoFormErrors();
 
-    expect(Service::where('phone', '081234500030')->first()->cancel_reason)
+    expect(Service::where('customer_phone', '081234500030')->first()->cancel_reason)
         ->toBe('Biaya melebihi harga unit baru');
 });

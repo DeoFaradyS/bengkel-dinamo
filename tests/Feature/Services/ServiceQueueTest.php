@@ -157,7 +157,7 @@ it('ANT-011: simpan servis baru tidak menyimpan baris jasa dan part kosong', fun
     Livewire::test(CreateService::class)
         ->fillForm([
             'customer_name' => 'Budi',
-            'phone' => '081234567890',
+            'customer_phone' => '081234567890',
             'complaint' => 'Dinamo tidak mau engkol',
             'scheduled_at' => '2026-11-03 10:00:00',
             'booking_type' => 'workshop',

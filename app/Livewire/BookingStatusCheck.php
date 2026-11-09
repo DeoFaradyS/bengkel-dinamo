@@ -40,7 +40,7 @@ class BookingStatusCheck extends Component
 
         // Pesan gagal sama untuk nomor salah dan nama salah, supaya data orang lain tidak bisa ditebak.
         $services = $phone
-            ? Service::where('phone', $phone)
+            ? Service::where('customer_phone', $phone)
                 ->whereRaw('LOWER(TRIM(customer_name)) = ?', [mb_strtolower(trim($this->customer_name))])
                 ->orderByDesc('scheduled_at')
                 ->limit(3)

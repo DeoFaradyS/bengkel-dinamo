@@ -38,7 +38,7 @@ it('NTF-002: isi notifikasi memuat nama pelanggan', function () {
 
 it('NTF-003: booking ditolak karena HP aktif, tidak ada notifikasi', function () {
     $admin = User::factory()->create();
-    Service::factory()->create(['phone' => '081234500001']);
+    Service::factory()->create(['customer_phone' => '081234500001']);
 
     expect(fn () => app(CreateBooking::class)->handle(notifBookingData()))
         ->toThrow(ValidationException::class);
