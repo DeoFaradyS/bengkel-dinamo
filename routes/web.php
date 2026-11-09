@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
 use App\Models\ServiceType;
 use Illuminate\Support\Facades\Route;
 
@@ -21,3 +23,12 @@ Route::get('/layanan', function () {
 Route::get('/layanan/{serviceType}', function (ServiceType $serviceType) {
     return view('layanan.show', ['service' => $serviceType]);
 });
+
+Route::middleware('guest')->group(function () {
+    Route::get('/daftar', [RegisterController::class, 'create'])->name('register');
+    Route::post('/daftar', [RegisterController::class, 'store'])->middleware('throttle:10,1');
+    Route::get('/masuk', [LoginController::class, 'create'])->name('login');
+    Route::post('/masuk', [LoginController::class, 'store'])->middleware('throttle:5,1');
+});
+
+Route::post('/keluar', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');

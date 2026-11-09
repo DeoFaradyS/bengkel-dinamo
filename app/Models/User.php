@@ -14,7 +14,7 @@ use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'phone'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser
 {
@@ -34,7 +34,8 @@ class User extends Authenticatable implements FilamentUser
             'role' => UserRole::class,
         ];
     }
-        public function canAccessPanel(Panel $panel): bool
+
+    public function canAccessPanel(Panel $panel): bool
     {
         return $this->role === UserRole::Owner;
     }
