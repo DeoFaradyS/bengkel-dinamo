@@ -11,6 +11,8 @@ use Database\Seeders\ServiceSeeder;
 use Livewire\Livewire;
 use App\Models\ServiceType;
 
+beforeEach(fn () => $this->actingAs(User::factory()->create()));
+
 function serviceWithPart(int $stock, int $qty): array
 {
     $part = SparePart::create(['code' => 'SP-900', 'name' => 'Bendix', 'stock' => $stock]);

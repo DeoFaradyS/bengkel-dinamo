@@ -2,6 +2,9 @@
 
 use App\Enums\StockMovementType;
 use App\Models\SparePart;
+use App\Models\User;
+
+beforeEach(fn () => $this->actingAs(User::factory()->create()));
 
 it('STK-001: part baru dengan stok awal punya catatan stok awal', function () {
     $part = SparePart::factory()->create(['stock' => 10]);

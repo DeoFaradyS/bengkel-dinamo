@@ -8,6 +8,9 @@ use App\Models\ServicePart;
 use App\Models\ServiceType;
 use App\Models\SparePart;
 use Livewire\Livewire;
+use App\Models\User;
+
+beforeEach(fn () => $this->actingAs(User::factory()->create()));
 
 // Servis dengan part. Tiap baris: [stok awal, qty dipakai].
 // Hasil: [servis, [part1, part2, ...]]
