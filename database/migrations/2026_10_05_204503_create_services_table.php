@@ -21,7 +21,7 @@ return new class extends Migration
 
             $table->text('complaint');
             $table->dateTime('scheduled_at')->index();
-            $table->foreignId('status_id')->constrained('statuses')->restrictOnDelete();
+            $table->string('status')->default('pending');
 
             $table->string('booking_type', 20)
                 ->default(BookingType::Workshop->value)
@@ -49,7 +49,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index(['status_id', 'scheduled_at']);
+            $table->index(['status', 'scheduled_at']);
         });
     }
 

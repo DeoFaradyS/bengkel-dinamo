@@ -6,11 +6,15 @@ use App\Models\Service;
 use App\Models\ServiceType;
 use App\Models\SparePart;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Auth;
+use App\Enums\UserRole;
+use App\Models\User;
 
 class ServiceSeeder extends Seeder
 {
     public function run(): void
     {
+        Auth::setUser(User::where('role', UserRole::Owner)->firstOrFail());
         $types = ServiceType::all()->keyBy('name');
         $parts = SparePart::all()->keyBy('name');
 

@@ -7,6 +7,10 @@ use App\Models\SparePart;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use App\Enums\UserRole;
+use App\Models\User;
+use App\Enums\StockMovementType;
 
 class SparePartSeeder extends Seeder
 {
@@ -14,6 +18,7 @@ class SparePartSeeder extends Seeder
     {
         // [nama => id], dibuat CategorySeeder
         $categoryIds = Category::pluck('id', 'name');
+        Auth::setUser(User::where('role', UserRole::Owner)->firstOrFail());
 
         $parts = [
             // Starter
@@ -53,14 +58,16 @@ class SparePartSeeder extends Seeder
         $imageDir = database_path('seeders/images/spare-parts');
 
         foreach ($parts as [$code, $name, $category, $stock, $minStock, $location, $price]) {
-            $data = [
+            $part = SparePart::firstOrNew(['code' => $code]);
+            $isNew = !$part->exists;
+
+            $part->fill([
                 'name' => $name,
                 'category_id' => $categoryIds[$category],
-                'stock' => $stock,
                 'min_stock' => $minStock,
                 'location' => $location,
                 'price' => $price,
-            ];
+            ]);
 
             // cari file gambar bernama kode part, format apa saja
             $source = File::glob("{$imageDir}/{$code}.*")[0] ?? null;
@@ -68,10 +75,20 @@ class SparePartSeeder extends Seeder
             if ($source) {
                 $photo = 'spare-parts/' . basename($source);
                 Storage::disk('public')->put($photo, File::get($source));
-                $data['photo'] = $photo;
+                $part->photo = $photo;
             }
 
-            SparePart::updateOrCreate(['code' => $code], $data);
+            // Stok hanya lewat addStock(). Part baru mulai 0, lalu stok awal dicatat sebagai riwayat.
+            if ($isNew) {
+                $part->stock = 0;
+            }
+
+            $part->save();
+
+            // Hanya part baru, jadi seeder jalan dua kali tidak menggandakan stok.
+            if ($isNew && $stock > 0) {
+                $part->addStock($stock, StockMovementType::Opening, 'Stok awal (seeder)');
+            }
         }
     }
 }

@@ -20,4 +20,4 @@ class DemoCustomerSeeder extends Seeder
             'password' => 'password',
         ])->save();
     }
-}c
+}
