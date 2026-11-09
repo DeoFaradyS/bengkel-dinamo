@@ -301,7 +301,7 @@ class ServiceSeeder extends Seeder
                 'booking_type' => $home ? 'home_service' : 'workshop',
                 'latitude' => $home['lat'] ?? null,
                 'longitude' => $home['lng'] ?? null,
-                'address' => $home['address'] ?? null,
+                'address_note' => $home['address'] ?? null,
                 'user_id' => ($d['user'] ?? false) ? $customer->id : null,
                 'mechanic_names' => $d['mechanic'] ?? null,
 

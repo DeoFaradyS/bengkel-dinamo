@@ -28,7 +28,7 @@ return new class extends Migration {
             // Hanya home service.
             $table->decimal('latitude', 10, 7)->nullable();
             $table->decimal('longitude', 10, 7)->nullable();
-            $table->string('address')->nullable();
+            $table->string('address_note')->nullable();
             $table->decimal('distance_km', 8, 3)->nullable();
 
             // Snapshot ongkos saat booking dibuat.

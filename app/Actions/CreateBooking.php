@@ -90,7 +90,7 @@ class CreateBooking
                         'booking_type' => $type,
                         'latitude' => $latitude,
                         'longitude' => $longitude,
-                        'address' => $address,
+                        'address_note' => $address,
                         'distance_km' => $distance?->airKm,
                     ]);
                 });

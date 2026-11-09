@@ -33,7 +33,7 @@ class Service extends Model
         'booking_type',
         'latitude',
         'longitude',
-        'address',
+        'address_note',
         'distance_km',
         'fuel_price',
         'transport_fee',

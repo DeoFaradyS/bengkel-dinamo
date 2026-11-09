@@ -47,9 +47,9 @@ class ServiceInfolist
                             ->visible(fn($record) => filled($record->cancel_reason)),
                         TextEntry::make('complaint')->label('Keluhan')
                             ->columnSpanFull(),
-                        TextEntry::make('address')->label('Alamat atau patokan')
+                        TextEntry::make('address_note')->label('Alamat atau patokan')
                             ->columnSpanFull()
-                            ->visible(fn($record) => filled($record->address)),
+                            ->visible(fn($record) => filled($record->address_note)),
                         TextEntry::make('maps_link')->label('Peta')
                             ->columnSpanFull()
                             ->state('Buka di Google Maps')
