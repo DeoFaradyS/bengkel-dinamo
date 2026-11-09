@@ -45,7 +45,7 @@ it('TSP-001: submit dengan semua field valid', function () {
     Livewire::test(CreateSparePart::class)
         ->fillForm(partData([
             'category_id' => $category->id,
-            'location' => 'Rak A1',
+            'storage_location' => 'Rak A1',
             'photo' => UploadedFile::fake()->image('sp-001.jpg'),
         ]))
         ->call('create')
@@ -56,7 +56,7 @@ it('TSP-001: submit dengan semua field valid', function () {
 
 it('TSP-002: field opsional dikosongkan tetap tersimpan', function () {
     Livewire::test(CreateSparePart::class)
-        ->fillForm(partData(['category_id' => null, 'location' => null, 'photo' => null]))
+        ->fillForm(partData(['category_id' => null, 'storage_location' => null, 'photo' => null]))
         ->call('create')
         ->assertHasNoFormErrors();
 

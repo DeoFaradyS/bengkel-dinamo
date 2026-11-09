@@ -22,7 +22,7 @@ class SparePart extends Model
         'category_id',
         'stock',
         'min_stock',
-        'location',
+        'storage_location',
         'price',
     ];
 

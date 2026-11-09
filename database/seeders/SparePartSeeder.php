@@ -65,7 +65,7 @@ class SparePartSeeder extends Seeder
                 'name' => $name,
                 'category_id' => $categoryIds[$category],
                 'min_stock' => $minStock,
-                'location' => $location,
+                'storage_location' => $location,
                 'price' => $price,
             ]);
 
