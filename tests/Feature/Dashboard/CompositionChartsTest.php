@@ -29,7 +29,7 @@ function cmpCompleted(): Service
 it('CMP-001: donat status tampil dengan semua label status', function () {
     Livewire::test(StatusChart::class)
         ->assertSee('Komposisi Status Servis')
-        ->assertSee('Menunggu Konfirmasi')
+        ->assertSee(ServiceStatus::Pending->getLabel())
         ->assertSee('Selesai')
         ->assertSee('Ditolak');
 });
