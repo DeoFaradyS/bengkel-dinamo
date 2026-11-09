@@ -95,6 +95,6 @@ it('SUS-004: servis aktif jadi Selesai lewat halaman Edit, stok turun dan riwaya
 it('SUS-005: seeder hanya menandai sinkron servis Selesai', function () {
     $this->seed();
 
-    expect(Service::whereNotNull('stock_synced_at')->where('status', '!=', 'completed')->count())->toBe(0)
-        ->and(Service::where('status', 'completed')->whereNull('stock_synced_at')->count())->toBe(0);
+    expect(Service::whereNotNull('stock_deducted_at')->where('status', '!=', 'completed')->count())->toBe(0)
+        ->and(Service::where('status', 'completed')->whereNull('stock_deducted_at')->count())->toBe(0);
 });

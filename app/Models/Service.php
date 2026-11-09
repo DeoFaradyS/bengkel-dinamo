@@ -46,7 +46,7 @@ class Service extends Model
         'latitude' => 'float',
         'longitude' => 'float',
         'scheduled_at' => 'datetime',
-        'stock_synced_at' => 'datetime',
+        'stock_deducted_at' => 'datetime',
         'distance_km' => 'float',
         'fuel_price' => 'integer',
         'transport_fee' => 'integer',
@@ -122,7 +122,7 @@ class Service extends Model
 
     public function syncStock(): void
     {
-        if ($this->stock_synced_at) {
+        if ($this->stock_deducted_at) {
             return;
         }
 
@@ -130,7 +130,7 @@ class Service extends Model
 
             $fresh = self::lockForUpdate()->find($this->id);
 
-            if ($fresh->stock_synced_at) {
+            if ($fresh->stock_deducted_at) {
                 return;
             }
             foreach ($this->serviceParts()->get() as $servicePart) {
@@ -148,7 +148,7 @@ class Service extends Model
                 );
             }
 
-            $this->forceFill(['stock_synced_at' => now()])->save();
+            $this->forceFill(['stock_deducted_at' => now()])->save();
         });
     }
 

@@ -37,7 +37,7 @@ return new class extends Migration {
 
             $table->text('cancel_reason')->nullable();
             // Penjaga: stok dikurangi sekali saja saat servis selesai.
-            $table->timestamp('stock_synced_at')->nullable();
+            $table->timestamp('stock_deducted_at')->nullable();
 
             // Catatan bebas siapa yang mengerjakan. Bukan relasi.
             $table->string('mechanic_names')->nullable();
