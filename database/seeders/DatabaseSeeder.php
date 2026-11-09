@@ -16,8 +16,8 @@ class DatabaseSeeder extends Seeder
             ServiceTypeSeeder::class,
         ]);
 
-        // Data demo: hanya local, untuk uji manual dan demo bimbingan.
-        if (app()->environment('local')) {
+        // Data demo: semua environment kecuali production, untuk uji manual, demo bimbingan, dan tes seeder.
+        if (! app()->environment('production')) {
             $this->call([
                 DemoCustomerSeeder::class,
                 SparePartSeeder::class,
