@@ -5,8 +5,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     public function up(): void
     {
         Schema::create('services', function (Blueprint $table) {
@@ -24,8 +23,7 @@ return new class extends Migration
             $table->string('status')->default('pending');
 
             $table->string('booking_type', 20)
-                ->default(BookingType::Workshop->value)
-                ->index();
+                ->default(BookingType::Workshop->value);
 
             // Hanya home service.
             $table->decimal('latitude', 10, 7)->nullable();
@@ -50,6 +48,7 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->index(['status', 'scheduled_at']);
+            $table->index(['user_id', 'scheduled_at']);
         });
     }
 
