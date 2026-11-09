@@ -16,12 +16,14 @@ use App\Actions\CreateBooking;
 use Illuminate\Validation\ValidationException;
 use App\Enums\StockMovementType;
 use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Service extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'user_id',
         'customer_name',
         'phone',
         'complaint',
@@ -35,6 +37,7 @@ class Service extends Model
         'distance_km',
         'fuel_price',
         'transport_fee',
+        'mechanic_names',
     ];
 
     protected $casts = [
@@ -47,11 +50,17 @@ class Service extends Model
         'distance_km' => 'float',
         'fuel_price' => 'integer',
         'transport_fee' => 'integer',
+        'paid_at' => 'datetime',
     ];
 
     public function items(): HasMany
     {
         return $this->hasMany(ServiceItem::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     protected static function booted(): void
