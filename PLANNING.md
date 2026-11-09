@@ -117,7 +117,7 @@ ERD final dan seluruh keputusannya ada di `PROJECT_RULES.md` bagian 4a. Cara: ed
 **Tahap 1: struktur database (satu commit, tes hijau di akhir)**
 - [x] `users`: `role` (default customer, tidak di `$fillable`), `phone`. (Index role dibuang 9 Nov malam.)
 - [~] `services`: sudah: `status` string + index `(status, scheduled_at)`. Belum: `user_id` (nullOnDelete), `mechanic_names`, `paid_at`, index `(user_id, scheduled_at)`, buang index `booking_type`, koordinat `decimal(10,7)`. Model `Service` perlu `user_id`, `mechanic_names`, `paid_at` di `$fillable` dan cast `paid_at`.
-- [ ] `service_parts`: timestamps.
+- [x] `service_parts`: timestamps.
 - [ ] Kolom uang semua `decimal(12,2)` (7 kolom, daftar di 4a). `workshop_settings` lat/lng `decimal(10,7)`.
 - [ ] Lengkapi aturan `onDelete` semua FK (tabel di 4a). `stock_movements`: index `(spare_part_id, created_at)`.
 - [x] Enum `UserRole` (owner, customer), cast di model `User`. Label enum `ServiceStatus` diganti nama singkat.
