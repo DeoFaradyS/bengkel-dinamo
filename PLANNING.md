@@ -146,7 +146,7 @@ ERD final dan seluruh keputusannya ada di `PROJECT_RULES.md` bagian 4a. Cara: ed
 - [ ] Login dan register customer (email + password, `role` customer).
 - [ ] Booking untuk customer login (`user_id` terisi, form terisi otomatis).
 - [ ] Riwayat Saya.
-- [ ] Keamanan panel: `canAccessPanel()` hanya `owner`, notifikasi booking hanya ke `owner`.
+- [x] Keamanan panel: `canAccessPanel()` hanya `owner`, notifikasi booking hanya ke `owner`. SEC-001..003, 458 tes hijau (9 Nov 2026). `UserFactory` punya state `owner()`: tes penerima notifikasi wajib pakai itu.
 - [ ] Aksi "Tandai Lunas" (hanya servis selesai, `paid_at` NULL), badge Lunas/Belum Lunas, filter, invoice.
 - [ ] Panel sparepart: `RestoreAction` dan `TrashedFilter` (cek dengan `git grep -n "TrashedFilter\|RestoreAction" -- app`), pesan validasi kode yang dipakai part yang diarsipkan.
 
