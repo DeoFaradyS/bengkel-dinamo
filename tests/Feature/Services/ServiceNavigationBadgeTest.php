@@ -10,7 +10,7 @@ it('NAV-001: tidak ada yang menunggu, badge kosong', function () {
     expect(ServiceResource::getNavigationBadge())->toBeNull();
 });
 
-it('NAV-002: badge menghitung hanya status Menunggu Konfirmasi', function () {
+it('NAV-002: badge menghitung hanya status Menunggu', function () {
     Service::factory()->count(2)->status(ServiceStatus::Pending)->create();
     Service::factory()->create();
     Service::factory()->completed()->create();

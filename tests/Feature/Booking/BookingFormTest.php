@@ -29,7 +29,7 @@ it('BKG-010: halaman booking terbuka tanpa login', function () {
     $this->get('/')->assertOk();
 });
 
-it('BKG-011: kirim booking valid, tersimpan Menunggu Konfirmasi', function () {
+it('BKG-011: kirim booking valid, tersimpan Menunggu', function () {
     fillBooking(Livewire::test(BookingForm::class), ['phone' => '+62 812 3450 0001'])
         ->call('submit')
         ->assertHasNoErrors();

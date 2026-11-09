@@ -15,7 +15,7 @@ function bookingData(array $override = []): array
     ], $override);
 }
 
-it('BKG-001: booking baru masuk status Menunggu Konfirmasi', function () {
+it('BKG-001: booking baru masuk status Menunggu', function () {
     $service = app(CreateBooking::class)->handle(bookingData());
 
     expect($service->status)->toBe(ServiceStatus::Pending)
@@ -41,7 +41,7 @@ it('BKG-003: HP punya servis aktif ditolak, format apa pun', function (string $p
     'format 62' => ['6281234500001'],
 ]);
 
-it('BKG-004: HP dengan booking Menunggu Konfirmasi juga ditolak', function () {
+it('BKG-004: HP dengan booking Menunggu juga ditolak', function () {
     app(CreateBooking::class)->handle(bookingData());
 
     expect(fn () => app(CreateBooking::class)->handle(bookingData()))
