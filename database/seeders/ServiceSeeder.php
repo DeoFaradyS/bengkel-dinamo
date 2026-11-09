@@ -15,6 +15,7 @@ class ServiceSeeder extends Seeder
     public function run(): void
     {
         Auth::setUser(User::where('role', UserRole::Owner)->firstOrFail());
+        $customer = User::where('email', 'customer@bengkel-dinamo.test')->firstOrFail();
         $types = ServiceType::all()->keyBy('name');
         $parts = SparePart::all()->keyBy('name');
 
@@ -63,6 +64,8 @@ class ServiceSeeder extends Seeder
                 'jasa' => [['Servis dinamo', null]],
                 'parts' => [['Kohlen / Carbon Brush Alternator (set)', 1]],
                 'home' => ['km' => 3.0, 'lat' => -7.7165, 'lng' => 113.0830, 'address' => 'Jl. Kenanga 12, sebelah bengkel las, gerbang biru'],
+                'paid' => true,
+                'mechanic' => 'Cak Budi',
             ],
             [ // jauh, banyak jasa dan part: total paling besar
                 'name' => 'Pak Haji Mansur',
@@ -73,9 +76,11 @@ class ServiceSeeder extends Seeder
                 'jasa' => [['Servis dinamo', null], ['Ganti bearing', null], ['Ganti brush karbon', null]],
                 'parts' => [['Bearing 6203', 2], ['Kohlen / Carbon Brush Starter (set)', 1]],
                 'home' => ['km' => 12.0, 'lat' => -7.6890, 'lng' => 113.1250, 'address' => 'Pabrik tahu Barokah, Jl. Raya Kraksaan km 4'],
+                'mechanic' => 'Cak Budi, Mas Andi',
             ],
             [ // sedang dikerjakan, Home Service
                 'name' => 'Bu Yuli Astuti',
+                'mechanic' => 'Mas Andi',
                 'phone' => '081311223344',
                 'status' => 'in_progress',
                 'days' => 0,
@@ -116,6 +121,7 @@ class ServiceSeeder extends Seeder
                 'complaint' => 'Dinamo starter Avanza ngik-ngik, tidak mau engkol',
                 'jasa' => [['Servis dinamo', null], ['Ganti brush karbon', null]],
                 'parts' => [['Bendix Starter 12V', 1], ['Kohlen / Carbon Brush Starter (set)', 1]],
+                'paid' => true,
             ],
             [ // harga jasa diubah admin + tiga part
                 'name' => 'CV Maju Jaya',
@@ -134,6 +140,7 @@ class ServiceSeeder extends Seeder
                 'complaint' => 'Cek dinamo, bunyi halus saat idle',
                 'jasa' => [['Servis dinamo', null]],
                 'parts' => [],
+                'paid' => true,
             ],
             [ // kedaluwarsa: admin tidak menjawab sampai jadwal lewat
                 'name' => 'Mas Rizky',
@@ -245,6 +252,40 @@ class ServiceSeeder extends Seeder
                 'parts' => [],
                 'reason' => 'Suku cadang tidak tersedia',
             ],
+
+            [ // milik customer demo: selesai dan lunas
+                'name' => 'Pelanggan Demo',
+                'phone' => '081234567890',
+                'user' => true,
+                'status' => 'completed',
+                'paid' => true,
+                'mechanic' => 'Cak Budi',
+                'days' => -12,
+                'complaint' => 'Servis dinamo starter rutin',
+                'jasa' => [['Servis dinamo', null]],
+                'parts' => [],
+            ],
+            [ // milik customer demo: selesai, belum lunas
+                'name' => 'Pelanggan Demo',
+                'phone' => '081234567890',
+                'user' => true,
+                'status' => 'completed',
+                'mechanic' => 'Mas Andi',
+                'days' => -3,
+                'complaint' => 'Starter ngik-ngik, bendix slip',
+                'jasa' => [['Ganti bendix', null]],
+                'parts' => [],
+            ],
+            [ // milik customer demo: sudah dikonfirmasi
+                'name' => 'Pelanggan Demo',
+                'phone' => '081234567890',
+                'user' => true,
+                'status' => 'confirmed',
+                'days' => 2,
+                'complaint' => 'Cek dinamo pompa air',
+                'jasa' => [],
+                'parts' => [],
+            ],
         ];
 
         foreach ($data as $d) {
@@ -261,6 +302,8 @@ class ServiceSeeder extends Seeder
                 'latitude' => $home['lat'] ?? null,
                 'longitude' => $home['lng'] ?? null,
                 'address' => $home['address'] ?? null,
+                'user_id' => ($d['user'] ?? false) ? $customer->id : null,
+                'mechanic_names' => $d['mechanic'] ?? null,
 
                 // Jarak diisi langsung. Model menghitung ongkos dan menyalin harga BBM saat simpan.
                 'distance_km' => $home['km'] ?? null,
@@ -289,6 +332,11 @@ class ServiceSeeder extends Seeder
 
             if ($d['status'] === 'completed') {
                 $service->syncStock();
+            }
+
+            if ($d['status'] === 'completed' && ($d['paid'] ?? false)) {
+                // paid_at tidak di $fillable, jadi pakai forceFill.
+                $service->forceFill(['paid_at' => $service->scheduled_at->copy()->addHours(3)])->save();
             }
         }
     }
