@@ -115,7 +115,7 @@ ERD final dan seluruh keputusannya ada di `PROJECT_RULES.md` bagian 4a. Cara: ed
 - Tes disesuaikan: CMP-001 memakai `ServiceStatus::Pending->getLabel()` (label berubah dari "Menunggu Konfirmasi", assertion tetap). Empat tes seeder (SED-001 dua berkas, SED-002, SDR-001) hijau tanpa diubah setelah kondisi demo seeder diperlebar.
 
 **Tahap 1: struktur database (satu commit, tes hijau di akhir)**
-- [x] `users`: `role` (default customer, tidak di `$fillable`), `phone`. (Verifikasi: index `role` sudah dibuang.)
+- [x] `users`: `role` (default customer, tidak di `$fillable`), `phone`. (Index role dibuang 9 Nov malam.)
 - [~] `services`: sudah: `status` string + index `(status, scheduled_at)`. Belum: `user_id` (nullOnDelete), `mechanic_names`, `paid_at`, index `(user_id, scheduled_at)`, buang index `booking_type`, koordinat `decimal(10,7)`. Model `Service` perlu `user_id`, `mechanic_names`, `paid_at` di `$fillable` dan cast `paid_at`.
 - [ ] `service_parts`: timestamps.
 - [ ] Kolom uang semua `decimal(12,2)` (7 kolom, daftar di 4a). `workshop_settings` lat/lng `decimal(10,7)`.

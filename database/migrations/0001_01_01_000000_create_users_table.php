@@ -16,7 +16,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             // Enum PHP UserRole (owner, customer). Pendaftaran publik selalu customer.
-            $table->string('role', 20)->default(UserRole::Customer->value)->index();
+            $table->string('role', 20)->default(UserRole::Customer->value);
             // Profil saja, bukan kredensial. Dinormalkan lewat PhoneNumber::normalize().
             $table->string('phone', 16)->nullable();
             $table->rememberToken();
