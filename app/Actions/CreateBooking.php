@@ -18,6 +18,7 @@ use App\Support\Booking\Slots;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
+use App\Enums\UserRole;
 
 class CreateBooking
 {
@@ -106,7 +107,7 @@ class CreateBooking
             ->body("{$service->customer_name} ({$service->customer_phone}) booking {$type->getLabel()}, menunggu konfirmasi." . ($address ? " Alamat: {$address}." : ''))
             ->icon('heroicon-o-clock')
             ->warning()
-            ->sendToDatabase(User::all());
+            ->sendToDatabase(User::where('role', UserRole::Owner->value)->get());
 
         return $service;
     }

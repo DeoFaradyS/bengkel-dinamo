@@ -15,9 +15,9 @@ function notifBookingData(array $override = []): array
     ], $override);
 }
 
-it('NTF-001: booking masuk, semua admin dapat satu notifikasi', function () {
-    $a = User::factory()->create();
-    $b = User::factory()->create();
+it('NTF-001: booking masuk, semua owner dapat satu notifikasi', function () {
+    $a = User::factory()->owner()->create();
+    $b = User::factory()->owner()->create();
 
     app(CreateBooking::class)->handle(notifBookingData());
 
@@ -26,7 +26,7 @@ it('NTF-001: booking masuk, semua admin dapat satu notifikasi', function () {
 });
 
 it('NTF-002: isi notifikasi memuat nama pelanggan', function () {
-    $admin = User::factory()->create();
+    $admin = User::factory()->owner()->create();
 
     app(CreateBooking::class)->handle(notifBookingData(['customer_name' => 'Bu Sari']));
 
@@ -37,7 +37,7 @@ it('NTF-002: isi notifikasi memuat nama pelanggan', function () {
 });
 
 it('NTF-003: booking ditolak karena HP aktif, tidak ada notifikasi', function () {
-    $admin = User::factory()->create();
+    $admin = User::factory()->owner()->create();
     Service::factory()->create(['customer_phone' => '081234500001']);
 
     expect(fn () => app(CreateBooking::class)->handle(notifBookingData()))

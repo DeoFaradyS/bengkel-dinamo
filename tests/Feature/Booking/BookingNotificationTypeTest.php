@@ -15,7 +15,7 @@ function notifTipeData(array $override = []): array
 }
 
 it('NTF-010: booking home service, isi notifikasi menyebut Home Service', function () {
-    $admin = User::factory()->create();
+    $admin = User::factory()->owner()->create();
 
     app(CreateBooking::class)->handle(notifTipeData([
         'booking_type' => BookingType::HomeService->value,
@@ -31,7 +31,7 @@ it('NTF-010: booking home service, isi notifikasi menyebut Home Service', functi
 });
 
 it('NTF-011: booking workshop, isi notifikasi menyebut Ke Bengkel', function () {
-    $admin = User::factory()->create();
+    $admin = User::factory()->owner()->create();
 
     app(CreateBooking::class)->handle(notifTipeData());
 

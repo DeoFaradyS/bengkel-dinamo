@@ -60,7 +60,7 @@ it('ADR-003: Ke Bengkel, alamat diabaikan', function () {
 });
 
 it('ADR-004: isi lonceng Home Service memuat alamat', function () {
-    $admin = User::factory()->create();
+    $admin = User::factory()->owner()->create();
 
     app(CreateBooking::class)->handle(alamatData());
 
