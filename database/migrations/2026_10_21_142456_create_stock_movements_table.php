@@ -11,7 +11,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('spare_part_id')->constrained('spare_parts')->restrictOnDelete();
             $table->string('type');
-            $table->integer('quantity');
+            $table->integer('quantity_change');
             $table->unsignedInteger('stock_after');
             $table->string('note')->nullable();
             $table->string('reason', 30)->nullable();

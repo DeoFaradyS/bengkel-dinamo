@@ -25,7 +25,7 @@ class StockMovementsRelationManager extends RelationManager
                     ->formatStateUsing(fn($state) => $state instanceof StockMovementType ? $state->label() : $state),
                 TextColumn::make('reason')->label('Alasan')
                     ->formatStateUsing(fn($state) => $state instanceof \App\Enums\StockReason ? $state->label() : '-'),
-                TextColumn::make('quantity')->label('Jumlah')
+                TextColumn::make('quantity_change')->label('Jumlah')
                     ->alignEnd()
                     ->formatStateUsing(fn($state) => ($state > 0 ? '+' : '') . $state)
                     ->color(fn($state) => $state < 0 ? 'danger' : 'success'),

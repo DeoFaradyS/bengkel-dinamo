@@ -12,7 +12,7 @@ class StockMovement extends Model
     protected $fillable = [
         'spare_part_id',
         'type',
-        'quantity',
+        'quantity_change',
         'stock_after',
         'note',
         'reason',
@@ -22,7 +22,7 @@ class StockMovement extends Model
 
     protected $casts = [
         'type' => StockMovementType::class,
-        'quantity' => 'integer',
+        'quantity_change' => 'integer',
         'stock_after' => 'integer',
         'reason' => StockReason::class,
     ];

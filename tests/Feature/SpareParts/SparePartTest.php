@@ -378,7 +378,7 @@ it('USP-001: tambah stok dari supplier', function () {
     $movement = $part->stockMovements()->where('reason', 'supplier')->first();
 
     expect($part->fresh()->stock)->toBe(15)
-        ->and($movement->quantity)->toBe(5)
+        ->and($movement->quantity_change)->toBe(5)
         ->and($movement->stock_after)->toBe(15)
         ->and($movement->type)->toBe(StockMovementType::Purchase);
 });
@@ -397,7 +397,7 @@ it('USP-002: kurangi stok karena rusak', function () {
     $movement = $part->stockMovements()->where('reason', 'damaged')->first();
 
     expect($part->fresh()->stock)->toBe(8)
-        ->and($movement->quantity)->toBe(-2)
+        ->and($movement->quantity_change)->toBe(-2)
         ->and($movement->type)->toBe(StockMovementType::Correction);
 });
 

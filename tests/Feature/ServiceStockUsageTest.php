@@ -43,7 +43,7 @@ it('SUS-001: servis selesai mencatat pemakaian di riwayat stok', function () {
     $movement = $part->stockMovements()->where('type', StockMovementType::Usage)->first();
 
     expect($part->fresh()->stock)->toBe(8)
-        ->and($movement->quantity)->toBe(-2)
+        ->and($movement->quantity_change)->toBe(-2)
         ->and($movement->stock_after)->toBe(8)
         ->and($movement->service_id)->toBe($service->id);
 });
