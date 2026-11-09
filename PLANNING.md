@@ -1,6 +1,6 @@
 # PLANNING: SIM Bengkel Cak Budi Dinamo
 
-Catatan pekerjaan yang belum selesai, bug yang diketahui, dan keputusan terbuka. Aturan dan status fitur yang sudah jadi ada di `PROJECT_RULES.md`. Terakhir diperbarui: 9 November 2026 (malam).
+Catatan pekerjaan yang belum selesai, bug yang diketahui, dan keputusan terbuka. Aturan dan status fitur yang sudah jadi ada di `PROJECT_RULES.md`. Terakhir diperbarui: 9 November 2026 (malam, setelah tahap 1 sebagian).
 
 Tanda: `[ ]` belum, `[~]` sebagian, `[x]` selesai.
 
@@ -42,7 +42,7 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara.
 - [x] Section galeri: berkas tidak ada, tidak ada `@include` yang rusak, link galeri sudah diganti.
 - [ ] Cek Booking bergantung pada asumsi: `PhoneNumber::normalize()` mengembalikan `null` untuk input tak valid, nomor di `services.phone` sudah dalam bentuk normal (termasuk dari `BookingForm`), `scheduled_at` di-cast `datetime`, `status` dan `booking_type` di-cast ke enum. Perlu dikonfirmasi lewat kode `BookingForm` dan model `Service`.
 - [ ] Kompres `public/images/bengkel.png` kalau di atas sekitar 300 KB.
-- [x] `php artisan test` penuh (9 Nov 2026): **455 lulus, 0 gagal.**
+- [x] `php artisan test` penuh (9 Nov 2026, setelah tahap 1 sebagian): **455 lulus, 0 gagal.**
 
 ## C. Fitur belum dikerjakan
 
@@ -69,6 +69,8 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara.
 
 **D6. Isi lama bagian 8 yang masih terbuka:** harga part satu `price` atau dibedakan beli dan jual; servis selesai tapi barang tidak diambil (`picked_up_at`); grace period no-show; kedaluwarsa sparepart (`expired_at`).
 
+**D7. Data demo di staging.** Seeder demo sekarang jalan di semua environment kecuali production. Kalau nanti ada staging dan datanya tidak boleh berisi demo, putuskan cara memisahkan (misalnya env khusus atau flag di `.env`).
+
 ## E. Selesai (ringkas)
 
 - [x] `service_types` ditambah `description` dan `photo` (migrasi lama diedit, tahap dev).
@@ -82,37 +84,46 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara.
 - [x] Section peta disederhanakan: peta + tombol arah.
 - [x] Foto hero diganti `public/images/bengkel.png`.
 - [x] Tes JSA-001..006 lulus.
-- [x] Upload foto jasa beres (php.ini), link navbar dan footer dibersihkan, 4 tes usang disesuaikan, harga edit tampil bulat. Seluruh tes hijau: 455 lulus (9 Nov 2026).
+- [x] Upload foto jasa beres (php.ini), link navbar dan footer dibersihkan, 4 tes usang disesuaikan, harga edit tampil bulat.
 
 ## G. Target sebelum bimbingan (dicatat 9 Nov 2026)
 
-Daftar dari pemilik. Hasil cek `route:list` dan `migrate:status` (9 Nov 2026): belum ada rute customer dan belum ada migrasi baru, jadi semua poin di bawah masih belum dikerjakan. Bagian F di atas adalah rinciannya.
+Daftar dari pemilik. Per 9 Nov 2026 (malam): struktur `users`, enum, dan seeder sudah dikerjakan (bagian F tahap 1 sebagian). Rute customer dan fitur login belum ada. Bagian F di bawah adalah rinciannya.
 
 - [ ] Login dan register customer (email + password). Rinci: bagian F tahap 3.
 - [ ] Booking untuk customer yang login (form terisi otomatis, `services.user_id` terisi).
 - [ ] Riwayat booking untuk customer yang login ("Riwayat Saya").
-- [ ] ERD diimplementasikan ke migrasi (bagian F tahap 1). Status 9 Nov 2026: ERD baru berupa rencana, migrasi masih 12 berkas lama (belum ada `user_id`, `paid_at`, `mechanic_names`, `users.role`). Cara: edit migrasi lama + `migrate:fresh --seed` (disarankan, masih tahap dev). Tes yang terdampak kolom baru disesuaikan, alasan per tes dicatat, assertion tidak dilemahkan.
+- [~] ERD diimplementasikan ke migrasi (bagian F tahap 1). Status 9 Nov 2026 (malam): `users` sudah, `services` baru kolom `status`, sisanya belum. Cara: edit migrasi lama + `migrate:fresh --seed` (disarankan, masih tahap dev). Tes yang terdampak kolom baru disesuaikan, alasan per tes dicatat, assertion tidak dilemahkan.
 - [ ] Saran dospem yang sudah masuk rencana ERD (misal `mechanic_names`, `paid_at`) diimplementasikan, lalu siapkan daftar untuk ditunjukkan saat bimbingan.
 - [ ] Rapikan dan organisasi tes: tiap berkas dan ID tes punya penjelasan satu baris "mengetes apa". Usul: tabel `tests/README.md` berisi kode modul (BKG, LOC, TIP, PRC, JSA, ANT, dst), berkas, dan aturan bisnis yang dicek.
 - [ ] Perbarui laporan skripsi: banyak perubahan (landing, jasa, ERD, login customer, antrian, Cek Booking).
 - [ ] Notifikasi WhatsApp ke pelanggan: opsional, dikerjakan belakangan kalau sempat.
 - [ ] Siapkan bahan bimbingan: demo (beranda, `/layanan`, Cek Booking, upload foto jasa, login customer), angka tes, daftar migrasi yang berubah, keputusan yang butuh jawaban (D1, D3).
 
-## F. Rencana perubahan database dan fitur turunannya (diperbarui 9 Nov 2026)
+## F. Rencana perubahan database dan fitur turunannya (diperbarui 9 Nov 2026, malam)
 
-ERD final dan seluruh keputusannya ada di `PROJECT_RULES.md` bagian 4a. Belum ada yang diterapkan ke migrasi. Cara: edit migrasi lama + `migrate:fresh --seed`. Branch kerja: `feat/erd-baru`. Baseline sebelum mulai: commit dengan 455 tes hijau.
+ERD final dan seluruh keputusannya ada di `PROJECT_RULES.md` bagian 4a. Cara: edit migrasi lama + `migrate:fresh --seed`. Branch kerja: `feat/erd-baru`. Baseline sebelum mulai: commit dengan 455 tes hijau (di `main`).
 
 **Keputusan 9 Nov 2026:** tabel `statuses` tidak dibuat (status = kolom `services.status` varchar + enum `ServiceStatus`). Label: Menunggu, Dikonfirmasi, Dikerjakan, Selesai, Dibatalkan, Ditolak, Kedaluwarsa.
 
+**Keputusan 9 Nov 2026 (malam):**
+- Migrasi dan seeder `statuses` (`StatusSeeder`) dibuang. `services.status` string default `pending`, index `(status, scheduled_at)`.
+- Data demo seeder (`DemoCustomerSeeder`, `SparePartSeeder`, `ServiceSeeder`) jalan di semua environment kecuali production (sebelumnya hanya local), karena 4 tes seeder butuh data demo. Lihat D7.
+- Seeder yang memakai `addStock()` atau `syncStock()` harus memanggil `Auth::setUser(owner)` dulu, karena `stock_movements.user_id` wajib dan diambil dari `auth()->id()`.
+- `WithoutModelEvents` dibuang dari `DatabaseSeeder` dan `WorkshopSettingSeeder`, karena event `Service::saving` menghitung ongkos dan menyalin harga BBM untuk Home Service.
+- `SparePartSeeder` membuat part dengan stok 0 lalu mencatat stok awal lewat `addStock()` dengan tipe `Opening`, hanya untuk part baru (seeder dijalankan dua kali tidak menggandakan stok). Hasil seed: 35 baris `stock_movements` (25 opening, 10 usage dari servis selesai).
+- Tes disesuaikan: CMP-001 memakai `ServiceStatus::Pending->getLabel()` (label berubah dari "Menunggu Konfirmasi", assertion tetap). Empat tes seeder (SED-001 dua berkas, SED-002, SDR-001) hijau tanpa diubah setelah kondisi demo seeder diperlebar.
+
 **Tahap 1: struktur database (satu commit, tes hijau di akhir)**
-- [ ] `users`: `role` (default customer, tidak di `$fillable`), `phone`. Buang index `role`.
-- [ ] `services`: `user_id` (nullOnDelete), `mechanic_names`, `paid_at`. Index `(status, scheduled_at)` dan `(user_id, scheduled_at)`. Buang index `booking_type`. Koordinat `decimal(10,7)`.
+- [x] `users`: `role` (default customer, tidak di `$fillable`), `phone`. (Verifikasi: index `role` sudah dibuang.)
+- [~] `services`: sudah: `status` string + index `(status, scheduled_at)`. Belum: `user_id` (nullOnDelete), `mechanic_names`, `paid_at`, index `(user_id, scheduled_at)`, buang index `booking_type`, koordinat `decimal(10,7)`. Model `Service` perlu `user_id`, `mechanic_names`, `paid_at` di `$fillable` dan cast `paid_at`.
 - [ ] `service_parts`: timestamps.
 - [ ] Kolom uang semua `decimal(12,2)` (7 kolom, daftar di 4a). `workshop_settings` lat/lng `decimal(10,7)`.
 - [ ] Lengkapi aturan `onDelete` semua FK (tabel di 4a). `stock_movements`: index `(spare_part_id, created_at)`.
-- [ ] Enum `UserRole` (owner, customer), cast di model `User`. Label enum `ServiceStatus` diganti nama singkat. Cari teks lama: `git grep -n "Menunggu Konfirmasi\|Sedang Dikerjakan" -- app resources tests`.
-- [ ] Seeder: `OwnerSeeder`, `DemoCustomerSeeder`, `DatabaseSeeder` (data wajib vs demo hanya `local`). Tulis ulang `ServiceSeeder` (servis di tiap status, selesai lunas dan belum lunas) dan perbaiki `SparePartSeeder` (stok lewat `addStock()` dengan user pemilik). Akun lama `test@example.com` diganti.
-- [ ] Sesuaikan tes yang terdampak. Alasan per tes dicatat, assertion tidak dilemahkan.
+- [x] Enum `UserRole` (owner, customer), cast di model `User`. Label enum `ServiceStatus` diganti nama singkat.
+- [ ] Rapikan sisa teks lama (hanya komentar dan judul tes, tidak mempengaruhi logika): `ExpireBookings.php:13`, `ServiceMetrics.php:103`, `BookingFormTest.php:32`, `CreateBookingTest.php:18`. Cari ulang: `git grep -n "Menunggu Konfirmasi\|Sedang Dikerjakan" -- app resources tests`.
+- [~] Seeder: sudah: `OwnerSeeder`, `DemoCustomerSeeder`, `DatabaseSeeder` (data wajib vs demo non-production), `SparePartSeeder` (stok lewat `addStock()` dengan user pemilik). Belum: tulis ulang `ServiceSeeder` (servis di tiap status, selesai lunas dan belum lunas, `user_id` untuk customer demo, `mechanic_names`). Akun lama `test@example.com` diganti.
+- [~] Sesuaikan tes yang terdampak. Alasan per tes dicatat, assertion tidak dilemahkan. Status: 455 lulus setelah penyesuaian di atas; sisa penyesuaian menyusul seiring kolom `services` dan rename.
 
 **Tahap 2: rename kolom (commit terpisah, cari-ganti di `app`, `resources`, `database`, `tests`, lalu `php artisan test`)**
 - [ ] `services.phone` jadi `customer_phone`
