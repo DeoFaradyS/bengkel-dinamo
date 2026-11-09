@@ -24,4 +24,12 @@ class EditServiceType extends EditRecord
             $this->getCancelFormAction(),
         ];
     }
+
+    protected function mutateFormDataBeforeFill(array $data): array
+{
+    // "65000.00" jadi 65000, supaya mask harga di form tidak membaca titik desimal.
+    $data['default_price'] = (int) round((float) $data['default_price']);
+
+    return $data;
+}
 }

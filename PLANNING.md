@@ -1,6 +1,6 @@
 # PLANNING: SIM Bengkel Cak Budi Dinamo
 
-Catatan pekerjaan yang belum selesai, bug yang diketahui, dan keputusan terbuka. Aturan dan status fitur yang sudah jadi ada di `PROJECT_RULES.md`. Terakhir diperbarui: 5 November 2026.
+Catatan pekerjaan yang belum selesai, bug yang diketahui, dan keputusan terbuka. Aturan dan status fitur yang sudah jadi ada di `PROJECT_RULES.md`. Terakhir diperbarui: 8 November 2026.
 
 Tanda: `[ ]` belum, `[~]` sebagian, `[x]` selesai.
 
@@ -47,7 +47,7 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara.
 - [ ] Rekap stok per periode (Iterasi 4). Belum diputuskan dibangun atau ditulis sebagai pengembangan lanjutan skripsi.
 - [ ] Promo dikelola dari panel (sisa US-07). Layanan sudah lewat menu Jasa.
 - [ ] Tombol cepat konfirmasi/tolak booking di tabel servis (opsional). Wajib memanggil `startBlockerMessage()` kalau mengubah status ke `in_progress`.
-- [ ] Login pelanggan, lihat D2.
+- [ ] Login pelanggan, lihat bagian F.
 - [ ] Cek Booking: tampilkan alasan batal (D3).
 - [ ] Booking yang terisi jasa pilihan dari halaman detail (D5).
 - [ ] Slug untuk URL jasa (D4).
@@ -57,14 +57,7 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara.
 
 **D1. Hapus jasa yang sudah dipakai di `service_items`.** Kolom `service_type_id` nullable dan nama tersimpan sebagai salinan di `service_items`, jadi menghapus tidak merusak riwayat. Pilihan: boleh dihapus (sekarang `DeleteAction` polos), atau diblokir kalau sudah dipakai.
 
-**D2. Login pelanggan.** Bertentangan dengan bagian 7 `PROJECT_RULES.md` (di luar scope). Skripsi sudah punya Cek Booking untuk kebutuhan "lihat status". Kalau dibangun, bahan pertimbangan:
-- Metode: email + password dengan nomor HP diisi saat daftar. Nomor HP + password tanpa verifikasi berisiko dipakai untuk mengintip booking orang lain. OTP WhatsApp di luar scope.
-- Pakai tabel `customers` dan guard terpisah, jangan dicampur dengan `users`: `users` dipakai untuk `/admin` dan penerima notifikasi booking (aturan 10).
-- `services` butuh kolom `customer_id` (nullable). Booking tamu lama tetap `null`. Perubahan skema: migrasi baru, atau edit migrasi lama dengan persetujuan pemilik.
-- Tanpa paket tambahan: ditulis sendiri dengan Livewire, ikut pola `BookingForm`.
-- Fitur setelah login, urut prioritas: riwayat booking dan status, form booking terisi otomatis, batalkan booking `pending` sendiri (lewat `allowedNext()`), unduh invoice PDF untuk servis `completed`, simpan lokasi home service (opsional).
-- Wajib tes regresi untuk notifikasi (aturan 10) dan akses `/admin`.
-- Alternatif: tulis sebagai pengembangan lanjutan di bab skripsi.
+**D2. Login pelanggan. DIPUTUSKAN (8 Nov 2026): dibangun.** Email + password, tanpa OTP. Pakai tabel `users` dengan kolom `role`, bukan tabel `customers` dan bukan guard terpisah. `services.user_id` nullable (NULL = tamu). Rincian di `PROJECT_RULES.md` bagian 4a dan bagian F di bawah.
 
 **D3. Alasan batal di Cek Booking.** `cancel_reason` mungkin catatan internal pemilik. Saat ini tidak ditampilkan. Putuskan perlu ditampilkan atau tidak.
 
@@ -87,3 +80,30 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara.
 - [x] Section peta disederhanakan: peta + tombol arah.
 - [x] Foto hero diganti `public/images/bengkel.png`.
 - [x] Tes JSA-001..006 lulus.
+
+## F. Rencana perubahan database dan fitur turunannya (8 Nov 2026)
+
+Rincian struktur ada di `PROJECT_RULES.md` bagian 4a. Belum ada yang diimplementasikan.
+
+**Tahap 1: database** (cara penerapan menunggu keputusan pemilik: migrasi baru atau edit migrasi lama + `migrate:fresh --seed`)
+- [ ] Tabel `statuses` + seeder 7 status.
+- [ ] `services`: `status_id`, `user_id` nullable, `mechanic_names`, `paid_at`.
+- [ ] `users`: `role`, `phone`. `service_parts`: timestamps.
+- [ ] Kolom uang jadi `decimal(12,2)`, index, `stock_movements.spare_part_id` RESTRICT.
+
+**Tahap 2: kode menyesuaikan**
+- [ ] Enum `UserRole`, cast enum di model.
+- [ ] `Service` memakai `status_id`, tetap dirujuk lewat enum `ServiceStatus`.
+- [ ] Sesuaikan tes lama yang terdampak `status_id` (pekerjaan tes terbesar). Alasan perubahan dicatat per tes, assertion tidak dilemahkan.
+
+**Tahap 3: fitur**
+- [ ] Aksi "Tandai Lunas" (tabel dan header halaman), badge Lunas/Belum Lunas, filter, invoice.
+- [ ] Keamanan panel: `canAccessPanel()` hanya `owner`, notifikasi booking hanya ke `owner`.
+- [ ] Login dan register customer, form booking terisi otomatis, Riwayat Saya.
+
+**Tahap 4: dokumen**
+- [ ] Pindahkan 4a ke bagian 4 `PROJECT_RULES.md`, perbarui bagian 1, 3, 10. Sinkronkan ERD di Eraser.
+
+**Tes wajib:** perubahan `status_id`, Tandai Lunas, akses `/admin`, dan notifikasi (area regresi). Tes tampilan boleh jadi utang di bagian A.
+
+**Pengembangan lanjutan (tulis di skripsi, tidak dikerjakan):** `customers` dengan verifikasi, histori status, tabel montir dan pivot, pembayaran non-tunai, rekap stok per periode.

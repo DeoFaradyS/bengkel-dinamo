@@ -6,7 +6,7 @@ use Livewire\Livewire;
 it('LOC-001: Home Service, tombol Lokasi saya tampil', function () {
     Livewire::test('booking-form')
         ->set('booking_type', BookingType::HomeService->value)
-        ->assertSee('Lokasi saya');
+        ->assertSee('Pakai lokasi saya');
 });
 
 it('LOC-002: Ke Bengkel, tombol Lokasi saya tidak ada', function () {

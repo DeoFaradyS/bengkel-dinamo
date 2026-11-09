@@ -45,6 +45,7 @@ Metode: prototype, 4 iterasi. Pengujian: Black Box.
 
 **Sedang dikerjakan:** (kosong)
 **Catatan terakhir (5 Nov 2026):** `service_types` ditambah kolom `description` dan `photo` (migrasi lama diedit langsung, masih tahap dev). Form tambah/ubah Jasa pindah dari modal ke halaman sendiri (`ListServiceTypes`, `CreateServiceType`, `EditServiceType`; `ManageServiceTypes` dihapus). Seeder jasa berisi 8 jasa. Halaman `/booking` dihapus, section testimoni dicabut, section Cek Booking ditambah, section peta disederhanakan jadi peta + tombol arah. Sebelumnya: ORS dibuang, jarak hanya Haversine (kolom `distance_km` saja).
+**Catatan (8 Nov 2026):** ERD direview dan rencana perubahan database sudah disepakati (bagian 4a). Belum ada yang diimplementasikan.
 
 ## 4. Model data (sumber kebenaran: file migrasi di konteks)
 
@@ -68,6 +69,28 @@ Model `ServiceType`: `$fillable` = name, default_price, description, photo. Cast
 Enum: `ServiceStatus` (pending, confirmed, in_progress, completed, cancelled, rejected, expired), `BookingType` (workshop, home_service), `StockMovementType` (opening, purchase, usage, correction), `StockReason`.
 
 Config yang dipakai kode tapi tidak ikut konteks: `config/booking.php`, `config/transport.php`.
+
+## 4a. Rencana perubahan database (BELUM diimplementasikan)
+
+Status: disetujui sebagai rencana, belum ada migrasinya. Sampai migrasi diterapkan, bagian 4 dan kode yang berlaku. Jangan memakai tabel atau kolom di bawah sebelum migrasinya ada. Cara penerapan (migrasi baru atau edit migrasi lama + `migrate:fresh --seed`) diputuskan pemilik saat implementasi.
+
+| Tabel | Perubahan |
+| --- | --- |
+| `statuses` (baru) | id, code (unik), name, is_final. Isi 7 status. Dirujuk lewat `code` melalui enum `ServiceStatus`, bukan id angka. |
+| `services` | `status` (varchar) diganti `status_id` (FK ke `statuses`). Tambah `user_id` (nullable, nullOnDelete): NULL = tamu atau walk-in, terisi = booking dari akun customer. Tambah `mechanic_names` (varchar, nullable, catatan bebas) dan `paid_at` (timestamp, nullable). `customer_name` dan `phone` tetap (snapshot, untuk tamu dan Cek Booking). Index `(status_id, scheduled_at)`. |
+| `users` | Tambah `role` (varchar, enum PHP `UserRole`: owner, customer) dan `phone` (nullable, dinormalkan). |
+| `service_parts` | Tambah timestamps. |
+| `stock_movements` | `spare_part_id` jadi RESTRICT. Index `(spare_part_id, created_at)`. `note` dan `reason` tetap dua-duanya. |
+| Kolom uang | Semua `decimal(12,2)`: `spare_parts.price`, `service_types.default_price`, `service_items.price`, `service_parts.unit_price`, `services.fuel_price`, `services.transport_fee`, `workshop_settings.fuel_price`. |
+| Kolom jenis | `role`, `booking_type`, `type`, `reason` tetap `varchar`, divalidasi enum PHP. Bukan enum DB, bukan tabel master. |
+
+Aturan bisnis rencana:
+1. **Pembayaran tunai.** Aksi "Tandai Lunas" hanya untuk servis `completed` dengan `paid_at` NULL, mengisi `paid_at`. Aksi terpisah dari form ubah (servis `completed` terkunci). Tidak ada pembatalan lunas. Invoice menampilkan Lunas atau Belum Lunas. Tanpa tabel `payments` dan tanpa payment gateway.
+2. **Login customer.** Email + password. Nomor HP bukan kredensial dan tanpa OTP. Customer tidak boleh masuk `/admin` (`canAccessPanel()` hanya `owner`). Notifikasi booking baru (aturan 10) hanya ke `owner`.
+3. **Booking tamu lama tidak digabung ke akun baru.** Riwayat akun mulai kosong. Cek Booking tetap untuk tamu.
+4. **Booking dari akun.** `user_id` terisi, nama dan HP terisi otomatis dari akun tapi tetap disalin ke `services`. Semua nomor HP dinormalkan lewat `PhoneNumber::normalize` sebelum disimpan, termasuk `users.phone`.
+
+Tidak dibuat (pengembangan lanjutan): tabel `customers`, OTP, tabel `payments`, `service_status_histories`, tabel montir dan pivot.
 
 ## 5. Aturan bisnis (sesuai kode saat ini)
 
@@ -96,14 +119,13 @@ Config yang dipakai kode tapi tidak ikut konteks: `config/booking.php`, `config/
 
 ## 7. Di luar scope
 
-Login pelanggan (sedang dipertimbangkan, belum diputuskan: lihat `PLANNING.md`), pembayaran online, banyak role (montir/kasir), aplikasi mobile native, notifikasi WhatsApp/SMS otomatis (tombol tautan WhatsApp boleh), pemulihan data terhapus lewat antarmuka.
+Pembayaran non-tunai dan payment gateway, OTP (SMS atau WhatsApp), tabel `customers`, histori perubahan status, akun dan role montir atau kasir, aplikasi mobile native, notifikasi WhatsApp/SMS otomatis (tombol tautan WhatsApp boleh), pemulihan data terhapus lewat antarmuka.
 
 ## 8. Belum diputuskan
 
 Rincian dan usulan ada di `PLANNING.md`. Ringkasan:
 
 - Harga part: satu `price`, belum dibedakan beli dan jual.
-- Login pelanggan dibangun sekarang atau ditulis sebagai pengembangan lanjutan.
 - Jasa yang sudah dipakai di `service_items`: boleh dihapus atau diblokir.
 - Alasan batal (`cancel_reason`) ditampilkan ke pelanggan di Cek Booking atau tidak.
 - Halaman detail jasa: perlu slug atau tetap memakai id; perlu tombol booking yang mengisi jasa otomatis atau tidak.
@@ -113,7 +135,7 @@ Rincian dan usulan ada di `PLANNING.md`. Ringkasan:
 - Kedaluwarsa sparepart (`expired_at`): opsional.
 - Rekap stok per periode: belum diputuskan dibangun atau ditulis sebagai pengembangan lanjutan.
 
-Sudah diputuskan (jangan dibuka lagi tanpa alasan baru): pelanggan melihat status servisnya lewat Cek Booking (aturan 12), tanpa login. Testimoni dicabut. Alamat dan jam buka tidak ditampilkan di section peta.
+Sudah diputuskan (jangan dibuka lagi tanpa alasan baru): login customer dibangun dengan email + password, tanpa OTP dan tanpa tabel `customers` (lihat 4a). Tamu tetap melihat status lewat Cek Booking (aturan 12). Pembayaran cuma tunai, dicatat lewat `paid_at`. Testimoni dicabut. Alamat dan jam buka tidak ditampilkan di section peta.
 
 ## 9. Aturan wajib untuk AI
 
@@ -130,6 +152,9 @@ Sudah diputuskan (jangan dibuka lagi tanpa alasan baru): pelanggan melihat statu
 - Jangan menghapus komentar yang sudah ada di file yang diedit.
 - Setiap perubahan atau penambahan kode wajib disertai Feature Test (Pest), dalam jawaban yang sama. Tes baru untuk perilaku baru, dan tes lama yang terdampak ikut disesuaikan. Jangan memberi kode tanpa tes. (Kalau pemilik secara eksplisit menunda tes, catat sebagai utang di `PLANNING.md`, jangan dilupakan.)
 - Jangan membuat tes lulus dengan melemahkan assertion atau menghapus tes. Kalau aturan bisnis berubah dan tes lama jadi tidak relevan, katakan dengan jelas tes mana yang diganti dan alasannya.
+- Rencana di bagian 4a belum ada di kode. Sebelum migrasinya diterapkan, kode dan migrasi yang berlaku. Kalau kode bertentangan dengan 4a, sebutkan pertentangannya.
+- Status dirujuk lewat enum `ServiceStatus` (nilai `code`), jangan memakai id angka dari tabel `statuses`.
+- Kolom jenis (`role`, `booking_type`, `type`, `reason`) memakai `varchar` + enum PHP. Jangan membuat enum DB atau tabel master tanpa persetujuan.
 
 ## 10. Pengujian (Feature Test)
 

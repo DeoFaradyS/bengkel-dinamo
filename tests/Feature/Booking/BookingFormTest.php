@@ -26,7 +26,7 @@ function fillBooking($component, array $override = [])
 }
 
 it('BKG-010: halaman booking terbuka tanpa login', function () {
-    $this->get('/booking')->assertOk();
+    $this->get('/')->assertOk();
 });
 
 it('BKG-011: kirim booking valid, tersimpan Menunggu Konfirmasi', function () {

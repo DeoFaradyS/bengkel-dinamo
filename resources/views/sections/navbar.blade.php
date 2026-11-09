@@ -21,7 +21,7 @@
       <ul class="hidden lg:flex items-center gap-10 text-sm font-semibold uppercase text-neutral-800">
         <li><a href="/#layanan">Layanan</a></li>
         <li><a href="/#lokasi">Lokasi</a></li>
-        <li><a href="/#galeri">Cek Booking</a></li>
+        <li><a href="/#cek-booking">Cek Booking</a></li>
       </ul>
 
       <div class="hidden lg:flex items-center gap-4 ml-auto">
@@ -49,13 +49,8 @@
       <div class="overflow-hidden">
         <div class="mt-5 flex flex-col gap-5 text-sm font-semibold uppercase text-neutral-800 pb-2">
           <a href="/#layanan">Layanan</a>
-          <a href="/#galeri">Galeri</a>
           <a href="/#lokasi">Lokasi</a>
-          <a href="{{ $waLink }}" target="_blank" rel="noopener" class="text-red-600">+62 888-2509-745</a>
-          <a href="/booking"
-            class="flex items-center justify-center gap-4 px-6 py-3.5 bg-neutral-800 rounded-[10px] text-white normal-case transition-colors hover:bg-neutral-700">
-            Booking Servis
-          </a>
+          <a href="/#cek-booking">Cek Booking</a>
         </div>
       </div>
     </div>

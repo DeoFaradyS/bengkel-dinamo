@@ -9,7 +9,7 @@ use Livewire\Livewire;
 beforeEach(fn () => auth()->logout());
 
 it('TIP-001: halaman booking menampilkan dua pilihan tipe', function () {
-    $this->get('/booking')
+    $this->get('/')
         ->assertOk()
         ->assertSee('Ke Bengkel')
         ->assertSee('Home Service');

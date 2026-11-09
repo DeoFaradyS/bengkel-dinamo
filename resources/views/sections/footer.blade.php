@@ -11,9 +11,8 @@
       <ul class="space-y-2 text-sm">
         <li><a href="/" class="hover:text-neutral-300">Beranda</a></li>
         <li><a href="/#layanan" class="hover:text-neutral-300">Layanan</a></li>
-        <li><a href="/#galeri" class="hover:text-neutral-300">Galeri</a></li>
         <li><a href="/#lokasi" class="hover:text-neutral-300">Lokasi</a></li>
-        <li><a href="/booking" class="hover:text-neutral-300">Buat Janji</a></li>
+        <li><a href="/#cek-booking" class="hover:text-neutral-300">Cek Booking</a></li>
       </ul>
     </nav>
 

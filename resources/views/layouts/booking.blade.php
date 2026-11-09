@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id">
 
@@ -19,7 +20,6 @@
     @include('sections.navbar')
 
     @isset($slot)
-        {{-- Halaman Livewire penuh, misalnya /booking --}}
         <main class="max-w-[560px] mx-auto px-6 py-16">
             <h1 class="text-4xl font-bold text-neutral-800">Booking Servis</h1>
             <p class="mt-3 mb-8 text-neutral-500">Isi data di bawah. Kami hubungi kamu untuk konfirmasi jadwal.</p>
