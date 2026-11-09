@@ -1,45 +1,58 @@
 <?php
 
-use App\Enums\ServiceStatus;
+use App\Enums\BookingType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use App\Enums\BookingType;
 
-return new class extends Migration {
-    /**
-     * Run the migrations.
-     */
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::create('services', function (Blueprint $table) {
             $table->id();
+
+            // NULL = tamu atau walk-in. Terisi = booking dari akun customer.
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
+
+            // Snapshot data pelanggan: dipakai tamu dan Cek Status Booking.
             $table->string('customer_name');
             $table->string('phone', 16);
+
             $table->text('complaint');
             $table->dateTime('scheduled_at')->index();
-            $table->string('status', 20)
-                ->default(ServiceStatus::Pending->value)
-                ->index();
+            $table->foreignId('status_id')->constrained('statuses')->restrictOnDelete();
+
             $table->string('booking_type', 20)
                 ->default(BookingType::Workshop->value)
                 ->index();
+
+            // Hanya home service.
             $table->decimal('latitude', 10, 7)->nullable();
             $table->decimal('longitude', 10, 7)->nullable();
             $table->string('address')->nullable();
-            $table->text('cancel_reason')->nullable();
-            $table->timestamp('stock_synced_at')->nullable();
             $table->decimal('distance_km', 8, 3)->nullable();
-            $table->unsignedInteger('fuel_price')->nullable();
-            $table->unsignedInteger('transport_fee')->default(0);
+
+            // Snapshot ongkos saat booking dibuat.
+            $table->decimal('fuel_price', 12, 2)->nullable();
+            $table->decimal('transport_fee', 12, 2)->default(0);
+
+            $table->text('cancel_reason')->nullable();
+            // Penjaga: stok dikurangi sekali saja saat servis selesai.
+            $table->timestamp('stock_synced_at')->nullable();
+
+            // Catatan bebas siapa yang mengerjakan. Bukan relasi.
+            $table->string('mechanic_names')->nullable();
+            // NULL = belum lunas. Hanya bermakna untuk servis selesai. Pembayaran tunai.
+            $table->timestamp('paid_at')->nullable();
+
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index(['status_id', 'scheduled_at']);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('services');

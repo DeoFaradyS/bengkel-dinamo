@@ -46,6 +46,7 @@ Metode: prototype, 4 iterasi. Pengujian: Black Box.
 **Sedang dikerjakan:** (kosong)
 **Catatan terakhir (5 Nov 2026):** `service_types` ditambah kolom `description` dan `photo` (migrasi lama diedit langsung, masih tahap dev). Form tambah/ubah Jasa pindah dari modal ke halaman sendiri (`ListServiceTypes`, `CreateServiceType`, `EditServiceType`; `ManageServiceTypes` dihapus). Seeder jasa berisi 8 jasa. Halaman `/booking` dihapus, section testimoni dicabut, section Cek Booking ditambah, section peta disederhanakan jadi peta + tombol arah. Sebelumnya: ORS dibuang, jarak hanya Haversine (kolom `distance_km` saja).
 **Catatan (8 Nov 2026):** ERD direview dan rencana perubahan database sudah disepakati (bagian 4a). Belum ada yang diimplementasikan.
+**Catatan (9 Nov 2026):** upload foto jasa beres (penyebab `upload_tmp_dir` di php.ini Laragon), 455 tes lulus. ERD final dirapikan dan disepakati (bagian 4a): tanpa tabel `statuses`, ada rename kolom dan aturan `onDelete`. Migrasi dan login customer belum dikerjakan.
 
 ## 4. Model data (sumber kebenaran: file migrasi di konteks)
 
@@ -70,27 +71,76 @@ Enum: `ServiceStatus` (pending, confirmed, in_progress, completed, cancelled, re
 
 Config yang dipakai kode tapi tidak ikut konteks: `config/booking.php`, `config/transport.php`.
 
-## 4a. Rencana perubahan database (BELUM diimplementasikan)
+## 4a. Rencana perubahan database (ERD final, BELUM diterapkan ke migrasi)
 
-Status: disetujui sebagai rencana, belum ada migrasinya. Sampai migrasi diterapkan, bagian 4 dan kode yang berlaku. Jangan memakai tabel atau kolom di bawah sebelum migrasinya ada. Cara penerapan (migrasi baru atau edit migrasi lama + `migrate:fresh --seed`) diputuskan pemilik saat implementasi.
+Status (9 Nov 2026): ERD final disepakati pemilik, migrasi di repo masih versi lama (12 berkas). Sampai migrasi diterapkan, bagian 4 dan kode yang berlaku. Jangan memakai tabel atau kolom di bawah sebelum migrasinya ada. Cara penerapan: edit migrasi lama + `migrate:fresh --seed` (masih tahap dev). Penerapan dua tahap, tiap tahap satu commit dan tes harus hijau: (1) struktur baru, (2) rename kolom.
+
+**Keputusan: tabel `statuses` TIDAK dibuat.** Status tetap kolom `services.status` (varchar) yang dicast ke enum `ServiceStatus`. Alasan: 7 status tetap, logikanya ada di kode (antrian, kedaluwarsa, lunas), jadi tabel kedua hanya menggandakan enum. Label status di enum: Menunggu, Dikonfirmasi, Dikerjakan, Selesai, Dibatalkan, Ditolak, Kedaluwarsa. Tabel `statuses` dicatat sebagai pengembangan lanjutan.
+
+**Perubahan struktur**
 
 | Tabel | Perubahan |
 | --- | --- |
-| `statuses` (baru) | id, code (unik), name, is_final. Isi 7 status. Dirujuk lewat `code` melalui enum `ServiceStatus`, bukan id angka. |
-| `services` | `status` (varchar) diganti `status_id` (FK ke `statuses`). Tambah `user_id` (nullable, nullOnDelete): NULL = tamu atau walk-in, terisi = booking dari akun customer. Tambah `mechanic_names` (varchar, nullable, catatan bebas) dan `paid_at` (timestamp, nullable). `customer_name` dan `phone` tetap (snapshot, untuk tamu dan Cek Booking). Index `(status_id, scheduled_at)`. |
-| `users` | Tambah `role` (varchar, enum PHP `UserRole`: owner, customer) dan `phone` (nullable, dinormalkan). |
+| `users` | Tambah `role` (varchar, enum PHP `UserRole`: owner, customer; default customer; tidak di `$fillable`) dan `phone` (nullable, dinormalkan). |
+| `services` | Tambah `user_id` (nullable, nullOnDelete; NULL = tamu atau walk-in), `mechanic_names` (varchar nullable, catatan bebas), `paid_at` (timestamp nullable). Index `(status, scheduled_at)` dan `(user_id, scheduled_at)`. Koordinat `decimal(10,7)`. |
 | `service_parts` | Tambah timestamps. |
-| `stock_movements` | `spare_part_id` jadi RESTRICT. Index `(spare_part_id, created_at)`. `note` dan `reason` tetap dua-duanya. |
+| `stock_movements` | `spare_part_id` RESTRICT. Index `(spare_part_id, created_at)`. `note` dan `reason` tetap dua-duanya. |
 | Kolom uang | Semua `decimal(12,2)`: `spare_parts.price`, `service_types.default_price`, `service_items.price`, `service_parts.unit_price`, `services.fuel_price`, `services.transport_fee`, `workshop_settings.fuel_price`. |
-| Kolom jenis | `role`, `booking_type`, `type`, `reason` tetap `varchar`, divalidasi enum PHP. Bukan enum DB, bukan tabel master. |
+| Kolom bernilai tetap | `status`, `role`, `booking_type`, `type`, `reason` tetap `varchar` dan divalidasi enum PHP. Bukan enum DB, bukan tabel master. |
+| Index | Tidak ada index di `role` dan `booking_type` (hanya 2 nilai). Index `customer_phone` sengaja ditunda. |
 
-Aturan bisnis rencana:
-1. **Pembayaran tunai.** Aksi "Tandai Lunas" hanya untuk servis `completed` dengan `paid_at` NULL, mengisi `paid_at`. Aksi terpisah dari form ubah (servis `completed` terkunci). Tidak ada pembatalan lunas. Invoice menampilkan Lunas atau Belum Lunas. Tanpa tabel `payments` dan tanpa payment gateway.
+**Aturan `onDelete`**
+
+| Relasi | Aturan |
+| --- | --- |
+| `services.user_id` | SET NULL |
+| `spare_parts.category_id` | SET NULL |
+| `stock_movements.spare_part_id` | RESTRICT |
+| `stock_movements.service_id` | SET NULL |
+| `stock_movements.user_id` | RESTRICT |
+| `service_items.service_id` | CASCADE |
+| `service_items.service_type_id` | SET NULL |
+| `service_parts.service_id` | CASCADE |
+| `service_parts.spare_part_id` | RESTRICT |
+
+**Rename kolom (commit terpisah setelah struktur hijau)**
+
+| Sekarang | Jadi |
+| --- | --- |
+| `services.phone` | `customer_phone` |
+| `services.address` | `address_note` (isinya patokan lokasi, bukan alamat) |
+| `services.stock_synced_at` | `stock_deducted_at` |
+| `stock_movements.quantity` | `quantity_change` |
+| `spare_parts.location` | `storage_location` |
+
+`cancel_reason` tidak diganti nama, kecuali kode menunjukkan kolom ini juga dipakai untuk penolakan (maka jadi `status_note`). Tidak ada kolom `completed_at`: periode servis selesai di laporan memakai `scheduled_at`, bukan `updated_at` (karena "Tandai Lunas" ikut mengubah `updated_at`).
+
+**Aturan bisnis rencana**
+1. **Pembayaran tunai.** Aksi "Tandai Lunas" hanya untuk servis `completed` dengan `paid_at` NULL, mengisi `paid_at`. Aksi terpisah dari form ubah (servis `completed` terkunci). Tidak ada pembatalan lunas. Invoice menampilkan Lunas atau Belum Lunas. Tanpa tabel `payments` dan tanpa payment gateway. DB tidak menjaga "hanya untuk selesai", jadi dijaga di aksi dan tes.
 2. **Login customer.** Email + password. Nomor HP bukan kredensial dan tanpa OTP. Customer tidak boleh masuk `/admin` (`canAccessPanel()` hanya `owner`). Notifikasi booking baru (aturan 10) hanya ke `owner`.
 3. **Booking tamu lama tidak digabung ke akun baru.** Riwayat akun mulai kosong. Cek Booking tetap untuk tamu.
 4. **Booking dari akun.** `user_id` terisi, nama dan HP terisi otomatis dari akun tapi tetap disalin ke `services`. Semua nomor HP dinormalkan lewat `PhoneNumber::normalize` sebelum disimpan, termasuk `users.phone`.
+5. **Sparepart diarsipkan, bukan dihapus.** Soft delete = arsip, kode tetap terkunci (menjaga riwayat `stock_movements`). Butuh lagi: pulihkan lewat `RestoreAction` dan `TrashedFilter` di panel (cek apakah sudah ada), jangan buat baru. Kalau kode ditolak karena dipakai part yang diarsipkan, tampilkan pesan yang menyarankan memulihkan.
+6. **Kedaluwarsa atau rusak** ditangani lewat Ubah Stok dengan alasan "Kedaluwarsa" atau "Rusak/Karatan", tanpa kolom `expired_at`. Batch dan FEFO = pengembangan lanjutan.
+7. **Stok awal seeder** harus lewat `addStock()` dengan user pemilik (`stock_movements.user_id` wajib terisi).
 
-Tidak dibuat (pengembangan lanjutan): tabel `customers`, OTP, tabel `payments`, `service_status_histories`, tabel montir dan pivot.
+**Seeder (rencana)**
+- Data wajib, jalan di semua environment: `OwnerSeeder` (akun pemilik, isi lewat `OWNER_EMAIL` dan `OWNER_PASSWORD`), `WorkshopSettingSeeder`, `CategorySeeder`, `ServiceTypeSeeder`.
+- Data demo, hanya environment `local`: `DemoCustomerSeeder`, `SparePartSeeder`, `ServiceSeeder` (ditulis ulang sesuai alur bisnis baru, servis di tiap status, termasuk selesai lunas dan belum lunas).
+- Akun lama `test@example.com` diganti akun pemilik.
+
+**Glossary (satu istilah, satu arti)**
+
+| Konsep | Istilah di kode dan DB | Teks di layar |
+| --- | --- | --- |
+| Satu pekerjaan servis | `Service` (tabel `services`) | Servis |
+| Aksi pelanggan memesan | `booking` | "Buat Janji" atau "Booking" (belum diputuskan) |
+| Jenis layanan (katalog) | `ServiceType` (tabel `service_types`) | Jasa |
+| Booking belum dikonfirmasi | status `pending` | Menunggu |
+
+Istilah `appointment` tidak dipakai di kode: `id="appointment"` di `hero.blade.php` diganti `booking`, dan tombol "Buat Janji" di navbar mengarah ke `/#booking`.
+
+Tidak dibuat (pengembangan lanjutan): tabel `statuses`, tabel `customers`, OTP, tabel `payments`, `service_status_histories`, tabel montir dan pivot, batch sparepart.
 
 ## 5. Aturan bisnis (sesuai kode saat ini)
 
@@ -149,11 +199,12 @@ Sudah diputuskan (jangan dibuka lagi tanpa alasan baru): login customer dibangun
 - Ikuti pola `app/Filament/Resources` (folder `Pages`, `Schemas`, `Tables`, `RelationManagers`, `Actions`), pola `app/Support` dan `app/Actions`.
 - Pesan error dan label untuk pengguna berbahasa Indonesia.
 - Jawaban kode: file lengkap dengan path-nya. Perubahan kecil: bagian yang berubah plus 1-2 baris konteks.
-- Jangan menghapus komentar yang sudah ada di file yang diedit.
+- Jangan menghapus komentar yang sudah ada di file yang diedit, kecuali pemilik minta merapikan komentar. Komentar menjelaskan kenapa, bukan apa; singkat dan berbahasa Indonesia.
 - Setiap perubahan atau penambahan kode wajib disertai Feature Test (Pest), dalam jawaban yang sama. Tes baru untuk perilaku baru, dan tes lama yang terdampak ikut disesuaikan. Jangan memberi kode tanpa tes. (Kalau pemilik secara eksplisit menunda tes, catat sebagai utang di `PLANNING.md`, jangan dilupakan.)
 - Jangan membuat tes lulus dengan melemahkan assertion atau menghapus tes. Kalau aturan bisnis berubah dan tes lama jadi tidak relevan, katakan dengan jelas tes mana yang diganti dan alasannya.
 - Rencana di bagian 4a belum ada di kode. Sebelum migrasinya diterapkan, kode dan migrasi yang berlaku. Kalau kode bertentangan dengan 4a, sebutkan pertentangannya.
-- Status dirujuk lewat enum `ServiceStatus` (nilai `code`), jangan memakai id angka dari tabel `statuses`.
+- Status dirujuk lewat enum `ServiceStatus` (kolom `services.status`, varchar). Tidak ada tabel `statuses`. Jangan membuatnya tanpa persetujuan.
+- Penamaan mengikuti glossary di bagian 4a (booking = aksi pelanggan, service = datanya, jangan pakai istilah `appointment`). Pakai nama kolom final dari 4a untuk kode baru.
 - Kolom jenis (`role`, `booking_type`, `type`, `reason`) memakai `varchar` + enum PHP. Jangan membuat enum DB atau tabel master tanpa persetujuan.
 
 ## 10. Pengujian (Feature Test)
