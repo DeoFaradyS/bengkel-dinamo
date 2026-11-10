@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Services\Schemas;
 
 use App\Enums\BookingType;
+use App\Enums\ServiceStatus;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\RepeatableEntry\TableColumn as EntryTableColumn;
 use Filament\Infolists\Components\TextEntry;
@@ -40,8 +41,13 @@ class ServiceInfolist
                         TextEntry::make('customer_phone')->label('No. HP'),
                         TextEntry::make('scheduled_at')->label('Tanggal & Jam')->dateTime('d/m/Y H:i'),
                         TextEntry::make('booking_type')->label('Tipe Layanan')->badge(),
-                        TextEntry::make('status')->label('Status')->badge()
-                            ->columnSpanFull(),
+                        TextEntry::make('status')->label('Status')->badge(),
+                        TextEntry::make('payment_status')->label('Pembayaran')->badge()
+                            ->state(fn($record) => $record->paid_at ? 'Lunas' : 'Belum Lunas')
+                            ->color(fn($state) => $state === 'Lunas' ? 'success' : 'warning')
+                            ->visible(fn($record) => $record->status === ServiceStatus::Completed),
+                        TextEntry::make('paid_at')->label('Dibayar pada')->dateTime('d/m/Y H:i')
+                            ->visible(fn($record) => filled($record->paid_at)),
                         TextEntry::make('cancel_reason')->label('Alasan')
                             ->columnSpanFull()
                             ->visible(fn($record) => filled($record->cancel_reason)),

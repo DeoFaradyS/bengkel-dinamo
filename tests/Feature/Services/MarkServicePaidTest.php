@@ -94,3 +94,25 @@ test('LNS-007: menekan Tandai Lunas di halaman View mengisi paid_at', function (
 
     expect($service->fresh()->paid_at)->not->toBeNull();
 });
+
+
+test('LNS-008: halaman View servis Selesai belum lunas menampilkan Belum Lunas, tanpa Dibayar pada', function () {
+    halamanView(servisLunas())
+        ->assertSee('Belum Lunas')
+        ->assertDontSee('Dibayar pada');
+});
+
+test('LNS-009: halaman View servis lunas menampilkan Dibayar pada, tanpa Belum Lunas', function () {
+    $service = servisLunas();
+    app(MarkServicePaid::class)->handle($service);
+
+    halamanView($service)
+        ->assertSee('Dibayar pada')
+        ->assertDontSee('Belum Lunas');
+});
+
+test('LNS-010: halaman View servis yang belum Selesai tidak menampilkan status pembayaran', function () {
+    halamanView(servisLunas(ServiceStatus::Cancelled))
+        ->assertDontSee('Belum Lunas')
+        ->assertDontSee('Dibayar pada');
+});
