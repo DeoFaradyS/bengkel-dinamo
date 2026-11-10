@@ -2,7 +2,7 @@
 
 Setiap tes memakai ID kasus uji (kode modul + nomor) dan judulnya menjelaskan satu aturan yang dicek. Ringkasan di bawah dibuat dari isi folder 	ests/.
 
-Total tes ber-ID: **402**.
+Total tes ber-ID: **408**.
 
 ## Ringkasan per modul
 
@@ -31,7 +31,7 @@ Total tes ber-ID: **402**.
 | HPU | 7 | (isi manual) | `tests/Feature/Services/ServicePhoneTest.php` |
 | HSP | 2 | (isi manual) | `tests/Feature/SpareParts/SparePartTest.php` |
 | INV | 11 | (isi manual) | `tests/Feature/Services/ServiceInvoiceContentTest.php`, `tests/Feature/Services/ServiceInvoicePartTest.php`, `tests/Feature/Services/ServiceInvoiceTest.php` |
-| JSA | 6 | Resource Jasa di panel | `tests/Feature/ServiceTypes/ServiceTypeResourceTest.php` |
+| JSA | 10 | Resource Jasa di panel | `tests/Feature/ServiceTypes/ServiceTypeResourceTest.php`, `tests/Feature/ServiceTypes/ServiceTypeSeederTest.php` |
 | KAT | 2 | (isi manual) | `tests/Feature/Categories/CategoryResourceTest.php` |
 | KNC | 11 | (isi manual) | `tests/Feature/Services/ServiceLockTest.php` |
 | KPI | 10 | (isi manual) | `tests/Feature/Dashboard/KpiSummaryTest.php` |
@@ -65,6 +65,7 @@ Total tes ber-ID: **402**.
 | TSJ | 18 | (isi manual) | `tests/Feature/Services/ServiceItemTest.php` |
 | TSP | 10 | (isi manual) | `tests/Feature/SpareParts/SparePartTest.php` |
 | USP | 4 | (isi manual) | `tests/Feature/SpareParts/SparePartTest.php` |
+| WAF | 2 | (isi manual) | `tests/Feature/Landing/WhatsAppFloatTest.php` |
 | WAL | 4 | (isi manual) | `tests/Unit/WhatsAppLinkTest.php` |
 
 ## Rincian per berkas
@@ -365,6 +366,11 @@ Total tes ber-ID: **402**.
 
 - SDR-001: servis Home Service dari seeder punya jarak, Ke Bengkel tidak
 
+### `tests/Feature/Landing/WhatsAppFloatTest.php`
+
+- WAF-001: beranda dan /layanan memuat tombol WA melayang dengan tautan wa.me
+- WAF-002: halaman masuk dan daftar tidak memuat tombol WA
+
 ### `tests/Feature/Riwayat/RiwayatTest.php`
 
 - RWY-001: tamu diarahkan ke halaman masuk
@@ -563,6 +569,13 @@ Total tes ber-ID: **402**.
 - JSA-004: deskripsi dan foto boleh kosong, harga acuan 0
 - JSA-005: ubah jasa lewat halaman edit
 - JSA-006: photo_url null tanpa foto, terisi kalau ada foto
+
+### `tests/Feature/ServiceTypes/ServiceTypeSeederTest.php`
+
+- JSA-007: seeder mengisi 7 jasa, semuanya punya deskripsi
+- JSA-008: seeder dijalankan dua kali tidak menggandakan jasa
+- JSA-009: foto yang sudah diunggah tidak tertimpa saat seeder jalan lagi
+- JSA-013: setiap foto bawaan di folder seeder terpasang ke jasanya dan berkasnya ada di disk
 
 ### `tests/Feature/Settings/WorkshopSettingTest.php`
 
