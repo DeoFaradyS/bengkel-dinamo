@@ -34,10 +34,6 @@ class ServiceTypeSeeder extends Seeder
                 350000,
                 'Penggulungan ulang kumparan dinamo yang rusak atau terbakar.',
             ],
-            'Bubut komutator' => [
-                120000,
-                'Perataan permukaan komutator yang aus atau bergelombang supaya kontak dengan brush kembali rapat.',
-            ],
             'Ganti bendix' => [
                 90000,
                 'Penggantian bendix starter yang slip atau tidak mengait, supaya mesin bisa distarter normal.',

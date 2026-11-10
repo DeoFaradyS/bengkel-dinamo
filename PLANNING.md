@@ -9,7 +9,7 @@ Tanda: `[ ]` belum, `[~]` sebagian, `[x]` selesai.
 Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara.
 
 **Jasa (`tests/Feature/ServiceTypes/`)**
-- [ ] JSA-007..009 seeder: mengisi 8 jasa dengan deskripsi (angka 8, bukan 5), dijalankan dua kali tidak menggandakan, foto yang sudah diunggah tidak tertimpa. Kalau berkas tes dengan angka 5 sudah tersimpan, angkanya diganti jadi 8 (penyesuaian karena seeder berubah, bukan melemahkan tes).
+- [ ] JSA-007..009 seeder: mengisi 7 jasa dengan deskripsi, dijalankan dua kali tidak menggandakan, foto yang sudah diunggah tidak tertimpa. Kalau berkas tes dengan angka 5 sudah tersimpan, angkanya diganti jadi 8 (penyesuaian karena seeder berubah, bukan melemahkan tes).
 - [ ] JSA-010..012 tabel: kolom foto dan deskripsi ada, deskripsi panjang dipotong satu baris, jasa tanpa deskripsi dan foto tetap tampil.
 - [x] Harga tampil bulat di halaman edit (`mutateFormDataBeforeFill` di `EditServiceType`). Dicek PRC-003, lulus 9 Nov.
 - [ ] Hapus jasa (setelah keputusan D1).
@@ -77,7 +77,7 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara.
 - [x] `service_types` ditambah `description` dan `photo` (migrasi lama diedit, tahap dev).
 - [x] Form Jasa pindah ke halaman sendiri (`ListServiceTypes`, `CreateServiceType`, `EditServiceType`), layout dua kolom ikut sparepart. `ManageServiceTypes` dihapus.
 - [x] Tabel Jasa: foto, nama, harga acuan, deskripsi dipotong satu baris.
-- [x] Seeder jasa jadi 8 (3 jasa baru: nama dan harga tebakan, perlu dicek pemilik: Bubut komutator, Ganti bendix, Ganti magnetic switch).
+- [x] Seeder jasa jadi 7 (2 jasa baru: nama dan harga tebakan, perlu dicek pemilik: Ganti bendix, Ganti magnetic switch; Bubut komutator dibuang 10 Nov 2026).
 - [x] Beranda membaca jasa dari DB, halaman `/layanan` dan `/layanan/{id}`.
 - [x] Halaman `/booking` dihapus (formulir ada di hero).
 - [x] Section testimoni dicabut dari beranda (berkas masih ada).

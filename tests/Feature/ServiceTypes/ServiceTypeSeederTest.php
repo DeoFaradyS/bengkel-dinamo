@@ -9,11 +9,11 @@ use Illuminate\Support\Str;
 // Seeder jasa. Kode: JSA-007..009 (utang PLANNING.md bagian A) dan JSA-013.
 // Letakkan di tests/Feature/ServiceTypes/ServiceTypeSeederTest.php.
 
-test('JSA-007: seeder mengisi 8 jasa, semuanya punya deskripsi', function () {
+test('JSA-007: seeder mengisi 7 jasa, semuanya punya deskripsi', function () {
     Storage::fake('public');
     $this->seed(ServiceTypeSeeder::class);
 
-    expect(ServiceType::count())->toBe(8)
+    expect(ServiceType::count())->toBe(7)
         ->and(ServiceType::whereNull('description')->orWhere('description', '')->count())->toBe(0);
 });
 
@@ -22,7 +22,7 @@ test('JSA-008: seeder dijalankan dua kali tidak menggandakan jasa', function () 
     $this->seed(ServiceTypeSeeder::class);
     $this->seed(ServiceTypeSeeder::class);
 
-    expect(ServiceType::count())->toBe(8);
+    expect(ServiceType::count())->toBe(7);
 });
 
 test('JSA-009: foto yang sudah diunggah tidak tertimpa saat seeder jalan lagi', function () {
