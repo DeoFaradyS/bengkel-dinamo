@@ -1,13 +1,12 @@
-@extends('layouts.booking')
+@extends('layouts.auth')
 
 @section('title', 'Daftar - Budi Dinamo')
 
 @section('content')
-<main class="max-w-[560px] mx-auto px-6 py-16">
-    <h1 class="text-4xl font-bold text-neutral-800">Daftar</h1>
-    <p class="mt-3 mb-8 text-neutral-500">Buat akun supaya data booking terisi otomatis.</p>
+    <h1 class="text-3xl sm:text-4xl font-bold text-neutral-800">Daftar</h1>
+    <p class="mt-3 mb-6 sm:mb-8 text-neutral-500">Buat akun supaya booking lebih cepat.</p>
 
-    <div class="p-8 bg-white rounded-[10px] shadow-[0px_0px_60px_0px_rgba(0,0,0,0.08)]">
+    <div class="p-6 sm:p-8 bg-white rounded-[10px] shadow-[0px_0px_60px_0px_rgba(0,0,0,0.08)]">
         <form method="POST" action="/daftar" class="flex flex-col gap-5">
             @csrf
 
@@ -31,30 +30,20 @@
                 @enderror
             </div>
 
-            <div>
-                <label for="phone" class="block mb-2 text-sm font-semibold">Nomor HP</label>
-                <input id="phone" name="phone" type="tel" value="{{ old('phone') }}" required
-                    autocomplete="tel" placeholder="08xxxxxxxxxx"
-                    class="w-full px-4 py-3 border border-neutral-300 rounded-[10px] focus:outline-none focus:border-red-600">
-                @error('phone')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div>
+            <div x-data="{ show: false }">
                 <label for="password" class="block mb-2 text-sm font-semibold">Kata sandi</label>
-                <input id="password" name="password" type="password" required autocomplete="new-password"
-                    class="w-full px-4 py-3 border border-neutral-300 rounded-[10px] focus:outline-none focus:border-red-600">
+                <div class="relative">
+                    <input id="password" name="password" :type="show ? 'text' : 'password'" required
+                        autocomplete="new-password" minlength="8"
+                        class="w-full px-4 py-3 pr-24 border border-neutral-300 rounded-[10px] focus:outline-none focus:border-red-600">
+                    <button type="button" @click="show = !show"
+                        class="absolute inset-y-0 right-4 text-sm font-semibold text-neutral-500 hover:text-red-600"
+                        x-text="show ? 'Sembunyi' : 'Lihat'">Lihat</button>
+                </div>
+                <p class="mt-2 text-sm text-neutral-500">Minimal 8 karakter.</p>
                 @error('password')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
-            </div>
-
-            <div>
-                <label for="password_confirmation" class="block mb-2 text-sm font-semibold">Ulangi kata sandi</label>
-                <input id="password_confirmation" name="password_confirmation" type="password" required
-                    autocomplete="new-password"
-                    class="w-full px-4 py-3 border border-neutral-300 rounded-[10px] focus:outline-none focus:border-red-600">
             </div>
 
             <button type="submit"
@@ -68,5 +57,4 @@
             <a href="{{ route('login') }}" class="font-semibold text-red-600">Masuk</a>
         </p>
     </div>
-</main>
 @endsection

@@ -1,13 +1,12 @@
-@extends('layouts.booking')
+@extends('layouts.auth')
 
 @section('title', 'Masuk - Budi Dinamo')
 
 @section('content')
-<main class="max-w-[560px] mx-auto px-6 py-16">
-    <h1 class="text-4xl font-bold text-neutral-800">Masuk</h1>
-    <p class="mt-3 mb-8 text-neutral-500">Masuk untuk booking lebih cepat dan lihat riwayat servis.</p>
+    <h1 class="text-3xl sm:text-4xl font-bold text-neutral-800">Masuk</h1>
+    <p class="mt-3 mb-6 sm:mb-8 text-neutral-500">Masuk untuk booking lebih cepat dan lihat riwayat servis.</p>
 
-    <div class="p-8 bg-white rounded-[10px] shadow-[0px_0px_60px_0px_rgba(0,0,0,0.08)]">
+    <div class="p-6 sm:p-8 bg-white rounded-[10px] shadow-[0px_0px_60px_0px_rgba(0,0,0,0.08)]">
         <form method="POST" action="/masuk" class="flex flex-col gap-5">
             @csrf
 
@@ -21,10 +20,16 @@
                 @enderror
             </div>
 
-            <div>
+            <div x-data="{ show: false }">
                 <label for="password" class="block mb-2 text-sm font-semibold">Kata sandi</label>
-                <input id="password" name="password" type="password" required autocomplete="current-password"
-                    class="w-full px-4 py-3 border border-neutral-300 rounded-[10px] focus:outline-none focus:border-red-600">
+                <div class="relative">
+                    <input id="password" name="password" :type="show ? 'text' : 'password'" required
+                        autocomplete="current-password"
+                        class="w-full px-4 py-3 pr-24 border border-neutral-300 rounded-[10px] focus:outline-none focus:border-red-600">
+                    <button type="button" @click="show = !show"
+                        class="absolute inset-y-0 right-4 text-sm font-semibold text-neutral-500 hover:text-red-600"
+                        x-text="show ? 'Sembunyi' : 'Lihat'">Lihat</button>
+                </div>
                 @error('password')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
@@ -46,5 +51,4 @@
             <a href="{{ route('register') }}" class="font-semibold text-red-600">Daftar</a>
         </p>
     </div>
-</main>
 @endsection

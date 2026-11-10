@@ -18,9 +18,7 @@ function registerPayload(array $override = []): array
     return array_merge([
         'name' => 'Budi Pelanggan',
         'email' => 'budi@example.com',
-        'phone' => '0812-3456-7890',
         'password' => 'rahasia123',
-        'password_confirmation' => 'rahasia123',
     ], $override);
 }
 
@@ -34,14 +32,6 @@ test('AUTH-001: register berhasil membuat customer, langsung login, redirect ke 
     expect($user->role)->toBe(UserRole::Customer)
         ->and(Hash::check('rahasia123', $user->password))->toBeTrue();
     $this->assertAuthenticatedAs($user);
-});
-
-test('AUTH-002: nomor HP dinormalkan sebelum disimpan', function () {
-    $this->post('/daftar', registerPayload());
-
-    $phone = User::where('email', 'budi@example.com')->value('phone');
-
-    expect($phone)->toMatch('/^0\d{8,14}$/');
 });
 
 test('AUTH-003: kolom role dari request diabaikan (tidak bisa daftar sebagai owner)', function () {
@@ -60,18 +50,8 @@ test('AUTH-004: register ditolak kalau email sudah dipakai', function () {
     $this->assertGuest();
 });
 
-test('AUTH-005: register ditolak kalau nomor HP tidak valid', function (string $phone) {
-    $this->post('/daftar', registerPayload(['phone' => $phone]))
-        ->assertSessionHasErrors(['phone' => 'Nomor HP tidak valid.']);
-
-    $this->assertGuest();
-})->with(['tanpa angka' => 'abc', 'kosong' => '', 'terlalu pendek' => '0812']);
-
-test('AUTH-006: register ditolak kalau kata sandi pendek atau konfirmasi beda', function () {
-    $this->post('/daftar', registerPayload(['password' => 'pendek', 'password_confirmation' => 'pendek']))
-        ->assertSessionHasErrors('password');
-
-    $this->post('/daftar', registerPayload(['password_confirmation' => 'beda12345']))
+test('AUTH-006: register ditolak kalau kata sandi kurang dari 8 karakter', function () {
+    $this->post('/daftar', registerPayload(['password' => 'pendek']))
         ->assertSessionHasErrors('password');
 
     $this->assertGuest();
@@ -167,8 +147,8 @@ test('AUTH-018: halaman /daftar tampil untuk tamu dengan semua kolom', function 
     $this->get('/daftar')
         ->assertOk()
         ->assertSee('action="/daftar"', false)
-        ->assertSee('name="phone"', false)
-        ->assertSee('name="password_confirmation"', false);
+        ->assertSee('name="email"', false)
+        ->assertDontSee('name="phone"', false);
 });
 
 test('AUTH-019: navbar tamu memuat tautan Masuk dan Daftar, tanpa Keluar', function () {
@@ -188,3 +168,11 @@ test('AUTH-020: navbar customer memuat nama dan tombol Keluar, tanpa tautan Pane
         ->assertSee('action="/keluar"', false)
         ->assertDontSee('href="/admin"', false);
 });
+
+test('AUTH-021: halaman /masuk dan /daftar tanpa navbar, dengan tombol kembali ke beranda', function (string $url) {
+    $this->get($url)
+        ->assertOk()
+        ->assertDontSee('id="menuBtn"', false)
+        ->assertSee('aria-label="Kembali ke beranda"', false)
+        ->assertSee('href="/"', false);
+})->with(['masuk' => '/masuk', 'daftar' => '/daftar']);
