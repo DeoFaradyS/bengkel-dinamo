@@ -23,7 +23,7 @@ use App\Enums\UserRole;
 class CreateBooking
 {
     /**
-     * @param  array{customer_name: string, phone: string, complaint: string, scheduled_at: mixed, booking_type?: BookingType|string|null, latitude?: mixed, longitude?: mixed}  $data
+     * @param  array{customer_name: string, phone: string, complaint: string, scheduled_at: mixed, booking_type?: BookingType|string|null, latitude?: mixed, longitude?: mixed, user_id?: int|null}  $data
      */
     public function handle(array $data): Service
     {
@@ -92,6 +92,7 @@ class CreateBooking
                         'latitude' => $latitude,
                         'longitude' => $longitude,
                         'address_note' => $address,
+                        'user_id' => $data['user_id'] ?? null,
                         'distance_km' => $distance?->airKm,
                     ]);
                 });

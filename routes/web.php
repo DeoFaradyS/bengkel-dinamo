@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\RiwayatController;
 use App\Models\ServiceType;
 use Illuminate\Support\Facades\Route;
 
@@ -32,3 +33,5 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::post('/keluar', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
+
+Route::get('/riwayat', RiwayatController::class)->middleware('auth')->name('riwayat');

@@ -93,7 +93,7 @@ Daftar dari pemilik. Per 9 Nov 2026 (malam): tahap 1 (struktur database, enum, s
 
 - [x] Login dan register customer (email + password). Rinci: bagian F tahap 3.
 - [ ] Booking untuk customer yang login (form terisi otomatis, `services.user_id` terisi).
-- [ ] Riwayat booking untuk customer yang login ("Riwayat Saya").
+- [x] Riwayat booking untuk customer yang login ("Riwayat Saya").
 - [~] ERD diimplementasikan ke migrasi (bagian F). Status 9 Nov 2026 (malam): tahap 1 (struktur database) selesai dan semua tes hijau. Sisa: tahap 2 (rename kolom), tahap 3 (fitur), tahap 4 (dokumen).
 - [ ] Saran dospem yang sudah masuk rencana ERD (misal `mechanic_names`, `paid_at`) diimplementasikan, lalu siapkan daftar untuk ditunjukkan saat bimbingan.
 - [ ] Rapikan dan organisasi tes: tiap berkas dan ID tes punya penjelasan satu baris "mengetes apa". Usul: tabel `tests/README.md` berisi kode modul (BKG, LOC, TIP, PRC, JSA, ANT, dst), berkas, dan aturan bisnis yang dicek.
@@ -146,7 +146,7 @@ ERD final dan seluruh keputusannya ada di `PROJECT_RULES.md` bagian 4a. Cara: ed
 - [x] Login dan register customer (email + password, `role` customer). Controller, rute, view, navbar, tes AUTH-001..020 selesai (480 tes hijau, 9 Nov 2026).
   - Catatan tes: `tests/Pest.php` login satu user acak sebelum tiap tes Feature. Tes yang butuh tamu wajib `Auth::logout()` + `app('auth')->forgetGuards()` di `beforeEach` (dipakai `CustomerAuthTest`).
 - [ ] Booking untuk customer login (`user_id` terisi, form terisi otomatis).
-- [ ] Riwayat Saya.
+- [x] Riwayat Saya (`/riwayat`, Blade, 10 per halaman, tanpa harga dan alasan batal). Tes RWY-001..009, 494 tes hijau (10 Nov 2026).
 - [x] Keamanan panel: `canAccessPanel()` hanya `owner`, notifikasi booking hanya ke `owner`. SEC-001..003, 458 tes hijau (9 Nov 2026). `UserFactory` punya state `owner()`: tes penerima notifikasi wajib pakai itu.
 - [ ] Aksi "Tandai Lunas" (hanya servis selesai, `paid_at` NULL), badge Lunas/Belum Lunas, filter, invoice.
 - [ ] Panel sparepart: `RestoreAction` dan `TrashedFilter` (cek dengan `git grep -n "TrashedFilter\|RestoreAction" -- app`), pesan validasi kode yang dipakai part yang diarsipkan.

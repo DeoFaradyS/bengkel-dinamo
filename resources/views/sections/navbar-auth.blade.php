@@ -9,6 +9,8 @@
       <a href="/admin" class="text-sm font-semibold text-neutral-800 transition-colors hover:text-red-600">Panel</a>
     @endif
 
+    <a href="/riwayat" class="text-sm font-semibold text-neutral-800 transition-colors hover:text-red-600">Riwayat Saya</a>
+
     <form method="POST" action="/keluar">
       @csrf
       <button type="submit"
