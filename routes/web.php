@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\RiwayatController;
 use App\Models\ServiceType;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfilController;
 
 Route::get('/', function () {
     return view('welcome', [
@@ -35,3 +36,7 @@ Route::middleware('guest')->group(function () {
 Route::post('/keluar', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
 
 Route::get('/riwayat', RiwayatController::class)->middleware('auth')->name('riwayat');
+Route::get('/riwayat/{id}', [RiwayatController::class, 'show'])->whereNumber('id')->middleware('auth')->name('riwayat.show');
+Route::get('/riwayat/{id}/invoice', [RiwayatController::class, 'invoice'])->whereNumber('id')->middleware('auth')->name('riwayat.invoice');
+Route::get('/profil', [ProfilController::class, 'edit'])->middleware('auth')->name('profil');
+Route::put('/profil', [ProfilController::class, 'update'])->middleware('auth');
