@@ -62,7 +62,7 @@ test('RWY-004: alamat, alasan batal, dan harga tidak tampil', function () {
         ->assertOk()
         ->assertDontSee('Jalan Rahasia 99')
         ->assertDontSee('Catatan internal pemilik')
-        ->assertDontSee('Rp');
+        ->assertDontSeeText('Rp'); // teks terlihat saja: token CSRF acak bisa memuat 'Rp'
 });
 
 test('RWY-005: servis yang di-soft-delete tidak tampil', function () {

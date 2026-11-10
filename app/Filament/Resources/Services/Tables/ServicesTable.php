@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Services\Tables;
 
+use App\Actions\MarkServicePaid;
 use App\Enums\BookingType;
 use App\Enums\ServiceStatus;
 use Filament\Actions\Action;
@@ -40,6 +41,13 @@ class ServicesTable
                     ->badge(),
                 TextColumn::make('status')->label('Status')
                     ->badge(),
+                TextColumn::make('paid_at')->label('Pembayaran')
+                    ->badge()
+                    ->state(fn($record) => $record->status !== ServiceStatus::Completed
+                        ? null
+                        : ($record->paid_at ? 'Lunas' : 'Belum Lunas'))
+                    ->color(fn($state) => $state === 'Lunas' ? 'success' : 'warning')
+                    ->placeholder('-'),
 
                 TextColumn::make('total')->label('Total')
                     ->state(fn($record) => (float) ($record->items_sum_price ?? 0)
@@ -60,6 +68,14 @@ class ServicesTable
                 SelectFilter::make('booking_type')
                     ->label('Tipe')
                     ->options(BookingType::class),
+                SelectFilter::make('pembayaran')
+                    ->label('Pembayaran')
+                    ->options(['lunas' => 'Lunas', 'belum_lunas' => 'Belum Lunas'])
+                    ->query(fn($query, array $data) => match ($data['value'] ?? null) {
+                        'lunas' => $query->where('status', ServiceStatus::Completed->value)->whereNotNull('paid_at'),
+                        'belum_lunas' => $query->where('status', ServiceStatus::Completed->value)->whereNull('paid_at'),
+                        default => $query,
+                    }),
             ])
             ->recordUrl(fn($record) => $record->status->isFinal()
                 ? ServiceResource::getUrl('view', ['record' => $record])
@@ -69,6 +85,22 @@ class ServicesTable
                     ->visible(fn($record) => !$record->status->isFinal()),
                 ViewAction::make()
                     ->visible(fn($record) => $record->status->isFinal()),
+                Action::make('tandai_lunas')
+                    ->label('Tandai Lunas')
+                    ->icon(Heroicon::OutlinedBanknotes)
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Tandai servis ini lunas?')
+                    ->modalDescription('Pembayaran tunai sudah diterima. Waktu lunas tercatat sekarang.')
+                    ->visible(fn($record) => $record->status === ServiceStatus::Completed && $record->paid_at === null)
+                    ->action(function ($record) {
+                        $ok = app(MarkServicePaid::class)->handle($record);
+
+                        Notification::make()
+                            ->title($ok ? 'Servis ditandai lunas' : 'Servis ini sudah lunas atau belum selesai')
+                            ->{$ok ? 'success' : 'warning'}()
+                            ->send();
+                    }),
                 Action::make('invoice')
                     ->label('Invoice')
                     ->icon(Heroicon::OutlinedPrinter)
