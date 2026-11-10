@@ -33,6 +33,8 @@
 
     @include('sections.footer')
 
+    @include('sections.wa-float')
+
     @livewireScripts
 </body>
 

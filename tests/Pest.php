@@ -25,7 +25,7 @@ function serviceFormData(array $override = []): array
 }
 
 /** Jam slot sah: besok 09.00. Selalu lolos jarak minimal dan batas hari. */
-function nextSlot(int $daysAhead = 1, int $hour = 9): \Illuminate\Support\Carbon
+function nextSlot(int $daysAhead = 1, int $hour = 9): \Carbon\CarbonInterface
 {
     return now()->addDays($daysAhead)->setTime($hour, 0, 0);
 }

@@ -1,7 +1,3 @@
-@php
-  $waLink = \App\Support\WhatsAppLink::make('08882509745', 'Halo Budi Dinamo, saya mau tanya soal servis.');
-@endphp
-
 {{-- Jarak scroll untuk header sticky, supaya judul section tidak tertutup saat tautan #anchor diklik --}}
 <style>
   html {
