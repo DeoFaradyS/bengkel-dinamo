@@ -154,3 +154,37 @@ test('AUTH-016: customer tidak bisa membuka /admin', function () {
         ->get('/admin')
         ->assertForbidden();
 });
+// ---------- Tampilan ----------
+
+test('AUTH-017: halaman /masuk tampil untuk tamu dengan formulir login', function () {
+    $this->get('/masuk')
+        ->assertOk()
+        ->assertSee('action="/masuk"', false)
+        ->assertSee('name="password"', false);
+});
+
+test('AUTH-018: halaman /daftar tampil untuk tamu dengan semua kolom', function () {
+    $this->get('/daftar')
+        ->assertOk()
+        ->assertSee('action="/daftar"', false)
+        ->assertSee('name="phone"', false)
+        ->assertSee('name="password_confirmation"', false);
+});
+
+test('AUTH-019: navbar tamu memuat tautan Masuk dan Daftar, tanpa Keluar', function () {
+    $this->get('/')
+        ->assertOk()
+        ->assertSee(route('login'), false)
+        ->assertSee(route('register'), false)
+        ->assertDontSee('action="/keluar"', false);
+});
+
+test('AUTH-020: navbar customer memuat nama dan tombol Keluar, tanpa tautan Panel', function () {
+    $user = User::factory()->create(['name' => 'Siti Pelanggan']);
+
+    $this->actingAs($user)->get('/')
+        ->assertOk()
+        ->assertSee('Siti Pelanggan')
+        ->assertSee('action="/keluar"', false)
+        ->assertDontSee('href="/admin"', false);
+});

@@ -91,7 +91,7 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara.
 
 Daftar dari pemilik. Per 9 Nov 2026 (malam): tahap 1 (struktur database, enum, seeder) selesai. Rute customer dan fitur login belum ada. Bagian F di bawah adalah rinciannya.
 
-- [~] Login dan register customer (email + password). Rinci: bagian F tahap 3. Controller, rute, tes selesai; view belum.
+- [x] Login dan register customer (email + password). Rinci: bagian F tahap 3.
 - [ ] Booking untuk customer yang login (form terisi otomatis, `services.user_id` terisi).
 - [ ] Riwayat booking untuk customer yang login ("Riwayat Saya").
 - [~] ERD diimplementasikan ke migrasi (bagian F). Status 9 Nov 2026 (malam): tahap 1 (struktur database) selesai dan semua tes hijau. Sisa: tahap 2 (rename kolom), tahap 3 (fitur), tahap 4 (dokumen).
@@ -143,7 +143,7 @@ ERD final dan seluruh keputusannya ada di `PROJECT_RULES.md` bagian 4a. Cara: ed
 - [x] Cek `ServiceMetrics`: periode pakai `scheduled_at`, tidak ada `updated_at`.
 
 **Tahap 3: fitur**
-- [~] Login dan register customer (email + password, `role` customer). Selesai: controller, rute, tes AUTH-001..016 (476 tes hijau, 9 Nov 2026). Sisa: view `auth.login` dan `auth.register`, tombol Masuk/Daftar/Keluar di navbar, tes tampilan.
+- [x] Login dan register customer (email + password, `role` customer). Controller, rute, view, navbar, tes AUTH-001..020 selesai (480 tes hijau, 9 Nov 2026).
   - Catatan tes: `tests/Pest.php` login satu user acak sebelum tiap tes Feature. Tes yang butuh tamu wajib `Auth::logout()` + `app('auth')->forgetGuards()` di `beforeEach` (dipakai `CustomerAuthTest`).
 - [ ] Booking untuk customer login (`user_id` terisi, form terisi otomatis).
 - [ ] Riwayat Saya.

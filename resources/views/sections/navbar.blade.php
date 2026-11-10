@@ -25,12 +25,7 @@
       </ul>
 
       <div class="hidden lg:flex items-center gap-4 ml-auto">
-        {{-- PLACEHOLDER: belum ada fungsi. Menunggu keputusan poin 10 (login pelanggan). Ganti atau hapus sebelum
-        sidang. --}}
-        <button type="button"
-          class="px-4 py-3 text-sm font-semibold text-neutral-800 transition-colors hover:text-red-600">Masuk</button>
-        <button type="button"
-          class="px-6 py-3 bg-neutral-800 rounded-[10px] text-white font-semibold transition-colors hover:bg-neutral-700">Daftar</button>
+        @include('sections.navbar-auth')
       </div>
 
       <button type="button" id="menuBtn" class="lg:hidden size-11 flex items-center justify-center ml-auto"
@@ -51,6 +46,7 @@
           <a href="/#layanan">Layanan</a>
           <a href="/#lokasi">Lokasi</a>
           <a href="/#cek-booking">Cek Booking</a>
+          @include('sections.navbar-auth', ['mobile' => true])
         </div>
       </div>
     </div>
