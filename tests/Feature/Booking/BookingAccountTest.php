@@ -4,7 +4,6 @@ use App\Livewire\BookingForm;
 use App\Models\Service;
 use App\Models\User;
 use App\Support\Booking\Slots;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Livewire;
 
 // Booking untuk customer login (D2). Kode modul: BKA.
@@ -40,12 +39,6 @@ function kirimBooking($komponen, array $isi = [])
         ->set('slot_date', $tanggal)
         ->call('pilihSlot', $jam)
         ->call('submit');
-}
-
-function jadiTamu(): void
-{
-    Auth::logout();
-    app('auth')->forgetGuards();
 }
 
 test('BKA-001: customer login, form terisi nama dan HP dari akun', function () {

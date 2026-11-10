@@ -4,7 +4,6 @@ use App\Enums\BookingType;
 use App\Enums\ServiceStatus;
 use App\Models\Service;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 
 // Riwayat Saya (/riwayat). Kode modul: RWY.
 // Letakkan di tests/Feature/RiwayatTest.php.
@@ -25,8 +24,7 @@ function servisRiwayat(?User $user, array $o = []): Service
 }
 
 test('RWY-001: tamu diarahkan ke halaman masuk', function () {
-    Auth::logout();
-    app('auth')->forgetGuards();
+    jadiTamu();
 
     $this->get('/riwayat')->assertRedirect(route('login'));
 });
@@ -105,8 +103,7 @@ test('RWY-009: navbar customer memuat tautan Riwayat Saya, tamu tidak', function
     $this->actingAs(User::factory()->create())->get('/')
         ->assertSee('href="/riwayat"', false);
 
-    Auth::logout();
-    app('auth')->forgetGuards();
+    jadiTamu();
 
     $this->get('/')->assertDontSee('href="/riwayat"', false);
 });

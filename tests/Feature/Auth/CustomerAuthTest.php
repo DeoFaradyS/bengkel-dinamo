@@ -3,11 +3,9 @@
 use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
 
 beforeEach(function () {
-    Auth::logout();
-    app('auth')->forgetGuards();
+    jadiTamu();
 });
 
 // Tes login dan register customer (D2). Kode modul: AUTH.

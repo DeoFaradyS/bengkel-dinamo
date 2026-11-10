@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Auth;
 
 // Tombol WA melayang. Kode modul: WAF.
 // Letakkan di tests/Feature/Landing/WhatsAppFloatTest.php.
@@ -14,8 +13,7 @@ test('WAF-001: beranda dan /layanan memuat tombol WA melayang dengan tautan wa.m
 
 test('WAF-002: halaman masuk dan daftar tidak memuat tombol WA', function (string $url) {
     // tests/Pest.php login user acak, tamu wajib keluar dulu.
-    Auth::logout();
-    app('auth')->forgetGuards();
+    jadiTamu();
 
     $this->get($url)
         ->assertOk()

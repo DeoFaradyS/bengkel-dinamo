@@ -29,3 +29,13 @@ function nextSlot(int $daysAhead = 1, int $hour = 9): \Carbon\CarbonInterface
 {
     return now()->addDays($daysAhead)->setTime($hour, 0, 0);
 }
+
+/** Keluar dari user acak yang di-login beforeEach di atas, untuk tes yang butuh tamu. */
+function jadiTamu(): void
+{
+    /** @var \Illuminate\Auth\SessionGuard $guard */
+    $guard = auth()->guard('web');
+    $guard->logout();
+
+    app('auth')->forgetGuards();
+}
