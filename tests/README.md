@@ -12,10 +12,10 @@ Total tes ber-ID: **402**.
 | ADR | 11 | (isi manual) | `tests/Feature/Booking/AddressTest.php` |
 | ANT | 12 | Antrian servis | `tests/Feature/Services/ServiceQueueTest.php` |
 | AUTH | 19 | Login, register, logout, tampilan halaman masuk dan daftar | `tests/Feature/Auth/CustomerAuthTest.php` |
-| BKA | 7 | Booking untuk customer login (user_id, isi otomatis, HP ke akun) | `tests/Feature/BookingAccountTest.php` |
+| BKA | 7 | Booking untuk customer login (user_id, isi otomatis, HP ke akun) | `tests/Feature/Booking/BookingAccountTest.php` |
 | BKD | 3 | (isi manual) | `tests/Feature/Distance/BookingDistanceTest.php` |
 | BKG | 15 | Booking pelanggan (formulir, jadwal, aturan nomor aktif) | `tests/Feature/Booking/BookingFormTest.php`, `tests/Feature/Booking/CreateBookingTest.php` |
-| BKT | 4 | (isi manual) | `tests/Feature/BookingTypeTest.php` |
+| BKT | 4 | (isi manual) | `tests/Feature/Booking/BookingTypeTest.php` |
 | CMP | 5 | (isi manual) | `tests/Feature/Dashboard/CompositionChartsTest.php` |
 | DSH | 19 | (isi manual) | `tests/Feature/Dashboard/DashboardPeriodTest.php` |
 | DST | 2 | (isi manual) | `tests/Feature/Distance/DistanceServiceTest.php` |
@@ -43,20 +43,20 @@ Total tes ber-ID: **402**.
 | MET | 12 | (isi manual) | `tests/Feature/Dashboard/ServiceMetricsTest.php` |
 | NAV | 3 | (isi manual) | `tests/Feature/Services/ServiceNavigationBadgeTest.php` |
 | NTF | 5 | (isi manual) | `tests/Feature/Booking/BookingNotificationTest.php`, `tests/Feature/Booking/BookingNotificationTypeTest.php` |
-| PRC | 3 | Harga jasa | `tests/Feature/ServicePriceFormTest.php`, `tests/Feature/ServiceTypePriceFormTest.php`, `tests/Feature/SparePartPriceFormTest.php` |
+| PRC | 3 | Harga jasa | `tests/Feature/Services/ServicePriceFormTest.php`, `tests/Feature/ServiceTypes/ServiceTypePriceFormTest.php`, `tests/Feature/SpareParts/SparePartPriceFormTest.php` |
 | PRV | 5 | (isi manual) | `tests/Feature/Distance/BookingPreviewTest.php` |
 | RSN | 5 | (isi manual) | `tests/Feature/Booking/CancelReasonFormTest.php` |
-| RWY | 9 | Riwayat Saya (/riwayat) | `tests/Feature/RiwayatTest.php` |
+| RWY | 9 | Riwayat Saya (/riwayat) | `tests/Feature/Riwayat/RiwayatTest.php` |
 | SDR | 1 | Seeder | `tests/Feature/Distance/SeederDistanceTest.php` |
-| SEC | 3 | Keamanan panel: akses /admin hanya owner, notifikasi hanya ke owner | `tests/Feature/PanelSecurityTest.php` |
-| SED | 3 | Seeder | `tests/Feature/Booking/SeederHomeServiceTest.php`, `tests/Feature/SeederTest.php` |
+| SEC | 3 | Keamanan panel: akses /admin hanya owner, notifikasi hanya ke owner | `tests/Feature/Auth/PanelSecurityTest.php` |
+| SED | 3 | Seeder | `tests/Feature/Booking/SeederHomeServiceTest.php`, `tests/Feature/Seeders/SeederTest.php` |
 | SET | 2 | (isi manual) | `tests/Feature/Distance/DistanceMethodSettingTest.php` |
 | SLB | 5 | (isi manual) | `tests/Feature/Booking/BookingSlotTest.php` |
 | SLT | 8 | (isi manual) | `tests/Feature/Booking/SlotsTest.php` |
 | SPF | 15 | Spare part di servis | `tests/Feature/Services/ServicePartTest.php` |
 | SSP | 3 | Sparepart | `tests/Feature/SpareParts/SparePartTest.php` |
 | STK | 17 | (isi manual) | `tests/Feature/Services/ServiceStockFormTest.php`, `tests/Feature/Services/ServiceStockTest.php`, `tests/Feature/SpareParts/StockMovementTest.php` |
-| SUS | 5 | (isi manual) | `tests/Feature/ServiceStockUsageTest.php` |
+| SUS | 5 | (isi manual) | `tests/Feature/Services/ServiceStockUsageTest.php` |
 | TIP | 5 | (isi manual) | `tests/Feature/Booking/BookingTypeFormTest.php` |
 | TKT | 4 | (isi manual) | `tests/Feature/Categories/CategoryResourceTest.php` |
 | TPG | 13 | (isi manual) | `tests/Feature/Settings/WorkshopSettingTest.php` |
@@ -90,6 +90,12 @@ Total tes ber-ID: **402**.
 - AUTH-019: navbar tamu memuat tautan Masuk dan Daftar, tanpa Keluar
 - AUTH-020: navbar customer memuat nama dan tombol Keluar, tanpa tautan Panel
 - AUTH-021: halaman /masuk dan /daftar tanpa navbar, dengan tombol kembali ke beranda
+
+### `tests/Feature/Auth/PanelSecurityTest.php`
+
+- SEC-001: customer tidak bisa membuka panel /admin
+- SEC-002: owner bisa membuka panel /admin
+- SEC-003: notifikasi booking hanya masuk ke owner
 
 ### `tests/Feature/Booking/AddressTest.php`
 
@@ -127,6 +133,16 @@ Total tes ber-ID: **402**.
 - FRM-006: Home Service dengan koordinat tersimpan
 - FRM-007: Ke Bengkel tersimpan tanpa koordinat
 - FRM-008: ubah Home Service jadi Ke Bengkel, koordinat dikosongkan
+
+### `tests/Feature/Booking/BookingAccountTest.php`
+
+- BKA-001: customer login, form terisi nama dan HP dari akun
+- BKA-002: booking customer login menyimpan user_id, nama, dan HP di services
+- BKA-003: HP akun kosong, tersimpan ke akun setelah booking pertama
+- BKA-004: HP akun sudah ada, tidak ditimpa meski booking pakai HP lain
+- BKA-005: tamu, form kosong dan user_id NULL
+- BKA-006: customer login boleh mengganti nama (booking untuk orang lain), user_id tetap akun
+- BKA-007: booking ditolak validasi, HP akun tidak berubah
 
 ### `tests/Feature/Booking/BookingFormTest.php`
 
@@ -191,6 +207,13 @@ Total tes ber-ID: **402**.
 - TIP-004: balik ke workshop, kotak lokasi hilang lagi
 - TIP-005: home service tanpa lokasi, pesan error tampil di layar
 
+### `tests/Feature/Booking/BookingTypeTest.php`
+
+- BKT-001: booking_type default workshop
+- BKT-002: home service menyimpan latitude dan longitude
+- BKT-003: workshop boleh tanpa koordinat
+- BKT-004: label BookingType
+
 ### `tests/Feature/Booking/CancelReasonFormTest.php`
 
 - RSN-001: status aktif, isian alasan tersembunyi
@@ -231,23 +254,6 @@ Total tes ber-ID: **402**.
 - SLT-006: slot yang tampil ke pelanggan menghormati jarak minimal dan batas hari
 - SLT-007: slot penuh tetap tampil tapi ditandai tidak tersedia
 - SLT-008: slot kurang dari 30 menit lagi tetap tampil tapi tidak tersedia
-
-### `tests/Feature/BookingAccountTest.php`
-
-- BKA-001: customer login, form terisi nama dan HP dari akun
-- BKA-002: booking customer login menyimpan user_id, nama, dan HP di services
-- BKA-003: HP akun kosong, tersimpan ke akun setelah booking pertama
-- BKA-004: HP akun sudah ada, tidak ditimpa meski booking pakai HP lain
-- BKA-005: tamu, form kosong dan user_id NULL
-- BKA-006: customer login boleh mengganti nama (booking untuk orang lain), user_id tetap akun
-- BKA-007: booking ditolak validasi, HP akun tidak berubah
-
-### `tests/Feature/BookingTypeTest.php`
-
-- BKT-001: booking_type default workshop
-- BKT-002: home service menyimpan latitude dan longitude
-- BKT-003: workshop boleh tanpa koordinat
-- BKT-004: label BookingType
 
 ### `tests/Feature/Categories/CategoryResourceTest.php`
 
@@ -359,13 +365,7 @@ Total tes ber-ID: **402**.
 
 - SDR-001: servis Home Service dari seeder punya jarak, Ke Bengkel tidak
 
-### `tests/Feature/PanelSecurityTest.php`
-
-- SEC-001: customer tidak bisa membuka panel /admin
-- SEC-002: owner bisa membuka panel /admin
-- SEC-003: notifikasi booking hanya masuk ke owner
-
-### `tests/Feature/RiwayatTest.php`
+### `tests/Feature/Riwayat/RiwayatTest.php`
 
 - RWY-001: tamu diarahkan ke halaman masuk
 - RWY-002: customer melihat servis miliknya: status, tipe, dan keluhan
@@ -377,13 +377,9 @@ Total tes ber-ID: **402**.
 - RWY-008: customer tanpa booking melihat pesan kosong
 - RWY-009: navbar customer memuat tautan Riwayat Saya, tamu tidak
 
-### `tests/Feature/SeederTest.php`
+### `tests/Feature/Seeders/SeederTest.php`
 
 - SED-001: DatabaseSeeder jalan tanpa error dan mengisi data
-
-### `tests/Feature/ServicePriceFormTest.php`
-
-- PRC-001: harga jasa tampil bulat saat edit, tidak kali 100
 
 ### `tests/Feature/Services/MarkServicePaidTest.php`
 
@@ -501,6 +497,10 @@ Total tes ber-ID: **402**.
 - HPU-006: +62 dianggap sama dengan 08, servis aktif bentrok ditolak
 - HPU-007: HP disimpan dalam format 08...
 
+### `tests/Feature/Services/ServicePriceFormTest.php`
+
+- PRC-001: harga jasa tampil bulat saat edit, tidak kali 100
+
 ### `tests/Feature/Services/ServiceQueueTest.php`
 
 - ANT-001: tidak ada antrian, servis boleh mulai
@@ -543,7 +543,7 @@ Total tes ber-ID: **402**.
 - STK-012: edit simpan Selesai tanpa konfirmasi, modal muncul dan stok tidak berubah
 - STK-013: buat servis Selesai tanpa konfirmasi, modal muncul dan tidak tersimpan
 
-### `tests/Feature/ServiceStockUsageTest.php`
+### `tests/Feature/Services/ServiceStockUsageTest.php`
 
 - SUS-001: servis selesai mencatat pemakaian di riwayat stok
 - SUS-002: syncStock dipanggil dua kali, stok tidak berkurang dua kali
@@ -551,7 +551,7 @@ Total tes ber-ID: **402**.
 - SUS-004: servis aktif jadi Selesai lewat halaman Edit, stok turun dan riwayat tercatat
 - SUS-005: seeder hanya menandai sinkron servis Selesai
 
-### `tests/Feature/ServiceTypePriceFormTest.php`
+### `tests/Feature/ServiceTypes/ServiceTypePriceFormTest.php`
 
 - PRC-003: harga acuan jenis servis tampil bulat saat edit, tidak kali 100
 
@@ -580,7 +580,7 @@ Total tes ber-ID: **402**.
 - TPG-012: longitude di luar rentang ditolak
 - TPG-013: simpan berkali-kali, tabel tetap satu baris
 
-### `tests/Feature/SparePartPriceFormTest.php`
+### `tests/Feature/SpareParts/SparePartPriceFormTest.php`
 
 - PRC-002: harga part tampil bulat saat edit, tidak kali 100
 
