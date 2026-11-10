@@ -33,11 +33,16 @@ test('RWY-002: customer melihat servis miliknya: status, tipe, dan keluhan', fun
     $user = User::factory()->create();
     servisRiwayat($user, ['complaint' => 'Starter bunyi kasar']);
 
+    $service = \App\Models\Service::where('user_id', $user->id)->firstOrFail();
+
     $this->actingAs($user)->get('/riwayat')
         ->assertOk()
-        ->assertSee('Starter bunyi kasar')
         ->assertSee(ServiceStatus::Pending->getLabel())
         ->assertSee(BookingType::Workshop->getLabel());
+
+    $this->actingAs($user)->get('/riwayat/' . $service->id)
+        ->assertOk()
+        ->assertSee('Starter bunyi kasar');
 });
 
 test('RWY-003: servis milik user lain dan servis tamu tidak tampil', function () {
@@ -74,11 +79,14 @@ test('RWY-005: servis yang di-soft-delete tidak tampil', function () {
 
 test('RWY-006: urutan terbaru dulu berdasarkan jadwal', function () {
     $user = User::factory()->create();
-    servisRiwayat($user, ['complaint' => 'Keluhan lama AAA', 'scheduled_at' => now()->addDays(1)]);
-    servisRiwayat($user, ['complaint' => 'Keluhan baru BBB', 'scheduled_at' => now()->addDays(5)]);
+    $lama = now()->addDays(1)->startOfMinute();
+    $baru = now()->addDays(5)->startOfMinute();
+
+    servisRiwayat($user, ['complaint' => 'Keluhan lama AAA', 'scheduled_at' => $lama]);
+    servisRiwayat($user, ['complaint' => 'Keluhan baru BBB', 'scheduled_at' => $baru]);
 
     $this->actingAs($user)->get('/riwayat')
-        ->assertSeeInOrder(['Keluhan baru BBB', 'Keluhan lama AAA']);
+        ->assertSeeInOrder([$baru->format('d/m/Y H:i'), $lama->format('d/m/Y H:i')]);
 });
 
 test('RWY-007: paginasi 10 per halaman', function () {
@@ -106,4 +114,84 @@ test('RWY-009: navbar customer memuat tautan Riwayat Saya, tamu tidak', function
     jadiTamu();
 
     $this->get('/')->assertDontSee('href="/riwayat"', false);
+});
+
+test('RWY-010: filter status hanya memuat status itu', function () {
+    $user = User::factory()->create();
+    servisRiwayat($user, ['status' => ServiceStatus::Pending]);
+    servisRiwayat($user, ['status' => ServiceStatus::Rejected]);
+
+    // Label status juga ada di dropdown filter, jadi cek lewat data view, bukan teks.
+    $this->actingAs($user)->get('/riwayat?status=rejected')
+        ->assertOk()
+        ->assertViewHas('services', fn ($p) => $p->total() === 1
+            && $p->first()->status === ServiceStatus::Rejected);
+});
+
+test('RWY-011: detail menampilkan keluhan booking sendiri', function () {
+    $user = User::factory()->create();
+    servisRiwayat($user, ['complaint' => 'Dinamo berisik DETAIL']);
+    $service = \App\Models\Service::where('user_id', $user->id)->firstOrFail();
+
+    $this->actingAs($user)->get('/riwayat/'.$service->id)
+        ->assertOk()
+        ->assertSee('Dinamo berisik DETAIL');
+});
+
+test('RWY-012: detail booking milik orang lain 404', function () {
+    $pemilik = User::factory()->create();
+    servisRiwayat($pemilik, []);
+    $service = \App\Models\Service::where('user_id', $pemilik->id)->firstOrFail();
+
+    $this->actingAs(User::factory()->create())->get('/riwayat/'.$service->id)->assertNotFound();
+});
+
+test('RWY-013: alasan batal tidak tampil di detail', function () {
+    $user = User::factory()->create();
+    servisRiwayat($user, ['status' => ServiceStatus::Cancelled, 'cancel_reason' => 'Catatan internal XYZ']);
+    $service = \App\Models\Service::where('user_id', $user->id)->firstOrFail();
+
+    $this->actingAs($user)->get('/riwayat/'.$service->id)
+        ->assertOk()
+        ->assertDontSee('Catatan internal XYZ');
+});
+
+test('RWY-014: owner terlempar ke panel dari riwayat dan detail', function () {
+    $owner = User::factory()->owner()->create();
+
+    $this->actingAs($owner)->get('/riwayat')->assertRedirect('/admin');
+    $this->actingAs($owner)->get('/riwayat/1')->assertRedirect('/admin');
+});
+
+test('RWY-015: tamu diarahkan ke halaman masuk dari detail dan invoice', function () {
+    jadiTamu();
+
+    $this->get('/riwayat/1')->assertRedirect('/masuk');
+    $this->get('/riwayat/1/invoice')->assertRedirect('/masuk');
+});
+
+test('RWY-016: invoice booking yang belum selesai 404', function () {
+    $user = User::factory()->create();
+    servisRiwayat($user, ['status' => ServiceStatus::Confirmed]);
+    $service = \App\Models\Service::where('user_id', $user->id)->firstOrFail();
+
+    $this->actingAs($user)->get('/riwayat/'.$service->id.'/invoice')->assertNotFound();
+});
+
+test('RWY-017: invoice booking selesai milik sendiri berupa PDF', function () {
+    $user = User::factory()->create();
+    servisRiwayat($user, ['status' => ServiceStatus::Completed]);
+    $service = \App\Models\Service::where('user_id', $user->id)->firstOrFail();
+
+    $this->actingAs($user)->get('/riwayat/'.$service->id.'/invoice')
+        ->assertOk()
+        ->assertHeader('Content-Type', 'application/pdf');
+});
+
+test('RWY-018: invoice booking selesai milik orang lain 404', function () {
+    $pemilik = User::factory()->create();
+    servisRiwayat($pemilik, ['status' => ServiceStatus::Completed]);
+    $service = \App\Models\Service::where('user_id', $pemilik->id)->firstOrFail();
+
+    $this->actingAs(User::factory()->create())->get('/riwayat/'.$service->id.'/invoice')->assertNotFound();
 });
