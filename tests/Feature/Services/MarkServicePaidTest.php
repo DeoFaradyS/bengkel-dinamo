@@ -62,3 +62,35 @@ test('LNS-004: paid_at tidak bisa diisi lewat mass assignment', function () {
 
     expect($service->fresh()->paid_at)->toBeNull();
 });
+
+// ---------- Halaman View (panel) ----------
+// Pest.php login user acak (customer): halaman panel butuh owner.
+
+function halamanView(\App\Models\Service $service)
+{
+    \Filament\Facades\Filament::setCurrentPanel('admin');
+
+    return \Livewire\Livewire::actingAs(\App\Models\User::factory()->owner()->create())
+        ->test(\App\Filament\Resources\Services\Pages\ViewService::class, ['record' => $service->getKey()]);
+}
+
+test('LNS-005: tombol Tandai Lunas tampil untuk servis Selesai yang belum lunas', function () {
+    halamanView(servisLunas())->assertActionVisible('tandai_lunas');
+});
+
+test('LNS-006: tombol Tandai Lunas tidak tampil kalau sudah lunas', function () {
+    $service = servisLunas();
+    app(MarkServicePaid::class)->handle($service);
+
+    halamanView($service)->assertActionHidden('tandai_lunas');
+});
+
+test('LNS-007: menekan Tandai Lunas di halaman View mengisi paid_at', function () {
+    $service = servisLunas();
+
+    halamanView($service)
+        ->callAction('tandai_lunas')
+        ->assertActionHidden('tandai_lunas');
+
+    expect($service->fresh()->paid_at)->not->toBeNull();
+});

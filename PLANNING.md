@@ -148,7 +148,7 @@ ERD final dan seluruh keputusannya ada di `PROJECT_RULES.md` bagian 4a. Cara: ed
 - [ ] Booking untuk customer login (`user_id` terisi, form terisi otomatis).
 - [x] Riwayat Saya (`/riwayat`, Blade, 10 per halaman, tanpa harga dan alasan batal). Tes RWY-001..009, 494 tes hijau (10 Nov 2026).
 - [x] Keamanan panel: `canAccessPanel()` hanya `owner`, notifikasi booking hanya ke `owner`. SEC-001..003, 458 tes hijau (9 Nov 2026). `UserFactory` punya state `owner()`: tes penerima notifikasi wajib pakai itu.
-- [ ] Aksi "Tandai Lunas" (hanya servis selesai, `paid_at` NULL), badge Lunas/Belum Lunas, filter, invoice.
+- [~] Aksi "Tandai Lunas" (hanya servis selesai, `paid_at` NULL). Selesai: `MarkServicePaid`, aksi di tabel dan halaman View, badge Pembayaran, filter, tes LNS-001..007 (503 tes hijau, 10 Nov 2026). Sisa: status Lunas di infolist halaman View, invoice menampilkan status lunas.
 - [ ] Panel sparepart: `RestoreAction` dan `TrashedFilter` (cek dengan `git grep -n "TrashedFilter\|RestoreAction" -- app`), pesan validasi kode yang dipakai part yang diarsipkan.
 
 **Tahap 4: dokumen dan tes**
