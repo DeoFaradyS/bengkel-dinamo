@@ -3,6 +3,10 @@
   html {
     scroll-padding-top: 6rem;
   }
+
+  [x-cloak] {
+    display: none !important;
+  }
 </style>
 
 <header class="w-full flex justify-center py-5 bg-white sticky top-0 z-50">

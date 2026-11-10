@@ -21,6 +21,7 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Support\Enums\Width;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Support\Facades\Vite;
+use Filament\Actions\Action;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -33,8 +34,13 @@ class AdminPanelProvider extends PanelProvider
             ->databaseTransactions()
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->darkMode(false)
-            ->login()
             ->databaseNotifications()
+            ->userMenuItems([
+                Action::make('beranda')
+                    ->label('Kembali ke Beranda')
+                    ->icon('heroicon-o-home')
+                    ->url('/'),
+            ])
             ->renderHook(PanelsRenderHook::HEAD_END, fn() => Vite::withEntryPoints(['resources/js/admin-map.js'])->toHtml())
             ->colors([
                 'primary' => Color::Blue,
