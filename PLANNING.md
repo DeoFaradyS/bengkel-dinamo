@@ -1,6 +1,6 @@
 # PLANNING: SIM Bengkel Cak Budi Dinamo
 
-Catatan pekerjaan yang belum selesai, bug yang diketahui, dan keputusan terbuka. Aturan dan status fitur yang sudah jadi ada di `PROJECT_RULES.md`. Terakhir diperbarui: 9 November 2026 (malam, tahap 1 selesai).
+Catatan pekerjaan yang belum selesai, bug yang diketahui, dan keputusan terbuka. Aturan dan status fitur yang sudah jadi ada di `PROJECT_RULES.md`. Terakhir diperbarui: 10 November 2026 (siang, tahap 3 selesai, 530 tes hijau).
 
 Tanda: `[ ]` belum, `[~]` sebagian, `[x]` selesai.
 
@@ -9,7 +9,7 @@ Tanda: `[ ]` belum, `[~]` sebagian, `[x]` selesai.
 Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara.
 
 **Jasa (`tests/Feature/ServiceTypes/`)**
-- [ ] JSA-007..009 seeder: mengisi 7 jasa dengan deskripsi, dijalankan dua kali tidak menggandakan, foto yang sudah diunggah tidak tertimpa. Kalau berkas tes dengan angka 5 sudah tersimpan, angkanya diganti jadi 8 (penyesuaian karena seeder berubah, bukan melemahkan tes).
+- [ ] JSA-007..009 seeder: mengisi 7 jasa dengan deskripsi, dijalankan dua kali tidak menggandakan, foto yang sudah diunggah tidak tertimpa. Kalau berkas tes dengan angka 5 sudah tersimpan, angkanya diganti jadi 7 (penyesuaian karena seeder berubah, bukan melemahkan tes).
 - [ ] JSA-010..012 tabel: kolom foto dan deskripsi ada, deskripsi panjang dipotong satu baris, jasa tanpa deskripsi dan foto tetap tampil.
 - [x] Harga tampil bulat di halaman edit (`mutateFormDataBeforeFill` di `EditServiceType`). Dicek PRC-003, lulus 9 Nov.
 - [ ] Hapus jasa (setelah keputusan D1).
@@ -30,38 +30,49 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara.
 - [ ] Servis yang di-soft-delete tidak tampil.
 - [ ] Harga, total, dan alamat tidak ikut tampil.
 
+**Area customer (10 Nov 2026)**
+- [ ] Riwayat: filter Tipe dan Pembayaran, urut Total, per halaman 25 dan 50. (Filter Status dan urut Tanggal sudah dicek RWY-010 dan RWY-006.)
+- [ ] Detail `/riwayat/{id}`: rincian jasa dan part, ringkasan biaya (jasa + part + transport), badge Lunas dan Belum Lunas, tombol Cetak Invoice hanya saat Selesai.
+- [ ] Login satu pintu: tamu buka `/admin` diarahkan ke `/masuk`, `/admin/login` 404, owner login masuk ke `/admin`.
+- [ ] Navbar: dropdown owner berisi menu panel, dropdown customer berisi Riwayat Booking dan Profil, tamu melihat Masuk dan Daftar.
+- [ ] Booking login: ID tes yang ditulis pemilik belum dicatat. Catat ID dan berkasnya di `tests/README.md`.
+
 ## B. Bug dan hal yang perlu dicek
 
 - [x] **LOC-001.** Ekspektasi tes diubah ke "Pakai lokasi saya" (label view memang berubah).
 - [x] **PRC-003** (`tests/Feature/ServiceTypePriceFormTest.php`). Target dipindah ke `EditServiceType`, assertion dan ID tetap. Tes ini menangkap bug asli (harga tampil 100x), sudah diperbaiki lewat `mutateFormDataBeforeFill`.
 - [x] **Upload foto jasa gagal** (500 di `upload-file`). Penyebab: `upload_tmp_dir` di php.ini Laragon kosong (`;upload_tmp_dir =`), file temp upload tidak punya path, log: `Path must not be empty`. Perbaikan: buat folder `D:/Aplikasi/laragon/tmp`, set `upload_tmp_dir` ke sana, restart Laragon. Catatan: `php artisan pail` tidak jalan di Windows (butuh `pcntl`), baca `storage/logs/laravel.log`.
 - [x] Sisa rujukan ke `/booking`: link navbar dan footer dibersihkan, tes BKG-010 dan TIP-001 pindah ke `get('/')`. Link mati `/#galeri` diganti ke `/#cek-booking`.
-- [ ] Ganti `id="appointment"` di `hero.blade.php` jadi `id="booking"`, dan tombol "Buat Janji" di navbar ke `/#booking` (istilah `appointment` dibuang dari kode, lihat glossary `PROJECT_RULES.md` 4a). Cek tidak ada sisa: `Get-ChildItem resources\views -Recurse -Filter *.blade.php | Select-String -Pattern 'href="/booking|#galeri|#appointment'` (harus kosong).
-- [ ] Istilah "Buat Janji" atau "Booking" untuk label UI: sengaja ditunda, putuskan belakangan. Sekarang tercampur (navbar "Buat Janji", tombol kirim "Booking Sekarang", section "Cek Booking", id hero `appointment`).
+- [ ] Ganti `id="appointment"` di `hero.blade.php` jadi `id="booking"`. Tombol "Buat booking" di Riwayat dan link lain sudah memakai `/#booking`, jadi anchor ini mati sampai id diganti. Dump HTML tes 10 Nov masih menunjukkan `id="appointment"`. Tombol "Buat Janji" di navbar sudah tidak ada. Cek tidak ada sisa: `Get-ChildItem resources,tests,app -Recurse | Select-String -Pattern 'appointment|href="/booking|#galeri'` (harus kosong).
+- [ ] Istilah "Buat Janji" atau "Booking" untuk label UI: sengaja ditunda, putuskan belakangan. Sekarang tercampur (tombol kirim "Booking Sekarang", section "Cek Booking", menu "Riwayat Booking", tombol "Buat booking" di Riwayat).
 - [x] `service-card.blade.php` dicek: ada, props `name`, `description`, `price`, `photoUrl`, fallback inisial dan "Hubungi kami" jalan. URL foto dibentuk accessor `ServiceType::photoUrl()` (`Storage::disk('public')->url()`). Sisa: komentar di atas berkas masih bilang "tidak ada halaman detail per layanan", perbarui.
 - [x] Section galeri: berkas tidak ada, tidak ada `@include` yang rusak, link galeri sudah diganti.
-- [ ] Cek Booking bergantung pada asumsi: `PhoneNumber::normalize()` mengembalikan `null` untuk input tak valid, nomor di `services.phone` sudah dalam bentuk normal (termasuk dari `BookingForm`), `scheduled_at` di-cast `datetime`, `status` dan `booking_type` di-cast ke enum. Perlu dikonfirmasi lewat kode `BookingForm` dan model `Service`.
+- [~] Cek Booking bergantung pada asumsi. Sudah terkonfirmasi lewat `Service`: `scheduled_at` cast `datetime`, `status` dan `booking_type` cast ke enum. Sudah terkonfirmasi lewat `BookingForm`: nomor dinormalkan sebelum disimpan, jadi `services.customer_phone` berbentuk `08...`. **Koreksi 10 Nov:** `PhoneNumber::normalize()` mengembalikan string kosong untuk input tak valid, bukan `null` (input `abc` jadi `""`). Sisa: pastikan `BookingStatusCheck` tidak mencocokkan nomor kosong dengan servis, dan tidak memakai `=== null` untuk menolak input tak valid.
+- [ ] `ServicesTable.php` (panel Servis): aksi `tandai_lunas` memanggil `Notification::make()`, tapi berkas itu tidak punya `use Filament\Notifications\Notification;` (`ViewService.php` punya). Aksi dari tabel bisa error "class not found". Cek manual lalu tambah tes.
+- [ ] Kolom Total di tabel admin tidak menghitung `transport_fee`, sedangkan detail admin dan area customer menghitungnya. Total di `/riwayat` sudah ikut detail (jasa + part + transport). Putuskan: samakan tabel admin, atau biarkan.
+- [ ] Cast `Service`: `fuel_price` dan `transport_fee` bertipe `integer` padahal kolom `decimal(12,2)`, dan `saving` memakai `(int)`. Aman selama harga BBM dan ongkos bulat. Cek kalau suatu saat ada pecahan.
 - [ ] Kompres `public/images/bengkel.png` kalau di atas sekitar 300 KB.
-- [x] `php artisan test` penuh (9 Nov 2026, akhir tahap 1): **455 lulus, 0 gagal.**
+- [x] `php artisan test` penuh. Riwayat hasil: 455 (9 Nov), 480 (login), 494 (riwayat), 503 dan 506 (Tandai Lunas), 514 (area customer), **530 lulus, 0 gagal (10 Nov 2026, siang).**
 
 ## C. Fitur belum dikerjakan
 
 - [ ] Rekap stok per periode (Iterasi 4). Belum diputuskan dibangun atau ditulis sebagai pengembangan lanjutan skripsi.
 - [ ] Promo dikelola dari panel (sisa US-07). Layanan sudah lewat menu Jasa.
 - [ ] Tombol cepat konfirmasi/tolak booking di tabel servis (opsional). Wajib memanggil `startBlockerMessage()` kalau mengubah status ke `in_progress`.
-- [ ] Login pelanggan, lihat bagian F.
 - [ ] Cek Booking: tampilkan alasan batal (D3).
 - [ ] Booking yang terisi jasa pilihan dari halaman detail (D5).
 - [ ] Slug untuk URL jasa (D4).
+- [ ] Invoice PDF memuat status Lunas atau Belum Lunas (opsional).
+- [ ] Profil: ganti password (opsional, belum diminta).
 - [ ] Sinkronkan `PROJECT_RULES.md` setiap ada perubahan beranda atau aturan.
 
 ## D. Keputusan terbuka
 
 **D1. Hapus jasa yang sudah dipakai di `service_items`.** Kolom `service_type_id` nullable dan nama tersimpan sebagai salinan di `service_items`, jadi menghapus tidak merusak riwayat. Pilihan: boleh dihapus (sekarang `DeleteAction` polos), atau diblokir kalau sudah dipakai.
 
-**D2. Login pelanggan. DIPUTUSKAN (8 Nov 2026): dibangun.** Email + password, tanpa OTP. Pakai tabel `users` dengan kolom `role`, bukan tabel `customers` dan bukan guard terpisah. `services.user_id` nullable (NULL = tamu). Rincian di `PROJECT_RULES.md` bagian 4a dan bagian F di bawah.
+**D2. Login pelanggan. DIPUTUSKAN (8 Nov 2026) dan SELESAI (10 Nov 2026).** Email + password, tanpa OTP. Pakai tabel `users` dengan kolom `role`, bukan tabel `customers` dan bukan guard terpisah. `services.user_id` nullable (NULL = tamu). Satu pintu login `/masuk` untuk owner dan customer (login bawaan Filament dicabut). Rincian di `PROJECT_RULES.md`.
 
-**D3. Alasan batal di Cek Booking.** `cancel_reason` mungkin catatan internal pemilik. Saat ini tidak ditampilkan. Putuskan perlu ditampilkan atau tidak.
+**D3. Alasan batal di Cek Booking dan area customer.** `cancel_reason` mungkin catatan internal pemilik. Saat ini tidak ditampilkan di Cek Booking, Riwayat, maupun detail. Putuskan perlu ditampilkan atau tidak.
 
 **D4. Slug jasa.** Detail jasa sekarang `/layanan/{id}`. Slug butuh kolom baru lewat migrasi dan persetujuan.
 
@@ -71,6 +82,7 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara.
 
 **D7. Data demo di staging.** Seeder demo sekarang jalan di semua environment kecuali production. Kalau nanti ada staging dan datanya tidak boleh berisi demo, putuskan cara memisahkan (misalnya env khusus atau flag di `.env`).
 
+**D8. Harga tampil untuk pelanggan login (BARU, 10 Nov 2026).** Tabel dan detail `/riwayat` disamakan dengan panel admin atas permintaan pemilik, jadi menampilkan harga jasa, harga part, transport, total, dan status lunas. Aturan 12 hanya melarang harga di Cek Booking publik (tanpa login). Masih tersembunyi dari pelanggan: alasan batal, nama montir, catatan internal, data stok. Perlu persetujuan pemilik bengkel dan dospem bahwa pelanggan login boleh melihat harga.
 
 ## E. Selesai (ringkas)
 
@@ -86,24 +98,35 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara.
 - [x] Foto hero diganti `public/images/bengkel.png`.
 - [x] Tes JSA-001..006 lulus.
 - [x] Upload foto jasa beres (php.ini), link navbar dan footer dibersihkan, 4 tes usang disesuaikan, harga edit tampil bulat.
+- [x] ERD baru diterapkan ke migrasi, tahap 1 dan 2 selesai (9 Nov 2026). Lihat bagian F.
+- [x] Login dan register customer, keamanan panel (`canAccessPanel` hanya owner), Tandai Lunas (9 sampai 10 Nov 2026).
+- [x] **Area customer (10 Nov 2026):**
+  - Layout `layouts/customer.blade.php`: navbar dan footer beranda, sidebar kiri (Riwayat Booking, Profil) berstyle brand, garis tipis tanpa shadow, tinggi minimal setinggi layar. Di HP sidebar jadi baris menu yang bisa digeser.
+  - Navbar: customer dan owner login melihat avatar huruf awal dan nama depan dengan dropdown. Owner: Dashboard, Servis, Sparepart, Jasa, Kategori, Jarak Ongkos (langsung ke panel). Customer: Riwayat Booking, Profil. Keluar ada di dropdown. Tamu: tombol Masuk (outline) dan Daftar (solid), sama tinggi dan huruf kapital. Di HP semuanya jadi daftar biasa di menu lipat.
+  - Satu pintu login `/masuk`: `->login()` dicabut dari `AdminPanelProvider`. Owner login langsung ke `/admin`. Owner yang membuka `/riwayat` atau `/profil` diarahkan ke `/admin`. Panel punya menu "Kembali ke Beranda" di menu pengguna.
+  - Riwayat `/riwayat` ala tabel admin: No, Tanggal & Jam, Tipe, Status, Pembayaran, Total, Aksi. Filter Tipe, Status, Pembayaran. Urut Tanggal dan Total. Per halaman 10, 25, 50. Paginasi `pagination.filament`. Komponen `x-status-badge` membaca warna dari enum.
+  - Detail `/riwayat/{id}`: Data Servis, Jasa, Spare Part, Ringkasan biaya. Hanya milik sendiri, selain itu 404. Tombol Cetak Invoice (`/riwayat/{id}/invoice`, PDF, hanya servis Selesai milik sendiri).
+  - Profil `/profil`: nama dan nomor HP bisa diubah, email tampil terkunci. Nomor HP opsional (wajib saat booking), dinormalkan lewat `PhoneNumber::normalize`.
+  - Booking login: `BookingForm` mengisi nama dan HP dari akun, `CreateBooking` menyimpan `user_id`, HP akun yang kosong tersimpan setelah booking pertama (`forceFill`). Tes ditulis pemilik.
+  - Tes: RWY-001 dan RWY-006 disesuaikan (keluhan pindah ke detail), RWY-009 lewat tautan relatif `route(..., absolute: false)`, RWY-010..018 baru, PRF-001..007 baru.
 
-## G. Target sebelum bimbingan (dicatat 9 Nov 2026)
+## G. Target sebelum bimbingan (dicatat 9 Nov 2026, diperbarui 10 Nov 2026)
 
-Daftar dari pemilik. Per 9 Nov 2026 (malam): tahap 1 (struktur database, enum, seeder) selesai. Rute customer dan fitur login belum ada. Bagian F di bawah adalah rinciannya.
+Daftar dari pemilik. Per 10 Nov 2026 (siang): tahap 1 sampai 3 selesai, 530 tes hijau. Sisa tahap 4 (dokumen dan tes). Bagian F di bawah adalah rinciannya.
 
 - [x] Login dan register customer (email + password). Rinci: bagian F tahap 3.
-- [ ] Booking untuk customer yang login (form terisi otomatis, `services.user_id` terisi).
-- [x] Riwayat booking untuk customer yang login ("Riwayat Saya").
-- [~] ERD diimplementasikan ke migrasi (bagian F). Status 9 Nov 2026 (malam): tahap 1 (struktur database) selesai dan semua tes hijau. Sisa: tahap 2 (rename kolom), tahap 3 (fitur), tahap 4 (dokumen).
-- [ ] Saran dospem yang sudah masuk rencana ERD (misal `mechanic_names`, `paid_at`) diimplementasikan, lalu siapkan daftar untuk ditunjukkan saat bimbingan.
-- [ ] Rapikan dan organisasi tes: tiap berkas dan ID tes punya penjelasan satu baris "mengetes apa". Usul: tabel `tests/README.md` berisi kode modul (BKG, LOC, TIP, PRC, JSA, ANT, dst), berkas, dan aturan bisnis yang dicek.
-- [ ] Perbarui laporan skripsi: banyak perubahan (landing, jasa, ERD, login customer, antrian, Cek Booking).
+- [x] Booking untuk customer yang login (form terisi otomatis, `services.user_id` terisi).
+- [x] Riwayat booking untuk customer yang login ("Riwayat Booking", tabel, detail, invoice) dan halaman Profil.
+- [~] ERD diimplementasikan ke migrasi (bagian F). Tahap 1 sampai 3 selesai. Sisa: tahap 4 (dokumen, ERD di Eraser).
+- [~] Saran dospem yang sudah masuk rencana ERD (`mechanic_names`, `paid_at`) sudah diimplementasikan (kolom, seeder, aksi Tandai Lunas). Sisa: siapkan daftarnya untuk ditunjukkan saat bimbingan.
+- [ ] Rapikan dan organisasi tes: tiap berkas dan ID tes punya penjelasan satu baris "mengetes apa". Usul: tabel `tests/README.md` berisi kode modul (BKG, LOC, TIP, PRC, JSA, ANT, AUTH, SEC, LNS, RWY, PRF, dst), berkas, dan aturan bisnis yang dicek.
+- [ ] Perbarui laporan skripsi: banyak perubahan (landing, jasa, ERD, login customer, area customer, antrian, Cek Booking, Tandai Lunas).
 - [ ] Notifikasi WhatsApp ke pelanggan: opsional, dikerjakan belakangan kalau sempat.
-- [ ] Siapkan bahan bimbingan: demo (beranda, `/layanan`, Cek Booking, upload foto jasa, login customer), angka tes, daftar migrasi yang berubah, keputusan yang butuh jawaban (D1, D3).
+- [ ] Siapkan bahan bimbingan: demo (beranda, `/layanan`, Cek Booking, upload foto jasa, login customer, booking login, Riwayat dan detail, Cetak Invoice, Profil, Tandai Lunas di panel), angka tes (530), daftar migrasi yang berubah, keputusan yang butuh jawaban (D1, D3, D8).
 
-## F. Rencana perubahan database dan fitur turunannya (diperbarui 9 Nov 2026, malam)
+## F. Rencana perubahan database dan fitur turunannya (diperbarui 10 Nov 2026, siang)
 
-ERD final dan seluruh keputusannya ada di `PROJECT_RULES.md` bagian 4a. Cara: edit migrasi lama + `migrate:fresh --seed`. Branch kerja: `feat/erd-baru`. Baseline sebelum mulai: commit dengan 455 tes hijau (di `main`).
+ERD final dan seluruh keputusannya ada di `PROJECT_RULES.md` bagian 4 dan 4a. Cara: edit migrasi lama + `migrate:fresh --seed`. Branch kerja: `feat/erd-baru`. Baseline sebelum mulai: commit dengan 455 tes hijau (di `main`).
 
 **Keputusan 9 Nov 2026:** tabel `statuses` tidak dibuat (status = kolom `services.status` varchar + enum `ServiceStatus`). Label: Menunggu, Dikonfirmasi, Dikerjakan, Selesai, Dibatalkan, Ditolak, Kedaluwarsa.
 
@@ -133,7 +156,7 @@ ERD final dan seluruh keputusannya ada di `PROJECT_RULES.md` bagian 4a. Cara: ed
 - [x] Seeder: `OwnerSeeder`, `DemoCustomerSeeder`, `DatabaseSeeder`, `SparePartSeeder`, `ServiceSeeder`.
 - [x] Tes yang terdampak disesuaikan, alasan dicatat.
 
-**Tahap 2: rename kolom (satu rename per commit, cari-ganti di `app`, `resources`, `database`, `tests`, lalu `php artisan test`)**
+**Tahap 2: rename kolom. SELESAI**
 - [x] `services.phone` jadi `customer_phone`
 - [x] `services.address` jadi `address_note`
 - [x] `services.stock_synced_at` jadi `stock_deducted_at`
@@ -142,22 +165,25 @@ ERD final dan seluruh keputusannya ada di `PROJECT_RULES.md` bagian 4a. Cara: ed
 - [x] Cek `cancel_reason`: dipakai untuk Ditolak dan Dibatalkan, nama dipertahankan sesuai ERD final.
 - [x] Cek `ServiceMetrics`: periode pakai `scheduled_at`, tidak ada `updated_at`.
 
-**Tahap 3: fitur**
+**Tahap 3: fitur. SELESAI, kecuali satu item**
 - [x] Login dan register customer (email + password, `role` customer). Controller, rute, view, navbar, tes AUTH-001..020 selesai (480 tes hijau, 9 Nov 2026).
-  - Catatan tes: `tests/Pest.php` login satu user acak sebelum tiap tes Feature. Tes yang butuh tamu wajib `Auth::logout()` + `app('auth')->forgetGuards()` di `beforeEach` (dipakai `CustomerAuthTest`).
-- [ ] Booking untuk customer login (`user_id` terisi, form terisi otomatis).
-- [x] Riwayat Saya (`/riwayat`, Blade, 10 per halaman, tanpa harga dan alasan batal). Tes RWY-001..009, 494 tes hijau (10 Nov 2026).
+  - Catatan tes: `tests/Pest.php` login satu user acak sebelum tiap tes Feature. Tes yang butuh tamu wajib `Auth::logout()` + `app('auth')->forgetGuards()` di `beforeEach` (dipakai `CustomerAuthTest` dan `ProfilTest`).
+- [x] Booking untuk customer login (`user_id` terisi, form terisi otomatis, HP akun tersimpan setelah booking pertama). 530 tes hijau (10 Nov 2026).
+- [x] Riwayat (`/riwayat`, tabel ala admin dengan filter dan urut, 10 per halaman). Tes RWY-001..018.
+- [x] Detail booking `/riwayat/{id}` dan Cetak Invoice `/riwayat/{id}/invoice`. RWY-011..018. Harga tampil untuk pelanggan, lihat D8.
+- [x] Halaman Profil `/profil` (nama, HP opsional, email terkunci). Tes PRF-001..007.
+- [x] Layout area customer, dropdown navbar, tombol Masuk dan Daftar, satu pintu login `/masuk`, menu "Kembali ke Beranda" di panel (10 Nov 2026).
 - [x] Keamanan panel: `canAccessPanel()` hanya `owner`, notifikasi booking hanya ke `owner`. SEC-001..003, 458 tes hijau (9 Nov 2026). `UserFactory` punya state `owner()`: tes penerima notifikasi wajib pakai itu.
-- [x] Aksi "Tandai Lunas" (hanya servis selesai, `paid_at` NULL). Selesai: `MarkServicePaid`, aksi di tabel dan halaman View, badge Pembayaran, filter, tes LNS-001..007 (503 tes hijau, 10 Nov 2026). Status Lunas dan Dibayar pada tampil di infolist (LNS-008..010, 506 tes hijau). Invoice belum memuat status lunas (opsional).
+- [x] Aksi "Tandai Lunas" (hanya servis selesai, `paid_at` NULL). Selesai: `MarkServicePaid`, aksi di tabel dan halaman View, badge Pembayaran, filter, tes LNS-001..007 (503 tes hijau, 10 Nov 2026). Status Lunas dan Dibayar pada tampil di infolist (LNS-008..010, 506 tes hijau). Invoice belum memuat status lunas (opsional, bagian C). Lihat juga B: import `Notification` di `ServicesTable.php`.
 - [ ] Panel sparepart: `RestoreAction` dan `TrashedFilter` (cek dengan `git grep -n "TrashedFilter\|RestoreAction" -- app`), pesan validasi kode yang dipakai part yang diarsipkan.
 
 **Tahap 4: dokumen dan tes**
-- [ ] Rapikan tes: `tests/README.md` berisi kode modul (BKG, LOC, TIP, PRC, JSA, ANT, dst), berkas, dan aturan bisnis yang dicek.
-- [ ] Pindahkan 4a ke bagian 4 `PROJECT_RULES.md` setelah diterapkan, perbarui bagian 1, 3, 10.
+- [ ] Rapikan tes: `tests/README.md` berisi kode modul (BKG, LOC, TIP, PRC, JSA, ANT, AUTH, SEC, LNS, RWY, PRF, SED/SDR, CMP, dst), berkas, dan aturan bisnis yang dicek.
+- [x] Pindahkan 4a ke bagian 4 `PROJECT_RULES.md` setelah diterapkan, perbarui bagian 1, 3, 10 (dikerjakan 10 Nov 2026). Bagian 4a sekarang berisi keputusan desain dan glossary.
 - [ ] Sinkronkan ERD di Eraser dengan versi final. Perbarui laporan skripsi.
 
 **Rapikan kode (bertahap, tiap langkah satu commit, tes hijau):** komentar singkat yang menjelaskan kenapa; logika yang menumpuk di model atau Filament dipindah ke `app/Actions` atau `app/Support`; enum dan konstanta menggantikan string mentah. Hanya bagian yang disentuh, sisanya dicatat.
 
-**Tes wajib:** kolom baru di `services`, Tandai Lunas, akses `/admin`, notifikasi (regresi), login, booking login, riwayat. Tes tampilan boleh jadi utang di bagian A.
+**Tes wajib:** kolom baru di `services`, Tandai Lunas, akses `/admin`, notifikasi (regresi), login, booking login, riwayat, profil. Tes tampilan boleh jadi utang di bagian A.
 
 **Pengembangan lanjutan (tulis di skripsi, tidak dikerjakan):** tabel `statuses` (kalau status perlu diatur dari panel), `customers` dengan verifikasi, histori status, tabel montir dan pivot, pembayaran non-tunai, batch/FEFO sparepart, rekap stok per periode.
