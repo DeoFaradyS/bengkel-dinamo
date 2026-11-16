@@ -9,7 +9,7 @@ Tanda: `[ ]` belum, `[~]` sebagian, `[x]` selesai.
 Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara.
 
 **Jasa (`tests/Feature/ServiceTypes/`)**
-- [ ] JSA-007..009 seeder: mengisi 7 jasa dengan deskripsi, dijalankan dua kali tidak menggandakan, foto yang sudah diunggah tidak tertimpa. Kalau berkas tes dengan angka 5 sudah tersimpan, angkanya diganti jadi 7 (penyesuaian karena seeder berubah, bukan melemahkan tes).
+- [x] JSA-007..009 seeder (ada di `ServiceTypeSeederTest.php`, plus JSA-013 foto bawaan; dicek lulus 10 Nov): mengisi 7 jasa dengan deskripsi, dijalankan dua kali tidak menggandakan, foto yang sudah diunggah tidak tertimpa. Kalau berkas tes dengan angka 5 sudah tersimpan, angkanya diganti jadi 7 (penyesuaian karena seeder berubah, bukan melemahkan tes).
 - [ ] JSA-010..012 tabel: kolom foto dan deskripsi ada, deskripsi panjang dipotong satu baris, jasa tanpa deskripsi dan foto tetap tampil.
 - [x] Harga tampil bulat di halaman edit (`mutateFormDataBeforeFill` di `EditServiceType`). Dicek PRC-003, lulus 9 Nov.
 - [ ] Hapus jasa (setelah keputusan D1).
@@ -35,7 +35,7 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara.
 - [ ] Detail `/riwayat/{id}`: rincian jasa dan part, ringkasan biaya (jasa + part + transport), badge Lunas dan Belum Lunas, tombol Cetak Invoice hanya saat Selesai.
 - [ ] Login satu pintu: tamu buka `/admin` diarahkan ke `/masuk`, `/admin/login` 404, owner login masuk ke `/admin`.
 - [ ] Navbar: dropdown owner berisi menu panel, dropdown customer berisi Riwayat Booking dan Profil, tamu melihat Masuk dan Daftar.
-- [ ] Booking login: ID tes yang ditulis pemilik belum dicatat. Catat ID dan berkasnya di `tests/README.md`.
+- [x] Booking login: BKA-001..007 di `tests/Feature/Booking/BookingAccountTest.php`.
 
 ## B. Bug dan hal yang perlu dicek
 
@@ -119,7 +119,7 @@ Daftar dari pemilik. Per 10 Nov 2026 (siang): tahap 1 sampai 3 selesai, 530 tes 
 - [x] Riwayat booking untuk customer yang login ("Riwayat Booking", tabel, detail, invoice) dan halaman Profil.
 - [~] ERD diimplementasikan ke migrasi (bagian F). Tahap 1 sampai 3 selesai. Sisa: tahap 4 (dokumen, ERD di Eraser).
 - [~] Saran dospem yang sudah masuk rencana ERD (`mechanic_names`, `paid_at`) sudah diimplementasikan (kolom, seeder, aksi Tandai Lunas). Sisa: siapkan daftarnya untuk ditunjukkan saat bimbingan.
-- [ ] Rapikan dan organisasi tes: tiap berkas dan ID tes punya penjelasan satu baris "mengetes apa". Usul: tabel `tests/README.md` berisi kode modul (BKG, LOC, TIP, PRC, JSA, ANT, AUTH, SEC, LNS, RWY, PRF, dst), berkas, dan aturan bisnis yang dicek.
+- [x] Rapikan dan organisasi tes (`tests/README.md` dibuat 10 Nov 2026; sisa: ID kembar dan judul usang, lihat catatan di README): tiap berkas dan ID tes punya penjelasan satu baris "mengetes apa". Usul: tabel `tests/README.md` berisi kode modul (BKG, LOC, TIP, PRC, JSA, ANT, AUTH, SEC, LNS, RWY, PRF, dst), berkas, dan aturan bisnis yang dicek.
 - [ ] Perbarui laporan skripsi: banyak perubahan (landing, jasa, ERD, login customer, area customer, antrian, Cek Booking, Tandai Lunas).
 - [ ] Notifikasi WhatsApp ke pelanggan: opsional, dikerjakan belakangan kalau sempat.
 - [ ] Siapkan bahan bimbingan: demo (beranda, `/layanan`, Cek Booking, upload foto jasa, login customer, booking login, Riwayat dan detail, Cetak Invoice, Profil, Tandai Lunas di panel), angka tes (530), daftar migrasi yang berubah, keputusan yang butuh jawaban (D1, D3, D8).
@@ -178,7 +178,7 @@ ERD final dan seluruh keputusannya ada di `PROJECT_RULES.md` bagian 4 dan 4a. Ca
 - [ ] Panel sparepart: `RestoreAction` dan `TrashedFilter` (cek dengan `git grep -n "TrashedFilter\|RestoreAction" -- app`), pesan validasi kode yang dipakai part yang diarsipkan.
 
 **Tahap 4: dokumen dan tes**
-- [ ] Rapikan tes: `tests/README.md` berisi kode modul (BKG, LOC, TIP, PRC, JSA, ANT, AUTH, SEC, LNS, RWY, PRF, SED/SDR, CMP, dst), berkas, dan aturan bisnis yang dicek.
+- [x] Rapikan tes: `tests/README.md` (selesai 10 Nov 2026) berisi kode modul (BKG, LOC, TIP, PRC, JSA, ANT, AUTH, SEC, LNS, RWY, PRF, SED/SDR, CMP, dst), berkas, dan aturan bisnis yang dicek.
 - [x] Pindahkan 4a ke bagian 4 `PROJECT_RULES.md` setelah diterapkan, perbarui bagian 1, 3, 10 (dikerjakan 10 Nov 2026). Bagian 4a sekarang berisi keputusan desain dan glossary.
 - [ ] Sinkronkan ERD di Eraser dengan versi final. Perbarui laporan skripsi.
 
