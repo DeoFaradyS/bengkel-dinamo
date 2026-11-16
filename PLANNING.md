@@ -12,7 +12,7 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara. Disaring
 - [x] JSA-007..009 seeder (ada di `ServiceTypeSeederTest.php`, plus JSA-013 foto bawaan; dicek lulus 10 Nov): mengisi 7 jasa dengan deskripsi, dijalankan dua kali tidak menggandakan, foto yang sudah diunggah tidak tertimpa. Kalau berkas tes dengan angka 5 sudah tersimpan, angkanya diganti jadi 7 (penyesuaian karena seeder berubah, bukan melemahkan tes).
 - [x] [manual] Tabel Jasa: kolom foto dan deskripsi ada, deskripsi panjang dipotong satu baris, jasa tanpa deskripsi dan foto tetap tampil. JSA-010..012 tidak dipakai.
 - [x] Harga tampil bulat di halaman edit (`mutateFormDataBeforeFill` di `EditServiceType`). Dicek PRC-003, lulus 9 Nov.
-- [ ] Hapus jasa (setelah keputusan D1). Wajib tes, karena menyangkut data riwayat.
+- [x] Hapus jasa = arsip (D1, 17 Nov 2026): JSA-014..016, TSJ-010 disesuaikan.
 
 **Halaman publik**
 - [x] [manual] Beranda memuat jasa dari DB, pesan kosong tanpa jasa, tombol "Lihat semua layanan" hanya kalau jasa lebih dari 6.
@@ -68,7 +68,7 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara. Disaring
 
 ## D. Keputusan terbuka
 
-**D1. Hapus jasa yang sudah dipakai di `service_items`.** Kolom `service_type_id` nullable dan nama tersimpan sebagai salinan di `service_items`, jadi menghapus tidak merusak riwayat. Pilihan: boleh dihapus (sekarang `DeleteAction` polos), atau diblokir kalau sudah dipakai.
+**D1. Hapus jasa yang sudah dipakai di `service_items`. DIPUTUSKAN DAN SELESAI (17 Nov 2026):** soft delete (arsip), sama seperti sparepart, tanpa tombol Pulihkan. Kolom `service_types.deleted_at` lewat migrasi baru `2026_11_17_100000_add_soft_deletes_to_service_types_table` (ERD perlu ditambah kolom ini). Catatan awal: Kolom `service_type_id` nullable dan nama tersimpan sebagai salinan di `service_items`, jadi menghapus tidak merusak riwayat. Pilihan: boleh dihapus (sekarang `DeleteAction` polos), atau diblokir kalau sudah dipakai.
 
 **D2. Login pelanggan. DIPUTUSKAN (8 Nov 2026) dan SELESAI (10 Nov 2026).** Email + password, tanpa OTP. Pakai tabel `users` dengan kolom `role`, bukan tabel `customers` dan bukan guard terpisah. `services.user_id` nullable (NULL = tamu). Satu pintu login `/masuk` untuk owner dan customer (login bawaan Filament dicabut). Rincian di `PROJECT_RULES.md`.
 
@@ -131,7 +131,7 @@ Daftar dari pemilik. Per 10 Nov 2026 (siang): tahap 1 sampai 3 selesai, 530 tes 
 - [x] Rapikan dan organisasi tes (`tests/README.md` dibuat 10 Nov 2026; sisa: ID kembar dan judul usang, lihat catatan di README): tiap berkas dan ID tes punya penjelasan satu baris "mengetes apa". Usul: tabel `tests/README.md` berisi kode modul (BKG, LOC, TIP, PRC, JSA, ANT, AUTH, SEC, LNS, RWY, PRF, dst), berkas, dan aturan bisnis yang dicek.
 - [x] Perbarui laporan skripsi: banyak perubahan (landing, jasa, ERD, login customer, area customer, antrian, Cek Booking, Tandai Lunas).
 - [ ] Notifikasi WhatsApp ke pelanggan: opsional, dikerjakan belakangan kalau sempat.
-- [ ] Siapkan bahan bimbingan: demo (beranda, `/layanan`, Cek Booking, upload foto jasa, login customer, booking login, Riwayat dan detail, Cetak Invoice, Profil, Tandai Lunas di panel), angka tes (552), daftar migrasi yang berubah, keputusan yang butuh jawaban (D1, D3, D8).
+- [ ] Siapkan bahan bimbingan: demo (beranda, `/layanan`, Cek Booking, upload foto jasa, login customer, booking login, Riwayat dan detail, Cetak Invoice, Profil, Tandai Lunas di panel), angka tes (555), daftar migrasi yang berubah, keputusan yang butuh jawaban (D1, D3, D8).
 
 ## F. Rencana perubahan database dan fitur turunannya (diperbarui 10 Nov 2026, siang)
 
@@ -184,7 +184,7 @@ ERD final dan seluruh keputusannya ada di `PROJECT_RULES.md` bagian 4 dan 4a. Ca
 - [x] Layout area customer, dropdown navbar, tombol Masuk dan Daftar, satu pintu login `/masuk`, menu "Kembali ke Beranda" di panel (10 Nov 2026).
 - [x] Keamanan panel: `canAccessPanel()` hanya `owner`, notifikasi booking hanya ke `owner`. SEC-001..003, 458 tes hijau (9 Nov 2026). `UserFactory` punya state `owner()`: tes penerima notifikasi wajib pakai itu.
 - [x] Aksi "Tandai Lunas" (hanya servis selesai, `paid_at` NULL). Selesai: `MarkServicePaid`, aksi di tabel dan halaman View, badge Pembayaran, filter, tes LNS-001..007 (503 tes hijau, 10 Nov 2026). Status Lunas dan Dibayar pada tampil di infolist (LNS-008..010, 506 tes hijau). Invoice belum memuat status lunas (opsional, bagian C). Lihat juga B: import `Notification` di `ServicesTable.php`.
-- [ ] Panel sparepart: `RestoreAction` dan `TrashedFilter` (cek dengan `git grep -n "TrashedFilter\|RestoreAction" -- app`), pesan validasi kode yang dipakai part yang diarsipkan.
+- [x] Panel sparepart: `RestoreAction` dan `TrashedFilter` TIDAK dibangun (keputusan pemilik 17 Nov 2026). Kode part terhapus sudah dibebaskan otomatis (`-DEL-{id}`, HSP-002).
 
 **Tahap 4: dokumen dan tes**
 - [x] Rapikan tes: `tests/README.md` (selesai 10 Nov 2026) berisi kode modul (BKG, LOC, TIP, PRC, JSA, ANT, AUTH, SEC, LNS, RWY, PRF, SED/SDR, CMP, dst), berkas, dan aturan bisnis yang dicek.

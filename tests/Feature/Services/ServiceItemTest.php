@@ -190,8 +190,11 @@ it('TSJ-010: jasa dihapus dari katalog, baris nota tetap utuh', function () {
 
     $item = $service->items()->first();
 
+    // Sejak D1 (17 Nov 2026) hapus jasa = arsip, jadi tautan ke jasa tetap ada.
+    // Sebelumnya hapus permanen dan service_type_id jadi NULL.
     expect($item)->not->toBeNull()
-        ->and($item->service_type_id)->toBeNull()
+        ->and($item->service_type_id)->toBe($type->id)
+        ->and($item->serviceType?->name)->toBe('Ganti bearing')
         ->and($item->name)->toBe('Ganti bearing')
         ->and((float) $item->price)->toBe(100000.0);
 });

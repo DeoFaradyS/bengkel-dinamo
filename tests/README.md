@@ -1,6 +1,6 @@
 # Peta Tes: SIM Bengkel Cak Budi Dinamo
 
-Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (552 lulus per 17 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
+Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (555 lulus per 17 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
 
 Jalankan: `php artisan test`, atau satu modul: `php artisan test --filter=Riwayat`.
 
@@ -95,7 +95,7 @@ Catatan umum:
 
 | Kode | Berkas | Yang dicek | Aturan |
 | --- | --- | --- | --- |
-| JSA-001..006 | ServiceTypes/ServiceTypeResourceTest | Tambah dan ubah jasa, deskripsi dan foto opsional, `photo_url` | US-07 |
+| JSA-001..006, 014..016 | ServiceTypes/ServiceTypeResourceTest | Tambah dan ubah jasa, deskripsi dan foto opsional, `photo_url`. Hapus = arsip: foto tetap, hilang dari katalog dan form, servis aktif yang memakainya tetap bisa disimpan | US-07, aturan 17 |
 | JSA-007..009, 013 | ServiceTypes/ServiceTypeSeederTest | Seeder 7 jasa berdeskripsi, dua kali jalan tidak menggandakan, foto tidak tertimpa, foto bawaan terpasang | |
 | PRC-003 | ServiceTypes/ServiceTypePriceFormTest | Harga acuan tampil bulat saat edit | |
 | KAT, TKT, EKT, HKT | Categories/CategoryResourceTest | Daftar, tambah, ubah, hapus kategori lewat modal. Kategori yang dipakai part tetap bisa dihapus | |
@@ -134,8 +134,8 @@ Catatan umum:
 - BKG-010 dan TIP-001: judul menyebut "halaman booking", sekarang yang dibuka `/`.
 
 **Belum ada tes (lihat `PLANNING.md` bagian A).**
-- Hapus jasa (setelah keputusan D1): wajib tes.
-- `RestoreAction` dan `TrashedFilter` sparepart: wajib tes kalau dibangun.
+- (Hapus jasa sudah dites 17 Nov: JSA-014..016.)
+- (`RestoreAction` sparepart tidak dibangun, keputusan 17 Nov.)
 - Opsional: `/layanan/{id}` 404, `/booking` 404.
 
 **Sengaja tidak dites, cek manual (aturan "Kapan wajib tes", `PROJECT_RULES.md` bagian 10).** Isi beranda dan `/layanan`, tombol arah di peta, tabel Jasa, isi tampilan detail Riwayat, dropdown navbar, logo, kolom yang tampil per tab di tabel Servis. ID yang pernah dipakai untuk tes tampilan lalu dihapus: LNS-011..013, LGO-001..002 (jangan dipakai ulang).

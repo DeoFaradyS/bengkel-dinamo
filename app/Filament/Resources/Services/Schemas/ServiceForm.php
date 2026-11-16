@@ -84,7 +84,7 @@ class ServiceForm
         return collect($get('items') ?? [])
             ->filter(fn($r) => filled($r['service_type_id'] ?? null))
             ->map(fn($r) => [
-                'name' => $r['name'] ?? ServiceType::find($r['service_type_id'])?->name ?? '-',
+                'name' => $r['name'] ?? ServiceType::withTrashed()->find($r['service_type_id'])?->name ?? '-',
                 'total' => self::num($r['price'] ?? 0),
             ])->values()->all();
     }
@@ -290,7 +290,13 @@ class ServiceForm
                             ->schema([
                                 Select::make('service_type_id')
                                     ->label('Jasa')
-                                    ->options(fn() => ServiceType::query()->orderBy('name')->pluck('name', 'id'))
+                                    // Pilihan hanya jasa aktif. Jasa terarsip yang sudah terpilih di baris ini
+                                    // tetap ikut, supaya servis lama masih bisa dibuka dan disimpan.
+                                    ->options(fn($record) => ServiceType::withTrashed()
+                                        ->where(fn($q) => $q->whereNull('deleted_at')
+                                            ->orWhere('id', $record instanceof \App\Models\ServiceItem ? $record->service_type_id : null))
+                                        ->orderBy('name')
+                                        ->pluck('name', 'id'))
                                     ->searchable()
                                     ->preload()
                                     ->required(fn(Get $get) => in_array($get('../../status'), [ServiceStatus::Completed, ServiceStatus::Completed->value], true))
