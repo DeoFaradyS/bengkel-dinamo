@@ -174,3 +174,22 @@ test('AUTH-021: halaman /masuk dan /daftar tanpa navbar, dengan tombol kembali k
         ->assertSee('aria-label="Kembali ke beranda"', false)
         ->assertSee('href="/"', false);
 })->with(['masuk' => '/masuk', 'daftar' => '/daftar']);
+
+// ---------- Login satu pintu ----------
+
+test('AUTH-022: tamu yang membuka /admin diarahkan ke /masuk', function () {
+    $this->get('/admin')->assertRedirect(route('login'));
+});
+
+test('AUTH-023: halaman login bawaan panel /admin/login tidak ada (404)', function () {
+    $this->get('/admin/login')->assertNotFound();
+});
+
+test('AUTH-024: owner login lewat /masuk lalu bisa membuka /admin', function () {
+    User::factory()->owner()->create(['email' => 'owner@example.com', 'password' => 'rahasia123']);
+
+    $this->post('/masuk', ['email' => 'owner@example.com', 'password' => 'rahasia123'])
+        ->assertRedirect('/admin');
+
+    $this->get('/admin')->assertOk();
+});

@@ -195,3 +195,67 @@ test('RWY-018: invoice booking selesai milik orang lain 404', function () {
 
     $this->actingAs(User::factory()->create())->get('/riwayat/'.$service->id.'/invoice')->assertNotFound();
 });
+test('RWY-019: filter tipe hanya memuat tipe itu', function () {
+    $user = User::factory()->create();
+    servisRiwayat($user, ['booking_type' => BookingType::Workshop]);
+    servisRiwayat($user, ['booking_type' => BookingType::HomeService, 'latitude' => -7.72, 'longitude' => 113.08]);
+
+    $this->actingAs($user)->get('/riwayat?tipe=' . BookingType::HomeService->value)
+        ->assertOk()
+        ->assertViewHas('services', fn ($p) => $p->total() === 1
+            && $p->first()->booking_type === BookingType::HomeService);
+});
+
+test('RWY-020: filter pembayaran memisahkan Lunas dan Belum Lunas, hanya servis Selesai', function () {
+    $user = User::factory()->create();
+    $lunas = servisRiwayat($user, ['status' => ServiceStatus::Completed]);
+    $lunas->forceFill(['paid_at' => now()])->save();
+    $belum = servisRiwayat($user, ['status' => ServiceStatus::Completed]);
+    servisRiwayat($user, ['status' => ServiceStatus::Pending]);
+
+    $this->actingAs($user)->get('/riwayat?bayar=lunas')
+        ->assertViewHas('services', fn ($p) => $p->total() === 1 && $p->first()->is($lunas));
+
+    $this->actingAs($user)->get('/riwayat?bayar=belum_lunas')
+        ->assertViewHas('services', fn ($p) => $p->total() === 1 && $p->first()->is($belum));
+});
+
+test('RWY-021: urut Total menghitung jasa + part + ongkos transport', function () {
+    \App\Models\WorkshopSetting::create([
+        'latitude' => -7.7174465,
+        'longitude' => 113.0755426,
+        'max_distance_km' => 20,
+        'fuel_price' => 10000,
+    ]);
+    $user = User::factory()->create();
+    // Ongkos saja: 10 km PP = Rp5.000.
+    $ongkos = servisRiwayat($user, [
+        'booking_type' => BookingType::HomeService,
+        'latitude' => -7.72,
+        'longitude' => 113.08,
+        'distance_km' => 10,
+    ]);
+    $jasa = servisRiwayat($user);
+    $jasa->items()->create(['name' => 'Cek', 'price' => 3000]);
+
+    $this->actingAs($user)->get('/riwayat?sort=total&arah=desc')
+        ->assertViewHas('services', fn ($p) => $p->pluck('id')->all() === [$ongkos->id, $jasa->id]);
+
+    $this->actingAs($user)->get('/riwayat?sort=total&arah=asc')
+        ->assertViewHas('services', fn ($p) => $p->pluck('id')->all() === [$jasa->id, $ongkos->id]);
+});
+
+test('RWY-022: per halaman 25 dan 50 dipakai, nilai lain jatuh ke 10', function (string $nilai, int $harapan) {
+    $user = User::factory()->create();
+    foreach (range(1, 51) as $i) {
+        servisRiwayat($user, ['scheduled_at' => now()->addDays($i)]);
+    }
+
+    $this->actingAs($user)->get('/riwayat?per_page=' . $nilai)
+        ->assertViewHas('services', fn ($p) => $p->perPage() === $harapan && $p->count() === $harapan);
+})->with([
+    '25' => ['25', 25],
+    '50' => ['50', 50],
+    '100 ditolak' => ['100', 10],
+    'teks ditolak' => ['abc', 10],
+]);

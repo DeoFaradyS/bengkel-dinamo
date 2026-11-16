@@ -6,35 +6,34 @@ Tanda: `[ ]` belum, `[~]` sebagian, `[x]` selesai.
 
 ## A. Utang tes (ditunda atas permintaan pemilik, wajib sebelum fitur dianggap selesai)
 
-Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara.
+Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara. Disaring 17 Nov 2026 dengan aturan "Kapan wajib tes" (`PROJECT_RULES.md` bagian 10): item tampilan ditandai **[manual]**, cukup dicek manual saat demo, tidak ditulis tesnya.
 
 **Jasa (`tests/Feature/ServiceTypes/`)**
 - [x] JSA-007..009 seeder (ada di `ServiceTypeSeederTest.php`, plus JSA-013 foto bawaan; dicek lulus 10 Nov): mengisi 7 jasa dengan deskripsi, dijalankan dua kali tidak menggandakan, foto yang sudah diunggah tidak tertimpa. Kalau berkas tes dengan angka 5 sudah tersimpan, angkanya diganti jadi 7 (penyesuaian karena seeder berubah, bukan melemahkan tes).
-- [ ] JSA-010..012 tabel: kolom foto dan deskripsi ada, deskripsi panjang dipotong satu baris, jasa tanpa deskripsi dan foto tetap tampil.
+- [x] [manual] Tabel Jasa: kolom foto dan deskripsi ada, deskripsi panjang dipotong satu baris, jasa tanpa deskripsi dan foto tetap tampil. JSA-010..012 tidak dipakai.
 - [x] Harga tampil bulat di halaman edit (`mutateFormDataBeforeFill` di `EditServiceType`). Dicek PRC-003, lulus 9 Nov.
-- [ ] Hapus jasa (setelah keputusan D1).
+- [ ] Hapus jasa (setelah keputusan D1). Wajib tes, karena menyangkut data riwayat.
 
 **Halaman publik**
-- [ ] Beranda memuat jasa dari DB, tampil pesan kosong tanpa jasa, tombol "Lihat semua layanan" hanya muncul kalau jasa lebih dari 6.
-- [ ] `/layanan`: kosong, dan paginasi 9 per halaman.
-- [ ] `/layanan/{id}`: ada (tampil nama, harga, deskripsi), dan 404 kalau id tidak ada.
-- [ ] `/booking` mengembalikan 404, formulir booking tetap tampil di `/`.
-- [ ] Section peta memuat tombol arah.
+- [x] [manual] Beranda memuat jasa dari DB, pesan kosong tanpa jasa, tombol "Lihat semua layanan" hanya kalau jasa lebih dari 6.
+- [x] [manual] `/layanan`: kosong, dan paginasi 9 per halaman.
+- [x] [manual] Section peta memuat tombol arah.
+- [ ] Opsional (perilaku rute, tidak mendesak): `/layanan/{id}` 404 kalau id tidak ada, `/booking` 404.
 
-**Cek Booking (aturan 12)**
-- [ ] Nama dan nomor cocok: servis tampil.
-- [ ] Nama salah: tidak tampil, pesan gagal sama.
-- [ ] Nomor salah: tidak tampil, pesan gagal sama.
-- [ ] Input kosong ditolak validasi.
-- [ ] Percobaan ke-6 dalam semenit ditolak.
-- [ ] Servis yang di-soft-delete tidak tampil.
-- [ ] Harga, total, dan alamat tidak ikut tampil.
+**Cek Booking (aturan 12).** Selesai 17 Nov 2026: CEK-001..008 di `tests/Feature/Booking/BookingStatusCheckTest.php`.
+- [x] Nama dan nomor cocok: servis tampil, nama tidak peka huruf besar, `+62` sama dengan `08` (CEK-001).
+- [x] Nama salah atau nomor salah: tidak tampil, pesan gagal sama (CEK-002, CEK-003).
+- [x] Input kosong ditolak validasi (CEK-004).
+- [x] Percobaan ke-6 dalam semenit ditolak (CEK-005).
+- [x] Servis yang di-soft-delete tidak tampil (CEK-006).
+- [x] Harga, total, alamat, dan alasan batal tidak ikut tampil (CEK-007).
+- [x] Nomor tidak valid (`abc`) tidak mencocokkan servis apa pun (CEK-008).
 
 **Area customer (10 Nov 2026)**
-- [ ] Riwayat: filter Tipe dan Pembayaran, urut Total, per halaman 25 dan 50. (Filter Status dan urut Tanggal sudah dicek RWY-010 dan RWY-006.)
-- [ ] Detail `/riwayat/{id}`: rincian jasa dan part, ringkasan biaya (jasa + part + transport), badge Lunas dan Belum Lunas, tombol Cetak Invoice hanya saat Selesai.
-- [ ] Login satu pintu: tamu buka `/admin` diarahkan ke `/masuk`, `/admin/login` 404, owner login masuk ke `/admin`.
-- [ ] Navbar: dropdown owner berisi menu panel, dropdown customer berisi Riwayat Booking dan Profil, tamu melihat Masuk dan Daftar.
+- [x] Riwayat: filter Tipe (RWY-019) dan Pembayaran (RWY-020), urut Total termasuk ongkos (RWY-021), per halaman 25 dan 50, nilai lain jatuh ke 10 (RWY-022). Selesai 17 Nov 2026.
+- [x] [manual] Detail `/riwayat/{id}`: rincian jasa dan part, ringkasan biaya, badge Lunas dan Belum Lunas. Invoice hanya Selesai milik sendiri sudah dicek RWY-016..018.
+- [x] Login satu pintu: tamu ke `/admin` diarahkan ke `/masuk` (AUTH-022), `/admin/login` 404 (AUTH-023), owner login lalu bisa buka `/admin` (AUTH-024). Selesai 17 Nov 2026.
+- [x] [manual] Navbar: dropdown owner berisi menu panel, dropdown customer berisi Riwayat Booking dan Profil, tamu melihat Masuk dan Daftar.
 - [x] Booking login: BKA-001..007 di `tests/Feature/Booking/BookingAccountTest.php`.
 
 ## B. Bug dan hal yang perlu dicek
@@ -132,7 +131,7 @@ Daftar dari pemilik. Per 10 Nov 2026 (siang): tahap 1 sampai 3 selesai, 530 tes 
 - [x] Rapikan dan organisasi tes (`tests/README.md` dibuat 10 Nov 2026; sisa: ID kembar dan judul usang, lihat catatan di README): tiap berkas dan ID tes punya penjelasan satu baris "mengetes apa". Usul: tabel `tests/README.md` berisi kode modul (BKG, LOC, TIP, PRC, JSA, ANT, AUTH, SEC, LNS, RWY, PRF, dst), berkas, dan aturan bisnis yang dicek.
 - [x] Perbarui laporan skripsi: banyak perubahan (landing, jasa, ERD, login customer, area customer, antrian, Cek Booking, Tandai Lunas).
 - [ ] Notifikasi WhatsApp ke pelanggan: opsional, dikerjakan belakangan kalau sempat.
-- [ ] Siapkan bahan bimbingan: demo (beranda, `/layanan`, Cek Booking, upload foto jasa, login customer, booking login, Riwayat dan detail, Cetak Invoice, Profil, Tandai Lunas di panel), angka tes (534), daftar migrasi yang berubah, keputusan yang butuh jawaban (D1, D3, D8).
+- [ ] Siapkan bahan bimbingan: demo (beranda, `/layanan`, Cek Booking, upload foto jasa, login customer, booking login, Riwayat dan detail, Cetak Invoice, Profil, Tandai Lunas di panel), angka tes (552), daftar migrasi yang berubah, keputusan yang butuh jawaban (D1, D3, D8).
 
 ## F. Rencana perubahan database dan fitur turunannya (diperbarui 10 Nov 2026, siang)
 

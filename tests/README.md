@@ -1,6 +1,6 @@
 # Peta Tes: SIM Bengkel Cak Budi Dinamo
 
-Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (534 lulus per 17 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
+Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (552 lulus per 17 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
 
 Jalankan: `php artisan test`, atau satu modul: `php artisan test --filter=Riwayat`.
 
@@ -50,6 +50,7 @@ Catatan umum:
 | BKG-001..006 | CreateBookingTest | Booking baru Menunggu, HP `08...`, HP aktif ditolak, HP servis Selesai atau terhapus boleh lagi | aturan 4 |
 | BKG-010..018 | BookingFormTest | Formulir tamu: kirim valid, wajib, honeypot, 5 kiriman per menit, pilih slot, koreksi tanggal | |
 | BKA-001..007 | BookingAccountTest | Booking customer login: form terisi, `user_id` tersimpan, HP akun tersimpan atau tidak tertimpa, tamu `user_id` NULL | aturan 15 |
+| CEK-001..008 | BookingStatusCheckTest | Cek Booking: cocok nama dan nomor (+62 = 08), pesan gagal sama, wajib isi, 5 per menit, soft delete tersembunyi, harga/alamat/alasan batal tidak bocor, nomor tidak valid | aturan 12 |
 | SLB-001..005 | BookingSlotTest | Slot kosong lolos, terisi ditolak, servis final melepas slot | aturan 4 |
 | SLT-001..008 | SlotsTest | 9 slot sehari, jam di luar slot, jarak minimal, slot penuh tampil tapi tidak tersedia | |
 | EXP-001..005 | ExpireBookingsTest | Menunggu kedaluwarsa, status lain tidak disentuh, slot dilepas | aturan 5 |
@@ -103,9 +104,9 @@ Catatan umum:
 
 | Kode | Berkas | Yang dicek | Aturan |
 | --- | --- | --- | --- |
-| AUTH-001..021 (tanpa 002 dan 005) | Auth/CustomerAuthTest | Daftar, masuk, keluar, throttle, role tidak bisa dipilih, redirect owner dan customer, halaman dan navbar tamu | aturan 14 |
+| AUTH-001..024 (tanpa 002 dan 005) | Auth/CustomerAuthTest | Daftar, masuk, keluar, throttle, role tidak bisa dipilih, redirect owner dan customer, halaman dan navbar tamu, login satu pintu (tamu /admin ke /masuk, /admin/login 404) | aturan 14 |
 | SEC-001..003 | Auth/PanelSecurityTest | Customer tidak bisa buka `/admin`, owner bisa, notifikasi hanya ke owner | aturan 10, 14 |
-| RWY-001..018 | Riwayat/RiwayatTest | Riwayat milik sendiri, soft delete tersembunyi, urut, paginasi, filter status, detail, 404 milik orang lain, invoice hanya Selesai milik sendiri, owner dan tamu dialihkan | aturan 16 |
+| RWY-001..022 | Riwayat/RiwayatTest | Riwayat milik sendiri, soft delete tersembunyi, urut tanggal dan Total (termasuk ongkos), paginasi 10/25/50, filter status, tipe, dan pembayaran, detail, 404 milik orang lain, invoice hanya Selesai milik sendiri, owner dan tamu dialihkan | aturan 16 |
 | PRF-001..007 | Profile/ProfilTest | Simpan nama dan HP (dinormalkan), HP opsional, email dan role tidak bisa diubah, owner dan tamu dialihkan | aturan 16 |
 
 ## Halaman publik dan unit
@@ -132,11 +133,9 @@ Catatan umum:
 - RWY-009: judul menyebut "Riwayat Saya", labelnya sekarang "Riwayat Booking".
 - BKG-010 dan TIP-001: judul menyebut "halaman booking", sekarang yang dibuka `/`.
 
-**Belum ada tes (utang, lihat `PLANNING.md` bagian A).**
-- Beranda memuat jasa dari DB, `/layanan` (kosong dan paginasi), `/layanan/{id}` dan 404-nya, `/booking` 404, tombol arah di peta.
-- Cek Booking (`BookingStatusCheck`, aturan 12): tidak ada berkas tesnya sama sekali.
-- Tabel Jasa (JSA-010..012), hapus jasa (D1).
-- Riwayat: filter Tipe dan Pembayaran, urut Total, per halaman 25 dan 50, rincian dan total di detail.
-- Login satu pintu: tamu ke `/admin` diarahkan ke `/masuk`, `/admin/login` 404.
-- Dropdown navbar owner dan customer.
-- `RestoreAction` dan `TrashedFilter` sparepart.
+**Belum ada tes (lihat `PLANNING.md` bagian A).**
+- Hapus jasa (setelah keputusan D1): wajib tes.
+- `RestoreAction` dan `TrashedFilter` sparepart: wajib tes kalau dibangun.
+- Opsional: `/layanan/{id}` 404, `/booking` 404.
+
+**Sengaja tidak dites, cek manual (aturan "Kapan wajib tes", `PROJECT_RULES.md` bagian 10).** Isi beranda dan `/layanan`, tombol arah di peta, tabel Jasa, isi tampilan detail Riwayat, dropdown navbar, logo, kolom yang tampil per tab di tabel Servis. ID yang pernah dipakai untuk tes tampilan lalu dihapus: LNS-011..013, LGO-001..002 (jangan dipakai ulang).
