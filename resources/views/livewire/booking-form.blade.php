@@ -43,17 +43,17 @@
                         class="w-full p-4 bg-neutral-100 rounded-[10px] text-neutral-800 outline-none cursor-pointer focus:ring-2 focus:ring-red-500">
                 </div>
 
-                {{-- Jam yang sudah lewat disembunyikan. Jam yang sudah dipesan orang lain tetap tampil, dicoret. --}}
-                @php $slotTampil = $daftarSlot->reject(fn ($s) => $s['time']->isPast()); @endphp
-
-                @if ($slotTampil->isEmpty())
+                {{-- Semua jam di tanggal itu tampil. Yang sudah lewat, terlalu dekat, atau penuh dicoret dan tidak bisa dipilih. --}}
+                @if ($daftarSlot->isEmpty())
                     <p class="text-sm text-neutral-500">Tidak ada jam tersedia di tanggal ini. Pilih tanggal lain.</p>
                 @else
+                    @php $batasPesan = now()->addMinutes((int) config('booking.min_lead_minutes')); @endphp
                     <div class="grid grid-cols-3 sm:grid-cols-5 gap-2">
-                        @foreach ($slotTampil as $item)
+                        @foreach ($daftarSlot as $item)
                             @php $value = $item['time']->format('Y-m-d H:i'); @endphp
                             <button type="button" wire:key="slot-{{ $value }}" wire:click="pilihSlot('{{ $value }}')"
                                 @disabled(!$item['available'])
+                                @unless ($item['available']) title="{{ $item['time']->lt($batasPesan) ? 'Sudah lewat' : 'Penuh' }}" @endunless
                                 class="py-3 rounded-[10px] text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-red-500 {{ $scheduled_at === $value ? 'bg-red-600 text-white' : ($item['available'] ? 'bg-neutral-100 text-neutral-800' : 'bg-neutral-100 text-neutral-300 line-through cursor-not-allowed') }}">
                                 {{ $item['time']->format('H.i') }}
                             </button>

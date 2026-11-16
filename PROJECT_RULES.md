@@ -269,7 +269,7 @@ Layout:
 
 Beranda `/`: `resources/views/welcome.blade.php` extends `layouts.booking` dan meng-include section dari `resources/views/sections/`. Berkas yang ada: `hero`, `services`, `benefis`, `cek-booking`, `map`, `navbar`, `navbar-auth` (bagian kanan navbar: dropdown akun atau tombol Masuk dan Daftar), `footer`, `wa-float`, dan `testimonials` (berkas masih ada tapi **tidak di-include**). Urutan include: lihat `welcome.blade.php`.
 
-- `hero`: formulir booking (Livewire `BookingForm`, view `livewire/booking-form.blade.php`) dan foto bengkel (`public/images/bengkel.png`). Id section masih `appointment`, harus jadi `booking` (`PLANNING.md` B).
+- `hero` (id `booking`): formulir booking (Livewire `BookingForm`, view `livewire/booking-form.blade.php`) dan foto bengkel (`public/images/bengkel.webp`). Pilihan jam: semua slot di tanggal terpilih tampil (data dari `Slots::bookable()`). Jam yang sudah lewat, kurang dari jarak minimal, atau penuh tetap tampil tapi dicoret, tidak bisa dipilih, dengan keterangan "Sudah lewat" atau "Penuh" (17 Nov 2026).
 - `services`: membaca `$services` (maksimal 6) dan `$totalCount` dari route `/`. Kartu memakai komponen `<x-service-card>` dan menaut ke `/layanan/{id}`. Tombol "Lihat semua layanan" muncul kalau `$totalCount` lebih besar dari jumlah yang tampil.
 - `cek-booking`: Livewire `BookingStatusCheck` (aturan 12).
 - `map`: iframe Google Maps dengan koordinat bengkel dan tombol "Buka di Google Maps". Tanpa judul, alamat, atau jam buka.
