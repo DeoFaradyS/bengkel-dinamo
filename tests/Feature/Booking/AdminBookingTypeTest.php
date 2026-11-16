@@ -22,7 +22,7 @@ it('ADM-002: badge menampilkan label tipe', function () {
     ]);
 
     Livewire::test(ListServices::class)
-        ->assertSee('Home Service');
+        ->assertSee('Panggil Montir');
 });
 
 it('ADM-003: filter tipe memisahkan home service dan workshop', function () {

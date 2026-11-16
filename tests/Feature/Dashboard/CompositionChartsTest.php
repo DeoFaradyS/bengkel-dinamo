@@ -36,7 +36,7 @@ it('CMP-001: donat status tampil dengan semua label status', function () {
 
 it('CMP-002: donat tipe layanan tampil dengan kedua label', function () {
     Livewire::test(TypeChart::class)
-        ->assertSee('Home Service vs Ke Bengkel')
+        ->assertSee('Panggil Montir vs Ke Bengkel')
         ->assertSee(BookingType::HomeService->getLabel())
         ->assertSee(BookingType::Workshop->getLabel());
 });

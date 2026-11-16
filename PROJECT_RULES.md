@@ -2,7 +2,7 @@
 
 Konteks proyek skripsi untuk AI. Baca seluruh file sebelum menjawab. Bagian "Aturan wajib untuk AI" mengikat. Jika file ini bertentangan dengan kode di konteks, kode yang benar: sebutkan pertentangannya, jangan diam-diam memilih.
 
-Daftar pekerjaan yang belum selesai, bug yang diketahui, dan keputusan terbuka ada di `PLANNING.md`. Baca juga file itu kalau tugasnya menyangkut pekerjaan lanjutan. Terakhir disinkronkan: 17 November 2026 (534 tes lulus).
+Daftar pekerjaan yang belum selesai, bug yang diketahui, dan keputusan terbuka ada di `PLANNING.md`. Baca juga file itu kalau tugasnya menyangkut pekerjaan lanjutan. Terakhir disinkronkan: 17 November 2026 (552 tes lulus).
 
 ## 1. Tujuan sistem
 
@@ -55,7 +55,7 @@ Metode: prototype, 4 iterasi. Pengujian: Black Box.
 **Akun customer (tambahan di luar PRD awal, selesai 9 sampai 10 Nov 2026)**
 - [x] Daftar dan login (`RegisterController`, `LoginController`, throttle daftar 10 per menit, masuk 5 per menit). Tes AUTH-001..020.
 - [x] Keamanan panel (hanya owner), notifikasi booking hanya ke owner. Tes SEC-001..003.
-- [x] Riwayat Booking, detail, Cetak Invoice (`RiwayatController`). Tes RWY-001..018.
+- [x] Riwayat Booking, detail, Cetak Invoice (`RiwayatController`). Tes RWY-001..022.
 - [x] Profil (`ProfilController`). Tes PRF-001..007.
 - [x] Tandai Lunas di panel (`MarkServicePaid`). Tes LNS-001..010 dan LNS-014.
 - [ ] Panel sparepart: `RestoreAction` dan `TrashedFilter` (lihat `PLANNING.md`).
@@ -143,8 +143,12 @@ Helper: `App\Support\PhoneNumber::normalize(?string)` mengubah `+62...` dan `62.
 | Jenis layanan (katalog) | `ServiceType` (tabel `service_types`) | Jasa |
 | Booking belum dikonfirmasi | status `pending` | Menunggu |
 | Pelanggan yang punya akun | `User` dengan `role` = `customer` | Pelanggan |
+| Montir datang ke lokasi pelanggan | `BookingType::HomeService`, nilai `home_service` | Panggil Montir |
+| Pelanggan datang ke bengkel | `BookingType::Workshop`, nilai `workshop` | Ke Bengkel |
 
-Istilah `appointment` tidak dipakai di kode. `id="appointment"` di `hero.blade.php` harus diganti `booking` (belum dikerjakan, lihat `PLANNING.md` B), dan link ke form booking memakai `/#booking`.
+Label tipe booking hanya diatur di `BookingType::getLabel()` (diganti dari "Home Service" ke "Panggil Montir" pada 17 Nov 2026, nilai DB dan ERD tetap). Jangan menulis label tipe manual di kode, panggil `getLabel()`. Dokumen lama dan nama tes yang menyebut "Home Service" berarti tipe yang sama.
+
+Istilah `appointment` tidak dipakai di kode. `id="booking"` di `hero.blade.php`, dan link ke form booking memakai `/#booking`.
 
 Tidak dibuat (pengembangan lanjutan): tabel `statuses`, tabel `customers`, OTP, tabel `payments`, `service_status_histories`, tabel montir dan pivot, batch sparepart.
 
@@ -241,12 +245,12 @@ Tujuan: setiap perubahan langsung ketahuan kalau merusak fitur lain, tanpa menge
 - Framework: Pest 4. Lokasi: `tests/Feature/{Modul}/`, contoh `tests/Feature/Services/ServicePartTest.php`.
 - Tes Livewire memakai `Livewire\Livewire::test(...)`. Fungsi `Pest\Livewire\livewire()` tidak tersedia karena plugin-nya tidak terpasang.
 - Nama tes memakai ID kasus uji, contoh `SPF-013: subtotal = qty x harga satuan`. ID ini dipakai juga di tabel pengujian Black Box. Jangan mengganti ID tes yang sudah ada. ID baru melanjutkan nomor terakhir di modul itu.
-- ID yang sudah dipakai: SSP, FSP, LSP (sparepart), SPF (service parts), ANT (antrian), LOC (lokasi booking), BKG (booking), TIP (tipe booking), CMP, PRC (harga jasa), JSA-001..009 dan JSA-013 (resource dan seeder Jasa, di `tests/Feature/ServiceTypes/`, lulus; JSA-010..012 dicadangkan untuk tabel Jasa, belum ditulis), SED dan SDR (seeder), AUTH-001..021 (`tests/Feature/Auth/CustomerAuthTest.php`), SEC-001..003 (`tests/Feature/Auth/PanelSecurityTest.php`), LNS-001..010 dan LNS-014 (Tandai Lunas; 011..013 dihapus 17 Nov karena tes tampilan, jangan dipakai ulang), RWY-001..018 (`tests/Feature/Riwayat/RiwayatTest.php`), PRF-001..007 (`tests/Feature/Profile/ProfilTest.php`). BKA-001..007 (booking login, `tests/Feature/Booking/BookingAccountTest.php`). Peta lengkap kode, berkas, dan aturan yang dicek ada di `tests/README.md`, termasuk daftar ID kembar (LOC, STK, FRM, SED, TSJ-004). ID baru untuk modul itu melanjutkan nomor terbesar dari kedua berkas.
+- ID yang sudah dipakai: SSP, FSP, LSP (sparepart), SPF (service parts), ANT (antrian), LOC (lokasi booking), BKG (booking), TIP (tipe booking), CMP, PRC (harga jasa), JSA-001..009 dan JSA-013 (resource dan seeder Jasa, di `tests/Feature/ServiceTypes/`, lulus; JSA-010..012 dicadangkan untuk tabel Jasa, belum ditulis), SED dan SDR (seeder), AUTH-001..024 (`tests/Feature/Auth/CustomerAuthTest.php`), SEC-001..003 (`tests/Feature/Auth/PanelSecurityTest.php`), LNS-001..010 dan LNS-014 (Tandai Lunas; 011..013 dihapus 17 Nov karena tes tampilan, jangan dipakai ulang), RWY-001..022 (`tests/Feature/Riwayat/RiwayatTest.php`), CEK-001..008 (Cek Booking, `tests/Feature/Booking/BookingStatusCheckTest.php`), PRF-001..007 (`tests/Feature/Profile/ProfilTest.php`). BKA-001..007 (booking login, `tests/Feature/Booking/BookingAccountTest.php`). Peta lengkap kode, berkas, dan aturan yang dicek ada di `tests/README.md`, termasuk daftar ID kembar (LOC, STK, FRM, SED, TSJ-004). ID baru untuk modul itu melanjutkan nomor terbesar dari kedua berkas.
 - Aturan bisnis di bagian 5 diuji di level model atau action (cepat dan stabil). Alur form Filament diuji lewat Livewire hanya untuk perilaku yang memang ada di form.
 - Gunakan factory yang sudah ada. Kalau factory belum ada, buat dulu, jangan mengisi kolom manual berulang. `UserFactory` punya state `owner()`.
 - Fitur baru: minimal satu tes jalur normal, satu tes jalur gagal (validasi atau aturan bisnis ditolak), dan satu tes batas (stok 0, status final, nomor HP ganda, dan sejenisnya).
 - Perbaikan bug: tulis tes yang gagal karena bug itu lebih dulu, lalu perbaiki kodenya.
-- Sebelum dianggap selesai, seluruh tes harus lulus: `php artisan test` (atau `./vendor/bin/pest`). Laporkan hasilnya, contoh "530 lulus". **Hasil terakhir yang diketahui: 534 lulus, 0 gagal (17 Nov 2026).**
+- Sebelum dianggap selesai, seluruh tes harus lulus: `php artisan test` (atau `./vendor/bin/pest`). Laporkan hasilnya, contoh "530 lulus". **Hasil terakhir yang diketahui: 552 lulus, 0 gagal (17 Nov 2026).**
 - Perubahan di `Service::syncStock()`, `SparePart::addStock()`, `ServiceStatus::allowedNext()`, `Service::startBlockerMessage()`, atau hitungan total wajib punya tes regresi, karena area ini menyentuh banyak fitur.
 - Label yang tampil di tabel ikut jadi teks yang dicari tes. Kalau label atau kolom pindah halaman (contoh: keluhan pindah dari tabel Riwayat ke detail), pindahkan assertion ke halaman barunya dan catat alasannya. Label status juga muncul di dropdown filter, jadi untuk memeriksa isi tabel gunakan `assertViewHas` atau data, bukan teks label.
 

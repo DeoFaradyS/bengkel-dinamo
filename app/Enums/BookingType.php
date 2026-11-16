@@ -15,7 +15,7 @@ enum BookingType: string implements HasColor, HasIcon, HasLabel
     {
         return match ($this) {
             self::Workshop => 'Ke Bengkel',
-            self::HomeService => 'Home Service',
+            self::HomeService => 'Panggil Montir',
         };
     }
 

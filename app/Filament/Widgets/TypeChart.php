@@ -16,7 +16,7 @@ class TypeChart extends ChartWidget
 
     public function getHeading(): ?string
     {
-        return 'Home Service vs Ke Bengkel';
+        return BookingType::HomeService->getLabel() . ' vs ' . BookingType::Workshop->getLabel();
     }
 
     protected function getType(): string

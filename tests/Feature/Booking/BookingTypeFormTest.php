@@ -12,7 +12,7 @@ it('TIP-001: halaman booking menampilkan dua pilihan tipe', function () {
     $this->get('/')
         ->assertOk()
         ->assertSee('Ke Bengkel')
-        ->assertSee('Home Service');
+        ->assertSee('Panggil Montir');
 });
 
 it('TIP-002: default workshop, kotak lokasi tersembunyi', function () {

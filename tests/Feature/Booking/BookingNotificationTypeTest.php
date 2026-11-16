@@ -27,7 +27,7 @@ it('NTF-010: booking home service, isi notifikasi menyebut Home Service', functi
 
     expect($data['title'])->toContain('Booking baru')
         ->and($data['body'])->toContain('Pak Budi')
-        ->and($data['body'])->toContain('Home Service');
+        ->and($data['body'])->toContain('Panggil Montir');
 });
 
 it('NTF-011: booking workshop, isi notifikasi menyebut Ke Bengkel', function () {
@@ -38,5 +38,5 @@ it('NTF-011: booking workshop, isi notifikasi menyebut Ke Bengkel', function () 
     $data = $admin->notifications()->first()->data;
 
     expect($data['body'])->toContain('Ke Bengkel')
-        ->and($data['body'])->not->toContain('Home Service');
+        ->and($data['body'])->not->toContain('Panggil Montir');
 });
