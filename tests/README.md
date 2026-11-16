@@ -39,7 +39,7 @@ Catatan umum:
 | STK-001..008, 012..013 | ServiceStockTest | Stok berkurang saat Selesai, sekali saja, stok kurang membatalkan, modal konfirmasi | aturan 2 |
 | STK-010..011 | ServiceStockFormTest | Stok kurang lewat form tidak error, batal atau tolak tidak mengurangi stok | aturan 2 |
 | SUS-001..005 | ServiceStockUsageTest | Pemakaian tercatat di riwayat stok, `syncStock` dua kali tidak menggandakan | aturan 1, 2 |
-| LNS-001..010 | MarkServicePaidTest | Tandai Lunas: hanya Selesai, tidak dua kali, `paid_at` tidak mass-assignable, tombol, tampilan Lunas dan Belum Lunas | aturan 13 |
+| LNS-001..014 | MarkServicePaidTest | Tandai Lunas: hanya Selesai, tidak dua kali, `paid_at` tidak mass-assignable, tombol, tampilan Lunas dan Belum Lunas, kolom dan filter Pembayaran hanya di tab Selesai | aturan 13 |
 | NAV-001..003 | ServiceNavigationBadgeTest | Badge navigasi menghitung status Menunggu, tanpa yang di-soft-delete | |
 | PRC-001 | ServicePriceFormTest | Harga jasa tampil bulat saat edit | |
 

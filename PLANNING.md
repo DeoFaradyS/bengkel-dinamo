@@ -43,12 +43,12 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara.
 - [x] **PRC-003** (`tests/Feature/ServiceTypePriceFormTest.php`). Target dipindah ke `EditServiceType`, assertion dan ID tetap. Tes ini menangkap bug asli (harga tampil 100x), sudah diperbaiki lewat `mutateFormDataBeforeFill`.
 - [x] **Upload foto jasa gagal** (500 di `upload-file`). Penyebab: `upload_tmp_dir` di php.ini Laragon kosong (`;upload_tmp_dir =`), file temp upload tidak punya path, log: `Path must not be empty`. Perbaikan: buat folder `D:/Aplikasi/laragon/tmp`, set `upload_tmp_dir` ke sana, restart Laragon. Catatan: `php artisan pail` tidak jalan di Windows (butuh `pcntl`), baca `storage/logs/laravel.log`.
 - [x] Sisa rujukan ke `/booking`: link navbar dan footer dibersihkan, tes BKG-010 dan TIP-001 pindah ke `get('/')`. Link mati `/#galeri` diganti ke `/#cek-booking`.
-- [ ] Ganti `id="appointment"` di `hero.blade.php` jadi `id="booking"`. Tombol "Buat booking" di Riwayat dan link lain sudah memakai `/#booking`, jadi anchor ini mati sampai id diganti. Dump HTML tes 10 Nov masih menunjukkan `id="appointment"`. Tombol "Buat Janji" di navbar sudah tidak ada. Cek tidak ada sisa: `Get-ChildItem resources,tests,app -Recurse | Select-String -Pattern 'appointment|href="/booking|#galeri'` (harus kosong).
+- [x] Ganti `id="appointment"` di `hero.blade.php` jadi `id="booking"`. Tombol "Buat booking" di Riwayat dan link lain sudah memakai `/#booking`, jadi anchor ini mati sampai id diganti. Dump HTML tes 10 Nov masih menunjukkan `id="appointment"`. Tombol "Buat Janji" di navbar sudah tidak ada. Cek tidak ada sisa: `Get-ChildItem resources,tests,app -Recurse | Select-String -Pattern 'appointment|href="/booking|#galeri'` (harus kosong).
 - [ ] Istilah "Buat Janji" atau "Booking" untuk label UI: sengaja ditunda, putuskan belakangan. Sekarang tercampur (tombol kirim "Booking Sekarang", section "Cek Booking", menu "Riwayat Booking", tombol "Buat booking" di Riwayat).
 - [x] `service-card.blade.php` dicek: ada, props `name`, `description`, `price`, `photoUrl`, fallback inisial dan "Hubungi kami" jalan. URL foto dibentuk accessor `ServiceType::photoUrl()` (`Storage::disk('public')->url()`). Sisa: komentar di atas berkas masih bilang "tidak ada halaman detail per layanan", perbarui.
 - [x] Section galeri: berkas tidak ada, tidak ada `@include` yang rusak, link galeri sudah diganti.
 - [~] Cek Booking bergantung pada asumsi. Sudah terkonfirmasi lewat `Service`: `scheduled_at` cast `datetime`, `status` dan `booking_type` cast ke enum. Sudah terkonfirmasi lewat `BookingForm`: nomor dinormalkan sebelum disimpan, jadi `services.customer_phone` berbentuk `08...`. **Koreksi 10 Nov:** `PhoneNumber::normalize()` mengembalikan string kosong untuk input tak valid, bukan `null` (input `abc` jadi `""`). Sisa: pastikan `BookingStatusCheck` tidak mencocokkan nomor kosong dengan servis, dan tidak memakai `=== null` untuk menolak input tak valid.
-- [ ] `ServicesTable.php` (panel Servis): aksi `tandai_lunas` memanggil `Notification::make()`, tapi berkas itu tidak punya `use Filament\Notifications\Notification;` (`ViewService.php` punya). Aksi dari tabel bisa error "class not found". Cek manual lalu tambah tes.
+- [x] `ServicesTable.php` (panel Servis): aksi `tandai_lunas` memanggil `Notification::make()`, tapi berkas itu tidak punya `use Filament\Notifications\Notification;` (`ViewService.php` punya). Aksi dari tabel bisa error "class not found". Cek manual lalu tambah tes.
 - [ ] Kolom Total di tabel admin tidak menghitung `transport_fee`, sedangkan detail admin dan area customer menghitungnya. Total di `/riwayat` sudah ikut detail (jasa + part + transport). Putuskan: samakan tabel admin, atau biarkan.
 - [ ] Cast `Service`: `fuel_price` dan `transport_fee` bertipe `integer` padahal kolom `decimal(12,2)`, dan `saving` memakai `(int)`. Aman selama harga BBM dan ongkos bulat. Cek kalau suatu saat ada pecahan.
 - [ ] Kompres `public/images/bengkel.png` kalau di atas sekitar 300 KB.
@@ -65,6 +65,7 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara.
 - [ ] Invoice PDF memuat status Lunas atau Belum Lunas (opsional).
 - [ ] Profil: ganti password (opsional, belum diminta).
 - [ ] Sinkronkan `PROJECT_RULES.md` setiap ada perubahan beranda atau aturan.
+- [ ] Tabel Servis: kolom Total dan Status bersyarat per tab (D9). Tes: kolom ada atau tidak di tiap tab, `-` bukan Rp 0. Sinkronkan `PROJECT_RULES.md`.
 
 ## D. Keputusan terbuka
 
@@ -83,6 +84,15 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara.
 **D7. Data demo di staging.** Seeder demo sekarang jalan di semua environment kecuali production. Kalau nanti ada staging dan datanya tidak boleh berisi demo, putuskan cara memisahkan (misalnya env khusus atau flag di `.env`).
 
 **D8. Harga tampil untuk pelanggan login (BARU, 10 Nov 2026).** Tabel dan detail `/riwayat` disamakan dengan panel admin atas permintaan pemilik, jadi menampilkan harga jasa, harga part, transport, total, dan status lunas. Aturan 12 hanya melarang harga di Cek Booking publik (tanpa login). Masih tersembunyi dari pelanggan: alasan batal, nama montir, catatan internal, data stok. Perlu persetujuan pemilik bengkel dan dospem bahwa pelanggan login boleh melihat harga.
+
+**D9. Kolom Total dan Status di tabel Servis admin per tab (BARU, 17 Nov 2026).**
+Sekarang Total tampil di semua tab dan menunjukkan Rp 0 untuk Menunggu, padahal harga belum dihitung. Kolom Status juga tampil di semua tab, padahal tab sudah memfilter status.
+Usul:
+- Total: tampil di Dikonfirmasi, Dikerjakan, Selesai, dan Semua. Di baris yang belum punya harga tampil `-`, bukan Rp 0. Tab Menunggu, Ditolak, Kedaluwarsa, Dibatalkan: kolom disembunyikan.
+- Dikonfirmasi: Home Service sudah punya ongkir dari booking. Pilihan: tampilkan sebagai estimasi, atau `-` sampai ada item jasa.
+- Status: tampil hanya di tab Semua, sama seperti kolom Pembayaran di tab Selesai (aturan 13).
+- Area customer `/riwayat` tidak berubah, karena tidak punya tab.
+Terkait: B, Total tabel admin belum hitung `transport_fee`. Putuskan bersama.
 
 ## E. Selesai (ringkas)
 

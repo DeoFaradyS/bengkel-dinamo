@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use App\Filament\Resources\Services\ServiceResource;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Notifications\Notification;
 
 class ServicesTable
 {
@@ -47,7 +48,9 @@ class ServicesTable
                         ? null
                         : ($record->paid_at ? 'Lunas' : 'Belum Lunas'))
                     ->color(fn($state) => $state === 'Lunas' ? 'success' : 'warning')
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    // Pembayaran hanya relevan untuk servis Selesai, jadi kolom hanya ada di tab Selesai.
+                    ->visible(fn($livewire) => ($livewire->activeTab ?? null) === ServiceStatus::Completed->value),
 
                 TextColumn::make('total')->label('Total')
                     ->state(fn($record) => (float) ($record->items_sum_price ?? 0)
@@ -75,7 +78,8 @@ class ServicesTable
                         'lunas' => $query->where('status', ServiceStatus::Completed->value)->whereNotNull('paid_at'),
                         'belum_lunas' => $query->where('status', ServiceStatus::Completed->value)->whereNull('paid_at'),
                         default => $query,
-                    }),
+                    })
+                    ->visible(fn($livewire) => ($livewire->activeTab ?? null) === ServiceStatus::Completed->value),
             ])
             ->recordUrl(fn($record) => $record->status->isFinal()
                 ? ServiceResource::getUrl('view', ['record' => $record])
