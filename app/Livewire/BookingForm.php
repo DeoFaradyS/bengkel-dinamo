@@ -214,7 +214,7 @@ class BookingForm extends Component
         $user = Auth::user();
 
         if ($user !== null && blank($user->phone)) {
-            $user->update(['phone' => $this->phone]);
+            $user->forceFill(['phone' => $this->phone])->save();
         }
     }
 

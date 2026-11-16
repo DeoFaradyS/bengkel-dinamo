@@ -1,4 +1,4 @@
-<section id="appointment" class="pt-16 pb-16 lg:pb-20">
+<section id="booking" class="pt-16 pb-16 lg:pb-20">
   <div
     class="w-full max-w-[1200px] mx-auto px-1 grid gap-8 lg:gap-x-12 lg:gap-y-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,500px)] lg:grid-rows-[auto_1fr]">
 
