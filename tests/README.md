@@ -1,6 +1,6 @@
 # Peta Tes: SIM Bengkel Cak Budi Dinamo
 
-Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (530 lulus). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
+Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (532 lulus per 16 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
 
 Jalankan: `php artisan test`, atau satu modul: `php artisan test --filter=Riwayat`.
 
@@ -114,6 +114,7 @@ Catatan umum:
 | --- | --- | --- | --- |
 | WAF-001..002 | Landing/WhatsAppFloatTest | Tombol WA melayang di beranda dan `/layanan`, tidak di `/masuk` dan `/daftar` | |
 | WAL-001..004 | Unit/WhatsAppLinkTest | Tautan wa.me: format internasional, encode pesan | |
+| LGO-001..002 | Landing/LogoTest | Logo `images/logo-dinamo.png` di navbar publik dan panel admin | |
 | (tanpa ID) | Unit/PhoneNumberTest | `PhoneNumber::normalize` ke `08...`, null dan kosong | |
 | SED-001 | Seeders/SeederTest | `DatabaseSeeder` jalan tanpa error | |
 

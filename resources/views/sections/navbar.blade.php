@@ -14,8 +14,9 @@
 
     <div class="flex items-center lg:gap-16">
 
-      <a href="/" class="flex items-center text-2xl font-bold text-neutral-900" aria-label="Beranda">
-        Budi<span class="text-red-600">Dinamo</span>
+      <a href="/" class="flex items-center shrink-0" aria-label="Beranda">
+        <img src="{{ asset('images/logo-dinamo.png') }}" alt="Dinamo, Bengkel Cak Budi" width="787" height="200"
+          class="h-10 w-auto">
       </a>
 
       <ul class="hidden lg:flex items-center gap-10 text-sm font-semibold uppercase text-neutral-800">
