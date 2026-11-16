@@ -1,4 +1,4 @@
-<footer class="bg-neutral-900 text-white pt-16">
+<footer class="bg-neutral-900 text-white py-16">
   <div class="max-w-[1200px] mx-auto px-6 grid grid-cols-2 lg:grid-cols-4 gap-10">
 
     <div>
@@ -35,11 +35,5 @@
       </ul>
     </nav>
 
-  </div>
-
-  <div class="border-t border-neutral-800 mt-10 pt-4 overflow-hidden">
-    <p class="relative text-center leading-none font-bold text-[80px] sm:text-[140px] lg:text-[200px] bg-gradient-to-b from-white to-neutral-900 bg-clip-text text-transparent select-none">
-      Budi Dinamo
-    </p>
   </div>
 </footer>
