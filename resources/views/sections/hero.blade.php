@@ -37,7 +37,7 @@
     </div>
 
     <div class="relative lg:col-start-1 lg:row-start-2 min-h-56 lg:min-h-64 rounded-[10px] overflow-hidden">
-      <img src="{{ asset('images/bengkel.png') }}" alt="Bengkel Budi Dinamo"
+      <img src="{{ asset('images/bengkel.webp') }}" alt="Bengkel Budi Dinamo" width="1400" height="795"
         decoding="async" class="absolute inset-0 size-full object-cover">
     </div>
 </section>
