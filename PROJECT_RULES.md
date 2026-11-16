@@ -139,7 +139,7 @@ Helper: `App\Support\PhoneNumber::normalize(?string)` mengubah `+62...` dan `62.
 | Konsep | Istilah di kode dan DB | Teks di layar |
 | --- | --- | --- |
 | Satu pekerjaan servis | `Service` (tabel `services`) | Servis |
-| Aksi pelanggan memesan | `booking` | "Booking" atau "Buat Janji" (belum diputuskan) |
+| Aksi pelanggan memesan | `booking` | Booking (diputuskan 17 Nov 2026; "Buat Janji" tidak dipakai). Tombol aksi: "Booking Sekarang" |
 | Jenis layanan (katalog) | `ServiceType` (tabel `service_types`) | Jasa |
 | Booking belum dikonfirmasi | status `pending` | Menunggu |
 | Pelanggan yang punya akun | `User` dengan `role` = `customer` | Pelanggan |
@@ -208,7 +208,6 @@ Rincian dan usulan ada di `PLANNING.md`. Ringkasan:
 - **Harga tampil untuk pelanggan login** (Riwayat dan detail): sudah dibangun atas permintaan pemilik, menunggu persetujuan pemilik bengkel dan dospem (D8).
 - Halaman detail jasa: perlu slug atau tetap memakai id; perlu tombol booking yang mengisi jasa otomatis atau tidak.
 - Promo dikelola dari panel (sisa US-07) atau tetap statis.
-- Label UI "Buat Janji" atau "Booking".
 - Servis selesai tapi barang tidak diambil (`picked_up_at`) dan konfirmasi pelanggan akan datang: ditunda, maksudnya belum jelas.
 - Grace period no-show: sementara pemilik membatalkan manual.
 - Kedaluwarsa sparepart (`expired_at`): opsional.

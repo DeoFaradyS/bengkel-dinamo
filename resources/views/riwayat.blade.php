@@ -59,7 +59,7 @@
                 @else
                     <p class="text-neutral-600">Belum ada booking.</p>
                     <a href="/#booking" class="rounded-[10px] bg-neutral-800 px-6 py-3 font-semibold text-white transition-colors hover:bg-neutral-700">
-                        Buat booking
+                        Booking Sekarang
                     </a>
                 @endif
             </div>
