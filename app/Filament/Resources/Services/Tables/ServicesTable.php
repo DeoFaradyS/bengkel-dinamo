@@ -41,7 +41,8 @@ class ServicesTable
                 TextColumn::make('booking_type')->label('Tipe')
                     ->badge(),
                 TextColumn::make('status')->label('Status')
-                    ->badge(),
+                    ->badge()
+                    ->visible(fn($livewire) => ($livewire->activeTab ?? null) === 'all'),
                 TextColumn::make('paid_at')->label('Pembayaran')
                     ->badge()
                     ->state(fn($record) => $record->status !== ServiceStatus::Completed
@@ -52,12 +53,22 @@ class ServicesTable
                     // Pembayaran hanya relevan untuk servis Selesai, jadi kolom hanya ada di tab Selesai.
                     ->visible(fn($livewire) => ($livewire->activeTab ?? null) === ServiceStatus::Completed->value),
 
+                // Total = jasa + part + ongkos transport (aturan 7), sama dengan detail dan /riwayat.
+                // Belum ada harga sama sekali tampil "-", bukan Rp 0.
                 TextColumn::make('total')->label('Total')
-                    ->state(fn($record) => (float) ($record->items_sum_price ?? 0)
-                        + (float) ($record->parts_sum ?? 0))
+                    ->visible(fn($livewire) => in_array($livewire->activeTab ?? 'all', [
+                        'all',
+                        ServiceStatus::Confirmed->value,
+                        ServiceStatus::InProgress->value,
+                        ServiceStatus::Completed->value,
+                    ], true))
+                    ->state(fn($record) => ((float) ($record->items_sum_price ?? 0)
+                        + (float) ($record->parts_sum ?? 0)
+                        + (float) ($record->transport_fee ?? 0)) ?: null)
                     ->money('IDR', locale: 'id', decimalPlaces: 0)
+                    ->placeholder('-')
                     ->sortable(query: fn($query, string $direction) => $query
-                        ->orderByRaw('(COALESCE(items_sum_price, 0) + COALESCE(parts_sum, 0)) ' . $direction)),
+                        ->orderByRaw('(COALESCE(items_sum_price, 0) + COALESCE(parts_sum, 0) + COALESCE(transport_fee, 0)) ' . $direction)),
                 TextColumn::make('created_at')->label('Dibuat')
                     ->dateTime('d/m/Y H:i')
                     ->sortable()

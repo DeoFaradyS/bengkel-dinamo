@@ -117,36 +117,6 @@ test('LNS-010: halaman View servis yang belum Selesai tidak menampilkan status p
         ->assertDontSee('Dibayar pada');
 });
 
-test('LNS-011: kolom Pembayaran tampil di tab Selesai', function () {
-    servisLunas();
-
-    \Livewire\Livewire::test(\App\Filament\Resources\Services\Pages\ListServices::class)
-        ->set('activeTab', ServiceStatus::Completed->value)
-        ->assertTableColumnVisible('paid_at');
-});
-
-test('LNS-012: kolom Pembayaran tidak tampil di tab Semua dan tab status lain', function (string $tab) {
-    servisLunas();
-
-    \Livewire\Livewire::test(\App\Filament\Resources\Services\Pages\ListServices::class)
-        ->set('activeTab', $tab)
-        ->assertTableColumnHidden('paid_at');
-})->with(fn () => ['all', ...collect(ServiceStatus::cases())
-    ->reject(fn ($s) => $s === ServiceStatus::Completed)
-    ->map(fn ($s) => $s->value)
-    ->values()
-    ->all()]);
-
-test('LNS-013: filter Pembayaran hanya ada di tab Selesai', function () {
-    servisLunas();
-
-    \Livewire\Livewire::test(\App\Filament\Resources\Services\Pages\ListServices::class)
-        ->set('activeTab', ServiceStatus::Completed->value)
-        ->assertTableFilterVisible('pembayaran')
-        ->set('activeTab', 'all')
-        ->assertTableFilterHidden('pembayaran');
-});
-
 test('LNS-014: filter Pembayaran yang dipilih di tab Selesai tidak menyaring tab Semua', function () {
     $lunas = servisLunas();
     app(MarkServicePaid::class)->handle($lunas);

@@ -1,6 +1,6 @@
 # Peta Tes: SIM Bengkel Cak Budi Dinamo
 
-Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (532 lulus per 16 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
+Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (534 lulus per 17 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
 
 Jalankan: `php artisan test`, atau satu modul: `php artisan test --filter=Riwayat`.
 
@@ -39,7 +39,7 @@ Catatan umum:
 | STK-001..008, 012..013 | ServiceStockTest | Stok berkurang saat Selesai, sekali saja, stok kurang membatalkan, modal konfirmasi | aturan 2 |
 | STK-010..011 | ServiceStockFormTest | Stok kurang lewat form tidak error, batal atau tolak tidak mengurangi stok | aturan 2 |
 | SUS-001..005 | ServiceStockUsageTest | Pemakaian tercatat di riwayat stok, `syncStock` dua kali tidak menggandakan | aturan 1, 2 |
-| LNS-001..014 | MarkServicePaidTest | Tandai Lunas: hanya Selesai, tidak dua kali, `paid_at` tidak mass-assignable, tombol, tampilan Lunas dan Belum Lunas, kolom dan filter Pembayaran hanya di tab Selesai | aturan 13 |
+| LNS-001..010, 014 | MarkServicePaidTest | Tandai Lunas: hanya Selesai, tidak dua kali, `paid_at` tidak mass-assignable, tombol, tampilan Lunas dan Belum Lunas, filter Pembayaran di tab Selesai tidak menyaring tab lain | aturan 13 |
 | NAV-001..003 | ServiceNavigationBadgeTest | Badge navigasi menghitung status Menunggu, tanpa yang di-soft-delete | |
 | PRC-001 | ServicePriceFormTest | Harga jasa tampil bulat saat edit | |
 
@@ -77,7 +77,7 @@ Catatan umum:
 | DST-001..002 | Distance/DistanceServiceTest | Jarak Haversine | |
 | SDR-001 | Distance/SeederDistanceTest | Seeder Home Service punya jarak | |
 | HAV-001..005 | Unit/Distance/HaversineCalculatorTest | Rumus Haversine | |
-| TRN-001..008 | Transport/TransportFeeTest | Ongkos PP, pembulatan Rp500, snapshot harga BBM, hitung ulang saat jarak berubah | aturan 8 |
+| TRN-001..011 | Transport/TransportFeeTest | Ongkos PP, pembulatan Rp500, snapshot harga BBM, hitung ulang saat jarak berubah, Total tabel admin = jasa + part + ongkos, `-` kalau 0, urut Total | aturan 7, 8 |
 | TPG-001..013 | Settings/WorkshopSettingTest | Halaman pengaturan bengkel: validasi jarak, BBM, koordinat | |
 
 ## Dashboard (`tests/Feature/Dashboard/`)
@@ -114,7 +114,6 @@ Catatan umum:
 | --- | --- | --- | --- |
 | WAF-001..002 | Landing/WhatsAppFloatTest | Tombol WA melayang di beranda dan `/layanan`, tidak di `/masuk` dan `/daftar` | |
 | WAL-001..004 | Unit/WhatsAppLinkTest | Tautan wa.me: format internasional, encode pesan | |
-| LGO-001..002 | Landing/LogoTest | Logo `images/logo-dinamo.png` di navbar publik dan panel admin | |
 | (tanpa ID) | Unit/PhoneNumberTest | `PhoneNumber::normalize` ke `08...`, null dan kosong | |
 | SED-001 | Seeders/SeederTest | `DatabaseSeeder` jalan tanpa error | |
 

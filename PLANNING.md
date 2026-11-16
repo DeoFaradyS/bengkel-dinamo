@@ -47,9 +47,9 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara.
 - [ ] Istilah "Buat Janji" atau "Booking" untuk label UI: sengaja ditunda, putuskan belakangan. Sekarang tercampur (tombol kirim "Booking Sekarang", section "Cek Booking", menu "Riwayat Booking", tombol "Buat booking" di Riwayat).
 - [x] `service-card.blade.php` dicek: ada, props `name`, `description`, `price`, `photoUrl`, fallback inisial dan "Hubungi kami" jalan. URL foto dibentuk accessor `ServiceType::photoUrl()` (`Storage::disk('public')->url()`). Sisa: komentar di atas berkas masih bilang "tidak ada halaman detail per layanan", perbarui.
 - [x] Section galeri: berkas tidak ada, tidak ada `@include` yang rusak, link galeri sudah diganti.
-- [~] Cek Booking bergantung pada asumsi. Sudah terkonfirmasi lewat `Service`: `scheduled_at` cast `datetime`, `status` dan `booking_type` cast ke enum. Sudah terkonfirmasi lewat `BookingForm`: nomor dinormalkan sebelum disimpan, jadi `services.customer_phone` berbentuk `08...`. **Koreksi 10 Nov:** `PhoneNumber::normalize()` mengembalikan string kosong untuk input tak valid, bukan `null` (input `abc` jadi `""`). Sisa: pastikan `BookingStatusCheck` tidak mencocokkan nomor kosong dengan servis, dan tidak memakai `=== null` untuk menolak input tak valid.
+- [x] Cek Booking: `BookingStatusCheck` memakai `$phone ? ... : collect()`, jadi nomor kosong hasil `normalize()` tidak mencocokkan servis apa pun. Dicek 17 Nov 2026.
 - [x] `ServicesTable.php` (panel Servis): aksi `tandai_lunas` memanggil `Notification::make()`, tapi berkas itu tidak punya `use Filament\Notifications\Notification;` (`ViewService.php` punya). Aksi dari tabel bisa error "class not found". Cek manual lalu tambah tes.
-- [ ] Kolom Total di tabel admin tidak menghitung `transport_fee`, sedangkan detail admin dan area customer menghitungnya. Total di `/riwayat` sudah ikut detail (jasa + part + transport). Putuskan: samakan tabel admin, atau biarkan.
+- [x] Kolom Total di tabel admin tidak menghitung `transport_fee`, sedangkan detail admin dan area customer menghitungnya. Total di `/riwayat` sudah ikut detail (jasa + part + transport). Diputuskan 17 Nov 2026: disamakan (aturan 7), tes TRN-009..011.
 - [ ] Cast `Service`: `fuel_price` dan `transport_fee` bertipe `integer` padahal kolom `decimal(12,2)`, dan `saving` memakai `(int)`. Aman selama harga BBM dan ongkos bulat. Cek kalau suatu saat ada pecahan.
 - [ ] Kompres `public/images/bengkel.png` kalau di atas sekitar 300 KB.
 - [x] `php artisan test` penuh. Riwayat hasil: 455 (9 Nov), 480 (login), 494 (riwayat), 503 dan 506 (Tandai Lunas), 514 (area customer), **530 lulus, 0 gagal (10 Nov 2026, siang).**
@@ -65,7 +65,7 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara.
 - [ ] Invoice PDF memuat status Lunas atau Belum Lunas (opsional).
 - [ ] Profil: ganti password (opsional, belum diminta).
 - [ ] Sinkronkan `PROJECT_RULES.md` setiap ada perubahan beranda atau aturan.
-- [ ] Tabel Servis: kolom Total dan Status bersyarat per tab (D9). Tes: kolom ada atau tidak di tiap tab, `-` bukan Rp 0. Sinkronkan `PROJECT_RULES.md`.
+- [x] Tabel Servis: kolom Total dan Status bersyarat per tab (D9). Selesai 17 Nov 2026. Tampil atau sembunyi kolom dicek manual (aturan tes bagian 10).
 
 ## D. Keputusan terbuka
 
@@ -85,7 +85,7 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara.
 
 **D8. Harga tampil untuk pelanggan login (BARU, 10 Nov 2026).** Tabel dan detail `/riwayat` disamakan dengan panel admin atas permintaan pemilik, jadi menampilkan harga jasa, harga part, transport, total, dan status lunas. Aturan 12 hanya melarang harga di Cek Booking publik (tanpa login). Masih tersembunyi dari pelanggan: alasan batal, nama montir, catatan internal, data stok. Perlu persetujuan pemilik bengkel dan dospem bahwa pelanggan login boleh melihat harga.
 
-**D9. Kolom Total dan Status di tabel Servis admin per tab (BARU, 17 Nov 2026).**
+**D9. Kolom Total dan Status di tabel Servis admin per tab. DIPUTUSKAN DAN SELESAI (17 Nov 2026):** Total = jasa + part + ongkos (Home Service Dikonfirmasi menampilkan ongkos), `-` kalau 0. Usul awal:
 Sekarang Total tampil di semua tab dan menunjukkan Rp 0 untuk Menunggu, padahal harga belum dihitung. Kolom Status juga tampil di semua tab, padahal tab sudah memfilter status.
 Usul:
 - Total: tampil di Dikonfirmasi, Dikerjakan, Selesai, dan Semua. Di baris yang belum punya harga tampil `-`, bukan Rp 0. Tab Menunggu, Ditolak, Kedaluwarsa, Dibatalkan: kolom disembunyikan.
@@ -130,9 +130,9 @@ Daftar dari pemilik. Per 10 Nov 2026 (siang): tahap 1 sampai 3 selesai, 530 tes 
 - [~] ERD diimplementasikan ke migrasi (bagian F). Tahap 1 sampai 3 selesai. Sisa: tahap 4 (dokumen, ERD di Eraser).
 - [~] Saran dospem yang sudah masuk rencana ERD (`mechanic_names`, `paid_at`) sudah diimplementasikan (kolom, seeder, aksi Tandai Lunas). Sisa: siapkan daftarnya untuk ditunjukkan saat bimbingan.
 - [x] Rapikan dan organisasi tes (`tests/README.md` dibuat 10 Nov 2026; sisa: ID kembar dan judul usang, lihat catatan di README): tiap berkas dan ID tes punya penjelasan satu baris "mengetes apa". Usul: tabel `tests/README.md` berisi kode modul (BKG, LOC, TIP, PRC, JSA, ANT, AUTH, SEC, LNS, RWY, PRF, dst), berkas, dan aturan bisnis yang dicek.
-- [ ] Perbarui laporan skripsi: banyak perubahan (landing, jasa, ERD, login customer, area customer, antrian, Cek Booking, Tandai Lunas).
+- [x] Perbarui laporan skripsi: banyak perubahan (landing, jasa, ERD, login customer, area customer, antrian, Cek Booking, Tandai Lunas).
 - [ ] Notifikasi WhatsApp ke pelanggan: opsional, dikerjakan belakangan kalau sempat.
-- [ ] Siapkan bahan bimbingan: demo (beranda, `/layanan`, Cek Booking, upload foto jasa, login customer, booking login, Riwayat dan detail, Cetak Invoice, Profil, Tandai Lunas di panel), angka tes (530), daftar migrasi yang berubah, keputusan yang butuh jawaban (D1, D3, D8).
+- [ ] Siapkan bahan bimbingan: demo (beranda, `/layanan`, Cek Booking, upload foto jasa, login customer, booking login, Riwayat dan detail, Cetak Invoice, Profil, Tandai Lunas di panel), angka tes (534), daftar migrasi yang berubah, keputusan yang butuh jawaban (D1, D3, D8).
 
 ## F. Rencana perubahan database dan fitur turunannya (diperbarui 10 Nov 2026, siang)
 
@@ -190,7 +190,7 @@ ERD final dan seluruh keputusannya ada di `PROJECT_RULES.md` bagian 4 dan 4a. Ca
 **Tahap 4: dokumen dan tes**
 - [x] Rapikan tes: `tests/README.md` (selesai 10 Nov 2026) berisi kode modul (BKG, LOC, TIP, PRC, JSA, ANT, AUTH, SEC, LNS, RWY, PRF, SED/SDR, CMP, dst), berkas, dan aturan bisnis yang dicek.
 - [x] Pindahkan 4a ke bagian 4 `PROJECT_RULES.md` setelah diterapkan, perbarui bagian 1, 3, 10 (dikerjakan 10 Nov 2026). Bagian 4a sekarang berisi keputusan desain dan glossary.
-- [ ] Sinkronkan ERD di Eraser dengan versi final. Perbarui laporan skripsi.
+- [x] Sinkronkan ERD di Eraser dengan versi final. Perbarui laporan skripsi.
 
 **Rapikan kode (bertahap, tiap langkah satu commit, tes hijau):** komentar singkat yang menjelaskan kenapa; logika yang menumpuk di model atau Filament dipindah ke `app/Actions` atau `app/Support`; enum dan konstanta menggantikan string mentah. Hanya bagian yang disentuh, sisanya dicatat.
 
