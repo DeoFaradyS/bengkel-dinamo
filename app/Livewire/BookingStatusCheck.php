@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Enums\BookingType;
+use App\Enums\ServiceStatus;
 use App\Models\Service;
 use App\Support\PhoneNumber;
 use Illuminate\Support\Facades\RateLimiter;
@@ -56,6 +57,10 @@ class BookingStatusCheck extends Component
             'type' => $s->booking_type->getLabel(),
             'scheduled_at' => $s->scheduled_at?->translatedFormat('l, j F Y · H.i'),
             'complaint' => $s->complaint,
+            // D3 (17 Nov 2026): alasan tampil hanya untuk booking yang dibatalkan atau ditolak.
+            'cancel_reason' => in_array($s->status, [ServiceStatus::Cancelled, ServiceStatus::Rejected], true)
+                ? $s->cancel_reason
+                : null,
         ])->all();
     }
 

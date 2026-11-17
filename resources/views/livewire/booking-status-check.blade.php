@@ -92,6 +92,13 @@
                             <p class="text-lg text-neutral-700 leading-relaxed">{{ $pesan[$r['status']] ?? '' }}</p>
                         </div>
 
+                        @if ($r['cancel_reason'])
+                            <div class="flex flex-col gap-1 p-4 bg-neutral-50 border-l-4 border-neutral-300 rounded-r-lg">
+                                <p class="text-base text-neutral-500">Alasan dari bengkel</p>
+                                <p class="text-lg text-neutral-800 leading-relaxed break-words">{{ $r['cancel_reason'] }}</p>
+                            </div>
+                        @endif
+
                         @if ($posisi !== false)
                             <ol class="grid grid-cols-4 gap-2" aria-label="Tahap {{ $posisi + 1 }} dari 4">
                                 @foreach ($langkah as $label)

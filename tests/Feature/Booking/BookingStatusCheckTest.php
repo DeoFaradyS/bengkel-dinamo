@@ -93,20 +93,20 @@ test('CEK-006: servis yang di-soft-delete tidak tampil', function () {
     cekBooking($s->booking_code, '081234567890')->assertSet('results', []);
 });
 
-test('CEK-007: harga, total, alamat, dan alasan batal tidak ikut tampil', function () {
+// Sejak D3 (17 Nov 2026) alasan batal boleh tampil (lihat CEK-014), jadi tidak dicek lagi di sini.
+test('CEK-007: harga, total, dan alamat tidak ikut tampil', function () {
     $service = servisCek([
         'status' => ServiceStatus::Cancelled,
         'booking_type' => BookingType::HomeService,
         'latitude' => -7.72,
         'longitude' => 113.08,
         'address_note' => 'Rumah pagar hijau RAHASIA',
-        'cancel_reason' => 'Catatan internal RAHASIA',
     ]);
     $service->items()->create(['name' => 'Servis dinamo', 'price' => 123456]);
 
     cekBooking($service->booking_code, '081234567890')
         ->assertSet('results', fn ($r) => count($r) === 1
-            && array_keys($r[0]) === ['booking_code', 'status', 'status_label', 'type', 'scheduled_at', 'complaint'])
+            && array_keys($r[0]) === ['booking_code', 'status', 'status_label', 'type', 'scheduled_at', 'complaint', 'cancel_reason'])
         ->assertDontSee('RAHASIA')
         ->assertDontSee('123.456')
         ->assertDontSee('Rp');
@@ -166,4 +166,21 @@ test('CEK-013: setelah booking, kode tampil dan link WA berisi kode', function (
         ->assertSee('Konfirmasi ke WhatsApp')
         ->assertSet('waLink', fn ($link) => str_starts_with($link, 'https://wa.me/628882509745?text=')
             && str_contains(rawurldecode($link), 'Kode booking: ' . $kode));
+});
+
+test('CEK-014: booking dibatalkan atau ditolak, alasan dari bengkel tampil', function (ServiceStatus $status) {
+    $s = servisCek(['status' => $status, 'cancel_reason' => 'Jadwal montir penuh']);
+
+    cekBooking($s->booking_code, '081234567890')
+        ->assertSet('results', fn ($r) => $r[0]['cancel_reason'] === 'Jadwal montir penuh')
+        ->assertSee('Alasan dari bengkel')
+        ->assertSee('Jadwal montir penuh');
+})->with([ServiceStatus::Cancelled, ServiceStatus::Rejected]);
+
+test('CEK-015: booking dengan status lain, alasan tidak tampil', function () {
+    $s = servisCek(['status' => ServiceStatus::Confirmed, 'cancel_reason' => 'Sisa catatan lama']);
+
+    cekBooking($s->booking_code, '081234567890')
+        ->assertSet('results', fn ($r) => $r[0]['cancel_reason'] === null)
+        ->assertDontSee('Sisa catatan lama');
 });

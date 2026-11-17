@@ -212,7 +212,8 @@ class ServiceForm
                             ->validationMessages([
                                 'required' => 'Isi alasan penolakan atau pembatalan.',
                             ])
-                            ->placeholder('Contoh: pelanggan batal, kerusakan parah'),
+                            ->helperText('Alasan ini terlihat oleh pelanggan di Cek Booking.')
+                            ->placeholder('Contoh: jadwal montir penuh, kerusakan di luar layanan bengkel'),
                         Textarea::make('complaint')->label('Keluhan')
                             ->columnSpanFull()
                             ->rows(3)
