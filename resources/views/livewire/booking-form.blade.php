@@ -44,6 +44,11 @@
                 <p class="text-sm text-neutral-500">
                     Pesan berisi kode booking akan terkirim ke bengkel. Kalau lupa kode, cari di chat WhatsApp itu.
                 </p>
+
+                <button type="button" wire:click="bookingBaru"
+                    class="self-center px-2 py-1 font-semibold text-neutral-600 underline underline-offset-4 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 rounded">
+                    Buat booking lain
+                </button>
             </div>
         @else
             <div class="flex flex-col gap-2 py-6 text-center">
@@ -79,7 +84,14 @@
             <div class="flex flex-col gap-1">
                 <input type="tel" wire:model="phone" placeholder="Nomor HP, contoh 081234567890"
                     class="w-full p-4 bg-neutral-100 rounded-[10px] text-neutral-800 placeholder:text-neutral-400 outline-none focus:ring-2 focus:ring-red-500">
-                @error('phone') <small class="text-sm text-red-600">{{ $message }}</small> @enderror
+                @error('phone')
+                    <small class="text-sm text-red-600">
+                        {{ $message }}
+                        @if ($message === \App\Actions\CreateBooking::ACTIVE_BOOKING_MESSAGE)
+                            <a href="/#cek-booking" class="font-semibold underline underline-offset-2">Buka Cek Booking</a>
+                        @endif
+                    </small>
+                @enderror
             </div>
 
             <div class="flex flex-col gap-2">

@@ -22,6 +22,9 @@ use App\Enums\UserRole;
 
 class CreateBooking
 {
+    // Satu nomor HP hanya boleh punya satu booking aktif (Menunggu, Dikonfirmasi, Dikerjakan).
+    public const ACTIVE_BOOKING_MESSAGE = 'Nomor ini masih punya booking yang belum selesai. Cek statusnya di Cek Booking.';
+
     /**
      * @param  array{customer_name: string, phone: string, complaint: string, scheduled_at: mixed, booking_type?: BookingType|string|null, latitude?: mixed, longitude?: mixed, user_id?: int|null}  $data
      */
@@ -72,7 +75,7 @@ class CreateBooking
 
                     if ($hasActive) {
                         throw ValidationException::withMessages([
-                            'phone' => 'Nomor ini masih punya servis yang belum selesai.',
+                            'phone' => self::ACTIVE_BOOKING_MESSAGE,
                         ]);
                     }
 

@@ -168,6 +168,15 @@ class BookingForm extends Component
         $this->submitted = true;
     }
 
+    // Tombol "Buat booking lain" di layar sukses: kembali ke form kosong.
+    // Aturan satu booking aktif per nomor HP tetap dicek di CreateBooking.
+    public function bookingBaru(): void
+    {
+        $this->reset(['submitted', 'bookingCode', 'waLink']);
+        $this->slot_date = now()->format('Y-m-d');
+        $this->fillFromAccount();
+    }
+
     public function hitungJarak(): void
     {
         $this->distanceText = null;

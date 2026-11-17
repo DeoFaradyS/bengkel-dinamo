@@ -1,6 +1,6 @@
 # Peta Tes: SIM Bengkel Cak Budi Dinamo
 
-Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (560 lulus per 17 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
+Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (562 lulus per 17 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
 
 Jalankan: `php artisan test`, atau satu modul: `php artisan test --filter=Riwayat`.
 
@@ -48,7 +48,7 @@ Catatan umum:
 | Kode | Berkas | Yang dicek | Aturan |
 | --- | --- | --- | --- |
 | BKG-001..006 | CreateBookingTest | Booking baru Menunggu, HP `08...`, HP aktif ditolak, HP servis Selesai atau terhapus boleh lagi | aturan 4 |
-| BKG-010..018 | BookingFormTest | Formulir tamu: kirim valid, wajib, honeypot, 5 kiriman per menit, pilih slot, koreksi tanggal | |
+| BKG-010..020 | BookingFormTest | Formulir tamu: kirim valid, wajib, honeypot, 5 kiriman per menit, pilih slot, koreksi tanggal, pesan HP aktif dengan link Cek Booking, Buat booking lain tetap menolak nomor yang sama | aturan 4 |
 | BKA-001..007 | BookingAccountTest | Booking customer login: form terisi, `user_id` tersimpan, HP akun tersimpan atau tidak tertimpa, tamu `user_id` NULL | aturan 15 |
 | CEK-001..013 | BookingStatusCheckTest | Cek Booking: cocok kode booking dan nomor (+62 = 08), pesan gagal sama, wajib isi, 5 per menit, soft delete tersembunyi, harga/alamat/alasan batal tidak bocor, nomor tidak valid, kode 6 angka unik, spasi di kode diabaikan, nama + HP saja ditolak, kode bukan fillable, kode dan link WA tampil setelah booking | aturan 12 |
 | SLB-001..005 | BookingSlotTest | Slot kosong lolos, terisi ditolak, servis final melepas slot | aturan 4 |

@@ -119,3 +119,29 @@ it('BKG-018: tanggal kemarin dan terlalu jauh dikoreksi ke batas', function () {
         ->set('slot_date', '2026-12-31')
         ->assertSet('slot_date', '2026-11-06');
 });
+it('BKG-019: HP masih punya booking aktif, pesan jelas dengan link ke Cek Booking', function () {
+    Service::factory()->create(['customer_phone' => '081234500001', 'status' => ServiceStatus::Pending]);
+
+    fillBooking(Livewire::test(BookingForm::class))
+        ->call('submit')
+        ->assertHasErrors(['phone'])
+        ->assertSee('Nomor ini masih punya booking yang belum selesai.')
+        ->assertSee('/#cek-booking', false);
+});
+
+it('BKG-020: Buat booking lain membuka form kosong, nomor yang sama tetap ditolak', function () {
+    $komponen = fillBooking(Livewire::test(BookingForm::class))
+        ->call('submit')
+        ->assertHasNoErrors()
+        ->assertSet('submitted', true)
+        ->call('bookingBaru')
+        ->assertSet('submitted', false)
+        ->assertSet('bookingCode', null)
+        ->assertSet('phone', '');
+
+    fillBooking($komponen, ['scheduled_at' => nextSlot(2)->format('Y-m-d H:i')])
+        ->call('submit')
+        ->assertHasErrors(['phone']);
+
+    expect(Service::count())->toBe(1);
+});
