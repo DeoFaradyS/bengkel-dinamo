@@ -51,7 +51,7 @@ class BookingStatusCheck extends Component
             'status' => $s->status->value,
             'status_label' => self::statusLabel($s->status->value),
             'type' => $s->booking_type->getLabel(),
-            'scheduled_at' => $s->scheduled_at?->translatedFormat('d F Y, H.i'),
+            'scheduled_at' => $s->scheduled_at?->translatedFormat('l, j F Y · H.i'),
             'complaint' => $s->complaint,
         ])->all();
     }
