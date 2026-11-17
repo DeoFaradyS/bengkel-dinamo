@@ -65,6 +65,11 @@ class Service extends Model
 
     protected static function booted(): void
     {
+        // Setiap servis dapat kode booking 6 angka yang unik (termasuk yang sudah diarsip).
+        static::creating(function (Service $service) {
+            $service->booking_code ??= self::newBookingCode();
+        });
+
         static::saving(function (Service $service) {
             if ($service->booking_type !== BookingType::HomeService) {
                 $service->fuel_price = null;
@@ -90,6 +95,15 @@ class Service extends Model
             $service->fuel_price = (int) $fuelPrice;
             $service->transport_fee = self::transportFee((float) $service->distance_km, (int) $fuelPrice);
         });
+    }
+
+    public static function newBookingCode(): string
+    {
+        do {
+            $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        } while (self::withTrashed()->where('booking_code', $code)->exists());
+
+        return $code;
     }
 
     public static function transportFee(float $km, int $fuelPrice): int

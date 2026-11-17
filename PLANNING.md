@@ -20,9 +20,10 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara. Disaring
 - [x] [manual] Section peta memuat tombol arah.
 - [ ] Opsional (perilaku rute, tidak mendesak): `/layanan/{id}` 404 kalau id tidak ada, `/booking` 404.
 
-**Cek Booking (aturan 12).** Selesai 17 Nov 2026: CEK-001..008 di `tests/Feature/Booking/BookingStatusCheckTest.php`.
-- [x] Nama dan nomor cocok: servis tampil, nama tidak peka huruf besar, `+62` sama dengan `08` (CEK-001).
-- [x] Nama salah atau nomor salah: tidak tampil, pesan gagal sama (CEK-002, CEK-003).
+**Cek Booking (aturan 12).** Selesai 17 Nov 2026: CEK-001..013 di `tests/Feature/Booking/BookingStatusCheckTest.php`. Sejak 17 Nov cek pakai kode booking + nomor HP (masukan dospem: nama + HP kurang aman). Kolom baru `services.booking_code` lewat migrasi `2026_11_17_110000_add_booking_code_to_services_table` (servis lama ikut diberi kode; ERD perlu ditambah kolom ini).
+- [x] Kode dan nomor cocok: servis tampil, `+62` sama dengan `08` (CEK-001).
+- [x] Kode salah atau nomor salah: tidak tampil, pesan gagal sama (CEK-002, CEK-003).
+- [x] Kode 6 angka unik tiap servis (CEK-009), kode dengan spasi tetap cocok (CEK-010), nama + HP tanpa kode tidak membuka booking (CEK-011), kode tidak bisa diisi dari input (CEK-012), setelah booking kode dan link WA tampil (CEK-013).
 - [x] Input kosong ditolak validasi (CEK-004).
 - [x] Percobaan ke-6 dalam semenit ditolak (CEK-005).
 - [x] Servis yang di-soft-delete tidak tampil (CEK-006).
@@ -131,7 +132,7 @@ Daftar dari pemilik. Per 10 Nov 2026 (siang): tahap 1 sampai 3 selesai, 530 tes 
 - [x] Rapikan dan organisasi tes (`tests/README.md` dibuat 10 Nov 2026; sisa: ID kembar dan judul usang, lihat catatan di README): tiap berkas dan ID tes punya penjelasan satu baris "mengetes apa". Usul: tabel `tests/README.md` berisi kode modul (BKG, LOC, TIP, PRC, JSA, ANT, AUTH, SEC, LNS, RWY, PRF, dst), berkas, dan aturan bisnis yang dicek.
 - [x] Perbarui laporan skripsi: banyak perubahan (landing, jasa, ERD, login customer, area customer, antrian, Cek Booking, Tandai Lunas).
 - [ ] Notifikasi WhatsApp ke pelanggan: opsional, dikerjakan belakangan kalau sempat.
-- [ ] Siapkan bahan bimbingan: demo (beranda, `/layanan`, Cek Booking, upload foto jasa, login customer, booking login, Riwayat dan detail, Cetak Invoice, Profil, Tandai Lunas di panel), angka tes (555), daftar migrasi yang berubah, keputusan yang butuh jawaban (D1, D3, D8).
+- [ ] Siapkan bahan bimbingan: demo (beranda, `/layanan`, Cek Booking, upload foto jasa, login customer, booking login, Riwayat dan detail, Cetak Invoice, Profil, Tandai Lunas di panel), angka tes (560), daftar migrasi yang berubah, keputusan yang butuh jawaban (D1, D3, D8).
 
 ## F. Rencana perubahan database dan fitur turunannya (diperbarui 10 Nov 2026, siang)
 

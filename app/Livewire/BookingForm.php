@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Actions\CreateBooking;
 use App\Enums\BookingType;
 use App\Support\PhoneNumber;
+use App\Support\WhatsAppLink;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\Rule;
@@ -33,6 +34,10 @@ class BookingForm extends Component
     public string $website = '';
 
     public bool $submitted = false;
+
+    // Diisi setelah booking terkirim: kode untuk Cek Booking dan link konfirmasi ke WA bengkel.
+    public ?string $bookingCode = null;
+    public ?string $waLink = null;
     public ?string $distanceText = null;
     public ?string $distanceError = null;
 
@@ -117,7 +122,7 @@ class BookingForm extends Component
         ]);
 
         try {
-            app(CreateBooking::class)->handle([
+            $service = app(CreateBooking::class)->handle([
                 'customer_name' => $this->customer_name,
                 'phone' => $this->phone,
                 'complaint' => $this->complaint,
@@ -137,6 +142,16 @@ class BookingForm extends Component
         }
 
         $this->rememberPhone();
+
+        $this->bookingCode = $service->booking_code;
+        $this->waLink = WhatsAppLink::make(config('booking.whatsapp'), implode("\n", [
+            'Halo Budi Dinamo, saya sudah booking.',
+            'Kode booking: ' . $service->booking_code,
+            'Nama: ' . $service->customer_name,
+            'Jadwal: ' . $service->scheduled_at->translatedFormat('l, j F Y · H.i'),
+            'Jenis: ' . $service->booking_type->getLabel(),
+            'Mohon dikonfirmasi, terima kasih.',
+        ]));
 
         $this->reset([
             'customer_name',

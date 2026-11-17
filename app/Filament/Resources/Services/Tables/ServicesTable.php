@@ -31,6 +31,8 @@ class ServicesTable
                 ->orderBy('id', 'asc'))
             ->columns([
                 TextColumn::make('index')->label('No')->rowIndex(),
+                TextColumn::make('booking_code')->label('Kode')
+                    ->searchable(),
                 TextColumn::make('customer_name')->label('Pelanggan')
                     ->searchable(),
                 TextColumn::make('customer_phone')->label('No. HP')

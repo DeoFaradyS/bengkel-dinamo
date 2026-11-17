@@ -11,7 +11,7 @@ use Livewire\Component;
 class BookingStatusCheck extends Component
 {
     public string $phone = '';
-    public string $customer_name = '';
+    public string $booking_code = '';
 
     // null = belum dicari. Array kosong = dicari tapi tidak ketemu.
     public ?array $results = null;
@@ -20,10 +20,10 @@ class BookingStatusCheck extends Component
     {
         $this->validate([
             'phone' => ['required', 'string', 'max:20'],
-            'customer_name' => ['required', 'string', 'max:255'],
+            'booking_code' => ['required', 'string', 'max:20'],
         ], [], [
             'phone' => 'Nomor HP',
-            'customer_name' => 'Nama',
+            'booking_code' => 'Kode booking',
         ]);
 
         $key = 'cek-booking:' . request()->ip();
@@ -38,16 +38,19 @@ class BookingStatusCheck extends Component
 
         $phone = PhoneNumber::normalize($this->phone);
 
-        // Pesan gagal sama untuk nomor salah dan nama salah, supaya data orang lain tidak bisa ditebak.
+        // Spasi dan tanda strip diabaikan, jadi "482 915" sama dengan "482915".
+        $code = preg_replace('/[\s-]+/', '', $this->booking_code);
+
+        // Kode dan nomor HP harus cocok dua-duanya. Pesan gagal sama untuk kode salah
+        // dan nomor salah, supaya booking orang lain tidak bisa ditebak.
         $services = $phone
-            ? Service::where('customer_phone', $phone)
-                ->whereRaw('LOWER(TRIM(customer_name)) = ?', [mb_strtolower(trim($this->customer_name))])
-                ->orderByDesc('scheduled_at')
-                ->limit(3)
+            ? Service::where('booking_code', $code)
+                ->where('customer_phone', $phone)
                 ->get()
             : collect();
 
         $this->results = $services->map(fn (Service $s) => [
+            'booking_code' => $s->booking_code,
             'status' => $s->status->value,
             'status_label' => self::statusLabel($s->status->value),
             'type' => $s->booking_type->getLabel(),

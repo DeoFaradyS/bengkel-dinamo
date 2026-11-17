@@ -1,13 +1,31 @@
 <div class="w-full max-w-3xl flex flex-col items-center gap-8">
     <form wire:submit="check" class="w-full max-w-[480px] flex flex-col gap-4">
-        <div class="flex flex-col gap-1">
-            <input type="text" wire:model="customer_name" placeholder="Nama saat booking"
-                class="w-full p-4 bg-neutral-100 rounded-[10px] text-neutral-800 placeholder:text-neutral-400 outline-none focus:ring-2 focus:ring-red-500">
-            @error('customer_name') <p class="text-sm text-red-600">{{ $message }}</p> @enderror
+        {{-- Tampil 6 kotak, tapi di belakangnya tetap 1 isian: tempel dan backspace jalan normal. --}}
+        <div class="flex flex-col gap-2" x-data="{ kode: $wire.entangle('booking_code'), fokus: false }">
+            <label for="kode-booking" class="text-sm font-semibold text-neutral-600">Kode booking</label>
+
+            <div class="relative">
+                <div class="grid grid-cols-6 gap-2" aria-hidden="true">
+                    @for ($i = 0; $i < 6; $i++)
+                        <div class="h-16 flex items-center justify-center bg-neutral-100 rounded-[10px] text-2xl font-semibold text-neutral-900 tabular-nums transition"
+                            x-bind:class="fokus && Math.min(kode.length, 5) === {{ $i }} ? 'ring-2 ring-red-500 bg-white' : ''"
+                            x-text="kode[{{ $i }}] ?? ''"></div>
+                    @endfor
+                </div>
+
+                <input id="kode-booking" type="text" x-model="kode" maxlength="6" inputmode="numeric" autocomplete="off"
+                    aria-label="Kode booking, 6 angka"
+                    x-on:input="kode = $event.target.value.replace(/\D/g, '').slice(0, 6)"
+                    x-on:focus="fokus = true" x-on:blur="fokus = false"
+                    class="absolute inset-0 w-full h-full opacity-0 cursor-text text-base">
+            </div>
+
+            @error('booking_code') <p class="text-sm text-red-600">{{ $message }}</p> @enderror
         </div>
 
-        <div class="flex flex-col gap-1">
-            <input type="tel" wire:model="phone" placeholder="Nomor HP, contoh 081234567890"
+        <div class="flex flex-col gap-2">
+            <label for="cek-hp" class="text-sm font-semibold text-neutral-600">Nomor HP</label>
+            <input id="cek-hp" type="tel" wire:model="phone" placeholder="Contoh 081234567890"
                 class="w-full p-4 bg-neutral-100 rounded-[10px] text-neutral-800 placeholder:text-neutral-400 outline-none focus:ring-2 focus:ring-red-500">
             @error('phone') <p class="text-sm text-red-600">{{ $message }}</p> @enderror
         </div>
@@ -17,13 +35,19 @@
             <span wire:loading.remove wire:target="check">Cek Status &rarr;</span>
             <span wire:loading wire:target="check">Mencari...</span>
         </button>
+
+        <p class="text-sm text-neutral-500 text-center">
+            Lupa kode? Cari di chat WhatsApp dengan bengkel, atau
+            <a href="{{ \App\Support\WhatsAppLink::make(config('booking.whatsapp'), 'Halo Budi Dinamo, saya lupa kode booking saya.') }}"
+                target="_blank" rel="noopener" class="font-semibold text-red-600 underline underline-offset-2">tanya lewat WhatsApp</a>.
+        </p>
     </form>
 
     @if ($results !== null)
         @if (count($results) === 0)
             <div class="w-full flex flex-col items-center gap-2 p-8 text-center bg-neutral-50 border border-neutral-200 rounded-2xl">
                 <p class="text-xl font-semibold text-neutral-800">Booking tidak ditemukan</p>
-                <p class="text-lg text-neutral-500">Pastikan nama dan nomor HP sama seperti saat booking.</p>
+                <p class="text-lg text-neutral-500">Pastikan kode booking dan nomor HP sama seperti saat booking.</p>
             </div>
         @else
             @php
@@ -51,10 +75,6 @@
             @endphp
 
             <div class="w-full flex flex-col gap-5">
-                @if (count($results) > 1)
-                    <p class="text-lg text-neutral-500">{{ count($results) }} booking terakhir, terbaru di atas.</p>
-                @endif
-
                 @foreach ($results as $r)
                     @php
                         $status = \App\Enums\ServiceStatus::from($r['status']);
@@ -84,6 +104,10 @@
                         @endif
 
                         <dl class="flex flex-col gap-4 pt-6 border-t border-neutral-100 text-lg">
+                            <div class="flex flex-col sm:flex-row sm:gap-6">
+                                <dt class="sm:w-28 shrink-0 text-neutral-500">Kode</dt>
+                                <dd class="font-semibold text-neutral-900 tabular-nums tracking-wider">{{ substr($r['booking_code'], 0, 3) }} {{ substr($r['booking_code'], 3) }}</dd>
+                            </div>
                             <div class="flex flex-col sm:flex-row sm:gap-6">
                                 <dt class="sm:w-28 shrink-0 text-neutral-500">Jadwal</dt>
                                 <dd class="font-semibold text-neutral-900">{{ $r['scheduled_at'] ?? '-' }}</dd>

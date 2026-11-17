@@ -1,9 +1,56 @@
 <div>
     @if ($submitted)
-        <div class="flex flex-col gap-2 py-6 text-center">
-            <p class="text-lg font-semibold text-neutral-800">Booking terkirim</p>
-            <p class="text-neutral-500">Kami akan menghubungi untuk konfirmasi.</p>
-        </div>
+        @if ($bookingCode)
+            <div class="flex flex-col gap-5 py-2 text-center" x-data="{
+                    tersalin: false,
+                    salin() {
+                        const kode = '{{ $bookingCode }}';
+                        // Clipboard API hanya jalan di https/localhost, selain itu pakai cara lama.
+                        const lama = () => {
+                            const t = document.createElement('textarea');
+                            t.value = kode;
+                            document.body.appendChild(t);
+                            t.select();
+                            document.execCommand('copy');
+                            t.remove();
+                        };
+                        (navigator.clipboard?.writeText(kode) ?? Promise.reject()).catch(lama);
+                        this.tersalin = true;
+                        setTimeout(() => this.tersalin = false, 2000);
+                    },
+                }">
+                <div class="flex flex-col gap-1">
+                    <p class="text-xl font-semibold text-neutral-800">Booking terkirim</p>
+                    <p class="text-neutral-500">Simpan kode ini untuk cek status booking.</p>
+                </div>
+
+                <div class="flex flex-col items-center gap-3 p-5 bg-neutral-50 border border-neutral-200 rounded-2xl">
+                    <p class="text-sm text-neutral-500">Kode booking</p>
+                    <p class="text-4xl font-bold tracking-[0.2em] text-neutral-900 tabular-nums">
+                        {{ substr($bookingCode, 0, 3) }} {{ substr($bookingCode, 3) }}
+                    </p>
+                    <button type="button" x-on:click="salin()"
+                        class="px-5 py-2.5 bg-white border border-neutral-300 rounded-[10px] font-semibold text-neutral-700 hover:border-neutral-400 focus:outline-none focus:ring-2 focus:ring-red-500">
+                        <span x-show="!tersalin">Salin kode</span>
+                        <span x-show="tersalin" style="display:none">Tersalin &check;</span>
+                    </button>
+                </div>
+
+                <a href="{{ $waLink }}" target="_blank" rel="noopener"
+                    class="px-6 py-4 bg-green-600 rounded-[10px] text-white text-lg font-semibold hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                    Konfirmasi ke WhatsApp
+                </a>
+
+                <p class="text-sm text-neutral-500">
+                    Pesan berisi kode booking akan terkirim ke bengkel. Kalau lupa kode, cari di chat WhatsApp itu.
+                </p>
+            </div>
+        @else
+            <div class="flex flex-col gap-2 py-6 text-center">
+                <p class="text-lg font-semibold text-neutral-800">Booking terkirim</p>
+                <p class="text-neutral-500">Kami akan menghubungi untuk konfirmasi.</p>
+            </div>
+        @endif
     @else
         <form wire:submit="submit" class="flex flex-col gap-4">
             <div style="display:none" aria-hidden="true">
