@@ -36,8 +36,9 @@
       <livewire:booking-form />
     </div>
 
-    <div class="relative lg:col-start-1 lg:row-start-2 min-h-56 lg:min-h-64 rounded-[10px] overflow-hidden">
-      <img src="{{ asset('images/bengkel.webp') }}" alt="Bengkel Budi Dinamo" width="1400" height="795"
-        decoding="async" class="absolute inset-0 size-full object-cover">
+    {{-- Tinggi tetap dan menempel di atas: tidak ikut memanjang saat form booking bertambah (Panggil Montir). --}}
+    <div class="relative lg:col-start-1 lg:row-start-2 lg:self-start h-56 sm:h-72 lg:h-[360px] rounded-[10px] overflow-hidden">
+      <img src="{{ asset('images/bengkel.webp') }}" alt="Bengkel Budi Dinamo" width="1400" height="1050"
+        decoding="async" class="absolute inset-0 size-full object-cover object-[50%_35%]">
     </div>
 </section>

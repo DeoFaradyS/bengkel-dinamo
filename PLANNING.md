@@ -51,7 +51,7 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara. Disaring
 - [x] `ServicesTable.php` (panel Servis): aksi `tandai_lunas` memanggil `Notification::make()`, tapi berkas itu tidak punya `use Filament\Notifications\Notification;` (`ViewService.php` punya). Aksi dari tabel bisa error "class not found". Cek manual lalu tambah tes.
 - [x] Kolom Total di tabel admin tidak menghitung `transport_fee`, sedangkan detail admin dan area customer menghitungnya. Total di `/riwayat` sudah ikut detail (jasa + part + transport). Diputuskan 17 Nov 2026: disamakan (aturan 7), tes TRN-009..011.
 - [ ] Cast `Service`: `fuel_price` dan `transport_fee` bertipe `integer` padahal kolom `decimal(12,2)`, dan `saving` memakai `(int)`. Aman selama harga BBM dan ongkos bulat. Cek kalau suatu saat ada pecahan.
-- [x] Kompres foto beranda: `bengkel.png` 2,6 MB diganti `bengkel.webp` 1400px, 149 KB (17 Nov 2026).
+- [x] Kompres foto beranda: `bengkel.png` 2,6 MB diganti `bengkel.webp` 1400px, 149 KB (17 Nov 2026). Diganti foto depan bengkel (papan DINAMO), 1400x1050, 170 KB, tinggi foto di hero dibuat tetap (17 Nov 2026).
 - [x] `php artisan test` penuh. Riwayat hasil: 455 (9 Nov), 480 (login), 494 (riwayat), 503 dan 506 (Tandai Lunas), 514 (area customer), **530 lulus, 0 gagal (10 Nov 2026, siang).**
 
 ## C. Fitur belum dikerjakan
