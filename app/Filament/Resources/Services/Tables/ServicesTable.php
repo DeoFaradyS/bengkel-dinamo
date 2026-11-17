@@ -41,7 +41,8 @@ class ServicesTable
                     ->dateTime('d/m/Y H:i')
                     ->sortable(),
                 TextColumn::make('booking_type')->label('Tipe')
-                    ->badge(),
+                    ->badge()
+                    ->icon(false),
                 TextColumn::make('source')->label('Asal')
                     ->badge()
                     ->toggleable(),
