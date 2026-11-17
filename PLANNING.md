@@ -73,7 +73,7 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara. Disaring
 
 **D2. Login pelanggan. DIPUTUSKAN (8 Nov 2026) dan SELESAI (10 Nov 2026).** Email + password, tanpa OTP. Pakai tabel `users` dengan kolom `role`, bukan tabel `customers` dan bukan guard terpisah. `services.user_id` nullable (NULL = tamu). Satu pintu login `/masuk` untuk owner dan customer (login bawaan Filament dicabut). Rincian di `PROJECT_RULES.md`.
 
-**D3. Alasan batal di Cek Booking dan area customer. CEK BOOKING DIPUTUSKAN DAN SELESAI (17 Nov 2026):** alasan tampil di kartu Cek Booking untuk Dibatalkan dan Ditolak, form admin diberi keterangan "Alasan ini terlihat oleh pelanggan di Cek Booking." Riwayat dan detail customer belum (RWY masih memastikan tersembunyi). Catatan awal: `cancel_reason` mungkin catatan internal pemilik. Saat ini tidak ditampilkan di Cek Booking, Riwayat, maupun detail. Putuskan perlu ditampilkan atau tidak.
+**D3. Alasan batal di Cek Booking dan area customer. CEK BOOKING DIPUTUSKAN DAN SELESAI (17 Nov 2026):** alasan tampil di kartu Cek Booking untuk Dibatalkan dan Ditolak, form admin diberi keterangan "Alasan ini terlihat oleh pelanggan di Cek Booking." Detail Riwayat customer juga menampilkannya (RWY-013 dibalik, RWY-023 untuk status lain); tabel Riwayat tidak. Catatan awal: `cancel_reason` mungkin catatan internal pemilik. Saat ini tidak ditampilkan di Cek Booking, Riwayat, maupun detail. Putuskan perlu ditampilkan atau tidak.
 
 **D4. Slug jasa.** Detail jasa sekarang `/layanan/{id}`. Slug butuh kolom baru lewat migrasi dan persetujuan.
 
@@ -83,7 +83,7 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara. Disaring
 
 **D7. Data demo di staging.** Seeder demo sekarang jalan di semua environment kecuali production. Kalau nanti ada staging dan datanya tidak boleh berisi demo, putuskan cara memisahkan (misalnya env khusus atau flag di `.env`).
 
-**D8. Harga tampil untuk pelanggan login (BARU, 10 Nov 2026).** Tabel dan detail `/riwayat` disamakan dengan panel admin atas permintaan pemilik, jadi menampilkan harga jasa, harga part, transport, total, dan status lunas. Aturan 12 hanya melarang harga di Cek Booking publik (tanpa login). Masih tersembunyi dari pelanggan: alasan batal, nama montir, catatan internal, data stok. Perlu persetujuan pemilik bengkel dan dospem bahwa pelanggan login boleh melihat harga.
+**D8. Harga tampil untuk pelanggan login (BARU, 10 Nov 2026).** Tabel dan detail `/riwayat` disamakan dengan panel admin atas permintaan pemilik, jadi menampilkan harga jasa, harga part, transport, total, dan status lunas. Aturan 12 hanya melarang harga di Cek Booking publik (tanpa login). Masih tersembunyi dari pelanggan: nama montir, catatan internal, data stok. Perlu persetujuan pemilik bengkel dan dospem bahwa pelanggan login boleh melihat harga.
 
 **D9. Kolom Total dan Status di tabel Servis admin per tab. DIPUTUSKAN DAN SELESAI (17 Nov 2026):** Total = jasa + part + ongkos (Home Service Dikonfirmasi menampilkan ongkos), `-` kalau 0. Usul awal:
 Sekarang Total tampil di semua tab dan menunjukkan Rp 0 untuk Menunggu, padahal harga belum dihitung. Kolom Status juga tampil di semua tab, padahal tab sudah memfilter status.
@@ -132,7 +132,7 @@ Daftar dari pemilik. Per 10 Nov 2026 (siang): tahap 1 sampai 3 selesai, 530 tes 
 - [x] Rapikan dan organisasi tes (`tests/README.md` dibuat 10 Nov 2026; sisa: ID kembar dan judul usang, lihat catatan di README): tiap berkas dan ID tes punya penjelasan satu baris "mengetes apa". Usul: tabel `tests/README.md` berisi kode modul (BKG, LOC, TIP, PRC, JSA, ANT, AUTH, SEC, LNS, RWY, PRF, dst), berkas, dan aturan bisnis yang dicek.
 - [x] Perbarui laporan skripsi: banyak perubahan (landing, jasa, ERD, login customer, area customer, antrian, Cek Booking, Tandai Lunas).
 - [ ] Notifikasi WhatsApp ke pelanggan: opsional, dikerjakan belakangan kalau sempat.
-- [ ] Siapkan bahan bimbingan: demo (beranda, `/layanan`, Cek Booking, upload foto jasa, login customer, booking login, Riwayat dan detail, Cetak Invoice, Profil, Tandai Lunas di panel), angka tes (565), daftar migrasi yang berubah, keputusan yang butuh jawaban (D1, D3, D8).
+- [ ] Siapkan bahan bimbingan: demo (beranda, `/layanan`, Cek Booking, upload foto jasa, login customer, booking login, Riwayat dan detail, Cetak Invoice, Profil, Tandai Lunas di panel), angka tes (566), daftar migrasi yang berubah, keputusan yang butuh jawaban (D1, D3, D8).
 
 ## F. Rencana perubahan database dan fitur turunannya (diperbarui 10 Nov 2026, siang)
 

@@ -2,7 +2,7 @@
 
 Konteks proyek skripsi untuk AI. Baca seluruh file sebelum menjawab. Bagian "Aturan wajib untuk AI" mengikat. Jika file ini bertentangan dengan kode di konteks, kode yang benar: sebutkan pertentangannya, jangan diam-diam memilih.
 
-Daftar pekerjaan yang belum selesai, bug yang diketahui, dan keputusan terbuka ada di `PLANNING.md`. Baca juga file itu kalau tugasnya menyangkut pekerjaan lanjutan. Terakhir disinkronkan: 17 November 2026 (565 tes lulus).
+Daftar pekerjaan yang belum selesai, bug yang diketahui, dan keputusan terbuka ada di `PLANNING.md`. Baca juga file itu kalau tugasnya menyangkut pekerjaan lanjutan. Terakhir disinkronkan: 17 November 2026 (566 tes lulus).
 
 ## 1. Tujuan sistem
 
@@ -172,7 +172,7 @@ Tidak dibuat (pengembangan lanjutan): tabel `statuses`, tabel `customers`, OTP, 
 16. **Area customer** (`RiwayatController`, `ProfilController`):
     - Riwayat hanya memuat servis milik `Auth::id()`. Servis orang lain atau yang sudah di-soft-delete: 404. Owner yang membuka rute ini dilempar ke `/admin`.
     - Tabel mengikuti tabel admin tanpa kolom Pelanggan dan No. HP: No, Tanggal & Jam, Tipe, Status, Pembayaran, Total, Aksi. Filter Tipe, Status, Pembayaran. Urut Tanggal atau Total. Per halaman 10, 25, 50 (nilai lain jatuh ke 10). Total di sini = jasa + part + transport.
-    - Detail mengikuti infolist admin: Data Servis, Jasa, Spare Part, Ringkasan biaya. Harga tampil untuk pelanggan login (keputusan menunggu persetujuan pemilik, `PLANNING.md` D8). **Tidak tampil:** `cancel_reason`, `mechanic_names`, catatan internal, data stok.
+    - Detail mengikuti infolist admin: Data Servis, Jasa, Spare Part, Ringkasan biaya. Harga tampil untuk pelanggan login (keputusan menunggu persetujuan pemilik, `PLANNING.md` D8). Detail juga menampilkan Kode Booking, dan alasan dari bengkel (`cancel_reason`) khusus untuk Dibatalkan atau Ditolak (D3). **Tidak tampil:** `mechanic_names`, catatan internal, data stok. Tabel Riwayat tidak menampilkan alasan.
     - Cetak Invoice (`/riwayat/{id}/invoice`): PDF inline, hanya servis `completed` milik sendiri, selain itu 404.
     - Profil: nama (wajib, maks 255) dan nomor HP (opsional, dinormalkan, format `08` + 8 sampai 12 angka). Email tampil terkunci dan tidak diterima dari input. Nomor HP wajib baru saat booking.
 17. **Sparepart dan jasa diarsipkan, bukan dihapus.** Soft delete = arsip. Tidak ada tombol Pulihkan atau filter Arsip di panel (keputusan 17 Nov 2026). Sparepart: kode dibebaskan saat dihapus (`code` jadi `{code}-DEL-{id}` di `SparePart::booted()`), jadi kode lama bisa dipakai lagi (HSP-002). Jasa (`ServiceType`, D1): hilang dari beranda, `/layanan`, detail (404), dan pilihan form servis. Baris jasa di servis lama tetap memegang `service_type_id` (`ServiceItem::serviceType()` memakai `withTrashed()`), dan pilihan Jasa di form tetap memuat jasa terarsip yang sudah tersimpan di baris itu, supaya servis aktif masih bisa disimpan (JSA-014..016).
@@ -204,7 +204,6 @@ Rincian dan usulan ada di `PLANNING.md`. Ringkasan:
 
 - Harga part: satu `price`, belum dibedakan beli dan jual.
 - Jasa yang sudah dipakai di `service_items`: boleh dihapus atau diblokir.
-- Alasan batal (`cancel_reason`) di area customer (Riwayat dan detail): Cek Booking sudah menampilkannya sejak 17 Nov 2026 (D3), Riwayat belum.
 - **Harga tampil untuk pelanggan login** (Riwayat dan detail): sudah dibangun atas permintaan pemilik, menunggu persetujuan pemilik bengkel dan dospem (D8).
 - Halaman detail jasa: perlu slug atau tetap memakai id; perlu tombol booking yang mengisi jasa otomatis atau tidak.
 - Promo dikelola dari panel (sisa US-07) atau tetap statis.
@@ -244,12 +243,12 @@ Tujuan: setiap perubahan langsung ketahuan kalau merusak fitur lain, tanpa menge
 - Framework: Pest 4. Lokasi: `tests/Feature/{Modul}/`, contoh `tests/Feature/Services/ServicePartTest.php`.
 - Tes Livewire memakai `Livewire\Livewire::test(...)`. Fungsi `Pest\Livewire\livewire()` tidak tersedia karena plugin-nya tidak terpasang.
 - Nama tes memakai ID kasus uji, contoh `SPF-013: subtotal = qty x harga satuan`. ID ini dipakai juga di tabel pengujian Black Box. Jangan mengganti ID tes yang sudah ada. ID baru melanjutkan nomor terakhir di modul itu.
-- ID yang sudah dipakai: SSP, FSP, LSP (sparepart), SPF (service parts), ANT (antrian), LOC (lokasi booking), BKG (booking), TIP (tipe booking), CMP, PRC (harga jasa), JSA-001..009, JSA-013..016 (resource, seeder, dan arsip Jasa, di `tests/Feature/ServiceTypes/`; JSA-010..012 tidak dipakai), SED dan SDR (seeder), AUTH-001..024 (`tests/Feature/Auth/CustomerAuthTest.php`), SEC-001..003 (`tests/Feature/Auth/PanelSecurityTest.php`), LNS-001..010 dan LNS-014 (Tandai Lunas; 011..013 dihapus 17 Nov karena tes tampilan, jangan dipakai ulang), RWY-001..022 (`tests/Feature/Riwayat/RiwayatTest.php`), CEK-001..015 (Cek Booking, `tests/Feature/Booking/BookingStatusCheckTest.php`), PRF-001..007 (`tests/Feature/Profile/ProfilTest.php`). BKA-001..007 (booking login, `tests/Feature/Booking/BookingAccountTest.php`). Peta lengkap kode, berkas, dan aturan yang dicek ada di `tests/README.md`, termasuk daftar ID kembar (LOC, STK, FRM, SED, TSJ-004). ID baru untuk modul itu melanjutkan nomor terbesar dari kedua berkas.
+- ID yang sudah dipakai: SSP, FSP, LSP (sparepart), SPF (service parts), ANT (antrian), LOC (lokasi booking), BKG (booking), TIP (tipe booking), CMP, PRC (harga jasa), JSA-001..009, JSA-013..016 (resource, seeder, dan arsip Jasa, di `tests/Feature/ServiceTypes/`; JSA-010..012 tidak dipakai), SED dan SDR (seeder), AUTH-001..024 (`tests/Feature/Auth/CustomerAuthTest.php`), SEC-001..003 (`tests/Feature/Auth/PanelSecurityTest.php`), LNS-001..010 dan LNS-014 (Tandai Lunas; 011..013 dihapus 17 Nov karena tes tampilan, jangan dipakai ulang), RWY-001..023 (`tests/Feature/Riwayat/RiwayatTest.php`), CEK-001..015 (Cek Booking, `tests/Feature/Booking/BookingStatusCheckTest.php`), PRF-001..007 (`tests/Feature/Profile/ProfilTest.php`). BKA-001..007 (booking login, `tests/Feature/Booking/BookingAccountTest.php`). Peta lengkap kode, berkas, dan aturan yang dicek ada di `tests/README.md`, termasuk daftar ID kembar (LOC, STK, FRM, SED, TSJ-004). ID baru untuk modul itu melanjutkan nomor terbesar dari kedua berkas.
 - Aturan bisnis di bagian 5 diuji di level model atau action (cepat dan stabil). Alur form Filament diuji lewat Livewire hanya untuk perilaku yang memang ada di form.
 - Gunakan factory yang sudah ada. Kalau factory belum ada, buat dulu, jangan mengisi kolom manual berulang. `UserFactory` punya state `owner()`.
 - Fitur baru: minimal satu tes jalur normal, satu tes jalur gagal (validasi atau aturan bisnis ditolak), dan satu tes batas (stok 0, status final, nomor HP ganda, dan sejenisnya).
 - Perbaikan bug: tulis tes yang gagal karena bug itu lebih dulu, lalu perbaiki kodenya.
-- Sebelum dianggap selesai, seluruh tes harus lulus: `php artisan test` (atau `./vendor/bin/pest`). Laporkan hasilnya, contoh "530 lulus". **Hasil terakhir yang diketahui: 565 lulus, 0 gagal (17 Nov 2026).**
+- Sebelum dianggap selesai, seluruh tes harus lulus: `php artisan test` (atau `./vendor/bin/pest`). Laporkan hasilnya, contoh "530 lulus". **Hasil terakhir yang diketahui: 566 lulus, 0 gagal (17 Nov 2026).**
 - Perubahan di `Service::syncStock()`, `SparePart::addStock()`, `ServiceStatus::allowedNext()`, `Service::startBlockerMessage()`, atau hitungan total wajib punya tes regresi, karena area ini menyentuh banyak fitur.
 - Label yang tampil di tabel ikut jadi teks yang dicari tes. Kalau label atau kolom pindah halaman (contoh: keluhan pindah dari tabel Riwayat ke detail), pindahkan assertion ke halaman barunya dan catat alasannya. Label status juga muncul di dropdown filter, jadi untuk memeriksa isi tabel gunakan `assertViewHas` atau data, bukan teks label.
 

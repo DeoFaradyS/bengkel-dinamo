@@ -146,14 +146,17 @@ test('RWY-012: detail booking milik orang lain 404', function () {
     $this->actingAs(User::factory()->create())->get('/riwayat/'.$service->id)->assertNotFound();
 });
 
-test('RWY-013: alasan batal tidak tampil di detail', function () {
+// Sejak D3 (17 Nov 2026) alasan batal tampil di detail, sama dengan Cek Booking.
+// Sebelumnya tes ini memastikan alasan tersembunyi.
+test('RWY-013: alasan batal tampil di detail booking yang dibatalkan', function () {
     $user = User::factory()->create();
-    servisRiwayat($user, ['status' => ServiceStatus::Cancelled, 'cancel_reason' => 'Catatan internal XYZ']);
+    servisRiwayat($user, ['status' => ServiceStatus::Cancelled, 'cancel_reason' => 'Jadwal montir penuh']);
     $service = \App\Models\Service::where('user_id', $user->id)->firstOrFail();
 
     $this->actingAs($user)->get('/riwayat/'.$service->id)
         ->assertOk()
-        ->assertDontSee('Catatan internal XYZ');
+        ->assertSee('Alasan dari bengkel')
+        ->assertSee('Jadwal montir penuh');
 });
 
 test('RWY-014: owner terlempar ke panel dari riwayat dan detail', function () {
@@ -259,3 +262,13 @@ test('RWY-022: per halaman 25 dan 50 dipakai, nilai lain jatuh ke 10', function 
     '100 ditolak' => ['100', 10],
     'teks ditolak' => ['abc', 10],
 ]);
+
+test('RWY-023: alasan tidak tampil di detail kalau status bukan Dibatalkan atau Ditolak', function () {
+    $user = User::factory()->create();
+    servisRiwayat($user, ['status' => ServiceStatus::Confirmed, 'cancel_reason' => 'Sisa catatan lama']);
+    $service = \App\Models\Service::where('user_id', $user->id)->firstOrFail();
+
+    $this->actingAs($user)->get('/riwayat/'.$service->id)
+        ->assertOk()
+        ->assertDontSee('Sisa catatan lama');
+});

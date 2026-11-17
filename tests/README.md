@@ -1,6 +1,6 @@
 # Peta Tes: SIM Bengkel Cak Budi Dinamo
 
-Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (565 lulus per 17 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
+Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (566 lulus per 17 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
 
 Jalankan: `php artisan test`, atau satu modul: `php artisan test --filter=Riwayat`.
 
@@ -106,7 +106,7 @@ Catatan umum:
 | --- | --- | --- | --- |
 | AUTH-001..024 (tanpa 002 dan 005) | Auth/CustomerAuthTest | Daftar, masuk, keluar, throttle, role tidak bisa dipilih, redirect owner dan customer, halaman dan navbar tamu, login satu pintu (tamu /admin ke /masuk, /admin/login 404) | aturan 14 |
 | SEC-001..003 | Auth/PanelSecurityTest | Customer tidak bisa buka `/admin`, owner bisa, notifikasi hanya ke owner | aturan 10, 14 |
-| RWY-001..022 | Riwayat/RiwayatTest | Riwayat milik sendiri, soft delete tersembunyi, urut tanggal dan Total (termasuk ongkos), paginasi 10/25/50, filter status, tipe, dan pembayaran, detail, 404 milik orang lain, invoice hanya Selesai milik sendiri, owner dan tamu dialihkan | aturan 16 |
+| RWY-001..023 | Riwayat/RiwayatTest | Riwayat milik sendiri, soft delete tersembunyi, urut tanggal dan Total (termasuk ongkos), paginasi 10/25/50, filter status, tipe, dan pembayaran, detail, alasan batal tampil di detail hanya untuk Dibatalkan/Ditolak (RWY-013 dibalik sejak D3, RWY-023), 404 milik orang lain, invoice hanya Selesai milik sendiri, owner dan tamu dialihkan | aturan 16 |
 | PRF-001..007 | Profile/ProfilTest | Simpan nama dan HP (dinormalkan), HP opsional, email dan role tidak bisa diubah, owner dan tamu dialihkan | aturan 16 |
 
 ## Halaman publik dan unit

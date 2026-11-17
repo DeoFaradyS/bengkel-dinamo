@@ -39,6 +39,10 @@
             </header>
 
             <dl class="grid gap-x-8 gap-y-5 p-6 sm:grid-cols-2">
+                <div class="sm:col-span-2">
+                    <dt class="{{ $dt }}">Kode Booking</dt>
+                    <dd class="{{ $dd }} tabular-nums">{{ $service->booking_code ?? '-' }}</dd>
+                </div>
                 <div>
                     <dt class="{{ $dt }}">Nama Pelanggan</dt>
                     <dd class="{{ $dd }}">{{ $service->customer_name ?: '-' }}</dd>
@@ -80,6 +84,14 @@
                     <dt class="{{ $dt }}">Keluhan</dt>
                     <dd class="{{ $dd }} whitespace-pre-line">{{ $service->complaint ?: '-' }}</dd>
                 </div>
+
+                {{-- D3: alasan hanya untuk booking yang dibatalkan atau ditolak, sama dengan Cek Booking. --}}
+                @if (in_array($service->status, [\App\Enums\ServiceStatus::Cancelled, \App\Enums\ServiceStatus::Rejected], true) && filled($service->cancel_reason))
+                    <div class="sm:col-span-2">
+                        <dt class="{{ $dt }}">Alasan dari bengkel</dt>
+                        <dd class="{{ $dd }} whitespace-pre-line">{{ $service->cancel_reason }}</dd>
+                    </div>
+                @endif
 
                 @if (filled($service->address_note))
                     <div class="sm:col-span-2">
