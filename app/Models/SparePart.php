@@ -22,7 +22,7 @@ class SparePart extends Model
         'category_id',
         'stock',
         'min_stock',
-        'location',
+        'storage_location',
         'price',
     ];
 
@@ -39,7 +39,7 @@ class SparePart extends Model
             if ($part->stock > 0) {
                 $part->stockMovements()->create([
                     'type' => StockMovementType::Opening,
-                    'quantity' => $part->stock,
+                    'quantity_change' => $part->stock,
                     'stock_after' => $part->stock,
                     'note' => 'Stok awal',
                     'user_id' => auth()->id(),
@@ -82,7 +82,7 @@ class SparePart extends Model
 
             return $part->stockMovements()->create([
                 'type' => $type,
-                'quantity' => $quantity,
+                'quantity_change' => $quantity,
                 'stock_after' => $after,
                 'note' => $note,
                 'reason' => $reason,

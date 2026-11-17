@@ -5,6 +5,8 @@ namespace App\Livewire;
 use App\Actions\CreateBooking;
 use App\Enums\BookingType;
 use App\Support\PhoneNumber;
+use App\Support\WhatsAppLink;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -32,12 +34,17 @@ class BookingForm extends Component
     public string $website = '';
 
     public bool $submitted = false;
+
+    // Diisi setelah booking terkirim: kode untuk Cek Booking dan link konfirmasi ke WA bengkel.
+    public ?string $bookingCode = null;
+    public ?string $waLink = null;
     public ?string $distanceText = null;
     public ?string $distanceError = null;
 
     public function mount(): void
     {
         $this->slot_date = now()->format('Y-m-d');
+        $this->fillFromAccount();
     }
 
     public function updatedSlotDate(): void
@@ -115,7 +122,7 @@ class BookingForm extends Component
         ]);
 
         try {
-            app(CreateBooking::class)->handle([
+            $service = app(CreateBooking::class)->handle([
                 'customer_name' => $this->customer_name,
                 'phone' => $this->phone,
                 'complaint' => $this->complaint,
@@ -124,6 +131,7 @@ class BookingForm extends Component
                 'latitude' => $this->latitude,
                 'longitude' => $this->longitude,
                 'address' => $this->address,
+                'user_id' => Auth::id(),
             ]);
         } catch (ValidationException $e) {
             foreach ($e->errors() as $field => $messages) {
@@ -132,6 +140,18 @@ class BookingForm extends Component
 
             return;
         }
+
+        $this->rememberPhone();
+
+        $this->bookingCode = $service->booking_code;
+        $this->waLink = WhatsAppLink::make(config('booking.whatsapp'), implode("\n", [
+            'Halo Budi Dinamo, saya sudah booking.',
+            'Kode booking: ' . $service->booking_code,
+            'Nama: ' . $service->customer_name,
+            'Jadwal: ' . $service->scheduled_at->translatedFormat('l, j F Y · H.i'),
+            'Jenis: ' . $service->booking_type->getLabel(),
+            'Mohon dikonfirmasi, terima kasih.',
+        ]));
 
         $this->reset([
             'customer_name',
@@ -146,6 +166,15 @@ class BookingForm extends Component
             'distanceError',
         ]);
         $this->submitted = true;
+    }
+
+    // Tombol "Buat booking lain" di layar sukses: kembali ke form kosong.
+    // Aturan satu booking aktif per nomor HP tetap dicek di CreateBooking.
+    public function bookingBaru(): void
+    {
+        $this->reset(['submitted', 'bookingCode', 'waLink']);
+        $this->slot_date = now()->format('Y-m-d');
+        $this->fillFromAccount();
     }
 
     public function hitungJarak(): void
@@ -187,6 +216,30 @@ class BookingForm extends Component
 
         $this->distanceText = 'Jarak ke bengkel sekitar '
             . number_format($distance->airKm, 1, ',', '.') . ' km';
+    }
+
+    // Customer login: nama dan HP terisi dari akun. Tetap bisa diubah
+    // (booking untuk orang lain), nilainya disalin ke services.
+    protected function fillFromAccount(): void
+    {
+        $user = Auth::user();
+
+        if ($user === null) {
+            return;
+        }
+
+        $this->customer_name = $user->name;
+        $this->phone = (string) $user->phone;
+    }
+
+    // HP diisi saat booking pertama: simpan ke akun kalau masih kosong.
+    protected function rememberPhone(): void
+    {
+        $user = Auth::user();
+
+        if ($user !== null && blank($user->phone)) {
+            $user->forceFill(['phone' => $this->phone])->save();
+        }
     }
 
     public function render()

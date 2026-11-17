@@ -1,4 +1,4 @@
-<section id="appointment" class="pt-16 pb-16 lg:pb-20">
+<section id="booking" class="pt-16 pb-16 lg:pb-20">
   <div
     class="w-full max-w-[1200px] mx-auto px-1 grid gap-8 lg:gap-x-12 lg:gap-y-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,500px)] lg:grid-rows-[auto_1fr]">
 
@@ -36,8 +36,9 @@
       <livewire:booking-form />
     </div>
 
-    <div class="relative lg:col-start-1 lg:row-start-2 min-h-56 lg:min-h-64 rounded-[10px] overflow-hidden">
-      <img src="{{ asset('images/bengkel.png') }}" alt="Bengkel Budi Dinamo"
-        decoding="async" class="absolute inset-0 size-full object-cover">
+    {{-- Tinggi tetap dan menempel di atas: tidak ikut memanjang saat form booking bertambah (Panggil Montir). --}}
+    <div class="relative lg:col-start-1 lg:row-start-2 lg:self-start h-56 sm:h-72 lg:h-[360px] rounded-[10px] overflow-hidden">
+      <img src="{{ asset('images/bengkel.webp') }}" alt="Bengkel Budi Dinamo" width="1400" height="1050"
+        decoding="async" class="absolute inset-0 size-full object-cover object-[50%_35%]">
     </div>
 </section>

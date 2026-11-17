@@ -18,11 +18,15 @@ use App\Support\Booking\Slots;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
+use App\Enums\UserRole;
 
 class CreateBooking
 {
+    // Satu nomor HP hanya boleh punya satu booking aktif (Menunggu, Dikonfirmasi, Dikerjakan).
+    public const ACTIVE_BOOKING_MESSAGE = 'Nomor ini masih punya booking yang belum selesai. Cek statusnya di Cek Booking.';
+
     /**
-     * @param  array{customer_name: string, phone: string, complaint: string, scheduled_at: mixed, booking_type?: BookingType|string|null, latitude?: mixed, longitude?: mixed}  $data
+     * @param  array{customer_name: string, phone: string, complaint: string, scheduled_at: mixed, booking_type?: BookingType|string|null, latitude?: mixed, longitude?: mixed, user_id?: int|null}  $data
      */
     public function handle(array $data): Service
     {
@@ -64,14 +68,14 @@ class CreateBooking
             $service = Cache::lock('booking-slot:' . $slot->timestamp, 10)->block(5, function () use ($data, $phone, $type, $latitude, $longitude, $address, $distance, $slot) {
                 return DB::transaction(function () use ($data, $phone, $type, $latitude, $longitude, $address, $distance, $slot) {
                     $hasActive = Service::query()
-                        ->where('phone', $phone)
+                        ->where('customer_phone', $phone)
                         ->whereIn('status', ServiceStatus::activeValues())
                         ->lockForUpdate()
                         ->exists();
 
                     if ($hasActive) {
                         throw ValidationException::withMessages([
-                            'phone' => 'Nomor ini masih punya servis yang belum selesai.',
+                            'phone' => self::ACTIVE_BOOKING_MESSAGE,
                         ]);
                     }
 
@@ -83,14 +87,15 @@ class CreateBooking
 
                     return Service::create([
                         'customer_name' => $data['customer_name'],
-                        'phone' => $phone,
+                        'customer_phone' => $phone,
                         'complaint' => $data['complaint'],
                         'scheduled_at' => $slot,
                         'status' => ServiceStatus::Pending,
                         'booking_type' => $type,
                         'latitude' => $latitude,
                         'longitude' => $longitude,
-                        'address' => $address,
+                        'address_note' => $address,
+                        'user_id' => $data['user_id'] ?? null,
                         'distance_km' => $distance?->airKm,
                     ]);
                 });
@@ -103,10 +108,10 @@ class CreateBooking
 
         Notification::make()
             ->title('Booking baru')
-            ->body("{$service->customer_name} ({$service->phone}) booking {$type->getLabel()}, menunggu konfirmasi." . ($address ? " Alamat: {$address}." : ''))
+            ->body("{$service->customer_name} ({$service->customer_phone}) booking {$type->getLabel()}, menunggu konfirmasi." . ($address ? " Alamat: {$address}." : ''))
             ->icon('heroicon-o-clock')
             ->warning()
-            ->sendToDatabase(User::all());
+            ->sendToDatabase(User::where('role', UserRole::Owner->value)->get());
 
         return $service;
     }

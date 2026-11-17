@@ -29,14 +29,14 @@ function cmpCompleted(): Service
 it('CMP-001: donat status tampil dengan semua label status', function () {
     Livewire::test(StatusChart::class)
         ->assertSee('Komposisi Status Servis')
-        ->assertSee('Menunggu Konfirmasi')
+        ->assertSee(ServiceStatus::Pending->getLabel())
         ->assertSee('Selesai')
         ->assertSee('Ditolak');
 });
 
 it('CMP-002: donat tipe layanan tampil dengan kedua label', function () {
     Livewire::test(TypeChart::class)
-        ->assertSee('Home Service vs Ke Bengkel')
+        ->assertSee('Panggil Montir vs Ke Bengkel')
         ->assertSee(BookingType::HomeService->getLabel())
         ->assertSee(BookingType::Workshop->getLabel());
 });

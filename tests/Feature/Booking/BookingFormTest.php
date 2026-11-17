@@ -29,7 +29,7 @@ it('BKG-010: halaman booking terbuka tanpa login', function () {
     $this->get('/')->assertOk();
 });
 
-it('BKG-011: kirim booking valid, tersimpan Menunggu Konfirmasi', function () {
+it('BKG-011: kirim booking valid, tersimpan Menunggu', function () {
     fillBooking(Livewire::test(BookingForm::class), ['phone' => '+62 812 3450 0001'])
         ->call('submit')
         ->assertHasNoErrors();
@@ -37,7 +37,7 @@ it('BKG-011: kirim booking valid, tersimpan Menunggu Konfirmasi', function () {
     $service = Service::first();
 
     expect($service->status)->toBe(ServiceStatus::Pending)
-        ->and($service->phone)->toBe('081234500001');
+        ->and($service->customer_phone)->toBe('081234500001');
 });
 
 it('BKG-012: field wajib kosong ditolak', function (string $field) {
@@ -49,7 +49,7 @@ it('BKG-012: field wajib kosong ditolak', function (string $field) {
 })->with(['customer_name', 'phone', 'complaint', 'scheduled_at']);
 
 it('BKG-013: HP aktif ditolak, data orang lain tidak bocor', function () {
-    Service::factory()->create(['phone' => '081234500001', 'customer_name' => 'Rahasia Orang']);
+    Service::factory()->create(['customer_phone' => '081234500001', 'customer_name' => 'Rahasia Orang']);
 
     fillBooking(Livewire::test(BookingForm::class))
         ->call('submit')
@@ -111,11 +111,37 @@ it('BKG-017: slot penuh tidak bisa dipilih', function () {
 
 it('BKG-018: tanggal kemarin dan terlalu jauh dikoreksi ke batas', function () {
     config(['booking.max_days_ahead' => 14]);
-    $this->travelTo(\Illuminate\Support\Carbon::parse('2026-10-23 06:00'));
+    $this->travelTo(Carbon::parse('2026-10-23 06:00'));
 
     Livewire::test(BookingForm::class)
         ->set('slot_date', '2026-10-22')
         ->assertSet('slot_date', '2026-10-23')
         ->set('slot_date', '2026-12-31')
         ->assertSet('slot_date', '2026-11-06');
+});
+it('BKG-019: HP masih punya booking aktif, pesan jelas dengan link ke Cek Booking', function () {
+    Service::factory()->create(['customer_phone' => '081234500001', 'status' => ServiceStatus::Pending]);
+
+    fillBooking(Livewire::test(BookingForm::class))
+        ->call('submit')
+        ->assertHasErrors(['phone'])
+        ->assertSee('Nomor ini masih punya booking yang belum selesai.')
+        ->assertSee('/#cek-booking', false);
+});
+
+it('BKG-020: Buat booking lain membuka form kosong, nomor yang sama tetap ditolak', function () {
+    $komponen = fillBooking(Livewire::test(BookingForm::class))
+        ->call('submit')
+        ->assertHasNoErrors()
+        ->assertSet('submitted', true)
+        ->call('bookingBaru')
+        ->assertSet('submitted', false)
+        ->assertSet('bookingCode', null)
+        ->assertSet('phone', '');
+
+    fillBooking($komponen, ['scheduled_at' => nextSlot(2)->format('Y-m-d H:i')])
+        ->call('submit')
+        ->assertHasErrors(['phone']);
+
+    expect(Service::count())->toBe(1);
 });

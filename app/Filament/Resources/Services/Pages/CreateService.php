@@ -106,7 +106,7 @@ class CreateService extends CreateRecord
 
     protected function beforeValidate(): void
     {
-        $this->data['phone'] = PhoneNumber::normalize($this->data['phone'] ?? null);
+        $this->data['customer_phone'] = PhoneNumber::normalize($this->data['customer_phone'] ?? null);
     }
 
 
@@ -120,6 +120,9 @@ class CreateService extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
+        // Servis dari panel selalu tercatat dibuat admin, jadi datanya tetap bisa diubah.
+        $data['source'] = \App\Enums\ServiceSource::Admin->value;
+
         return \App\Models\Service::withDistance($data);
     }
 

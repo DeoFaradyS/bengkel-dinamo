@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Services\Schemas;
 
 use App\Enums\BookingType;
+use App\Enums\ServiceStatus;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\RepeatableEntry\TableColumn as EntryTableColumn;
 use Filament\Infolists\Components\TextEntry;
@@ -36,20 +37,27 @@ class ServiceInfolist
                 Section::make('Data Servis')
                     ->columns(['default' => 1, 'md' => 2])
                     ->schema([
+                        TextEntry::make('booking_code')->label('Kode Booking')->copyable(),
+                        TextEntry::make('source')->label('Asal')->badge(),
                         TextEntry::make('customer_name')->label('Nama Pelanggan'),
-                        TextEntry::make('phone')->label('No. HP'),
+                        TextEntry::make('customer_phone')->label('No. HP'),
                         TextEntry::make('scheduled_at')->label('Tanggal & Jam')->dateTime('d/m/Y H:i'),
                         TextEntry::make('booking_type')->label('Tipe Layanan')->badge(),
-                        TextEntry::make('status')->label('Status')->badge()
-                            ->columnSpanFull(),
+                        TextEntry::make('status')->label('Status')->badge(),
+                        TextEntry::make('payment_status')->label('Pembayaran')->badge()
+                            ->state(fn($record) => $record->paid_at ? 'Lunas' : 'Belum Lunas')
+                            ->color(fn($state) => $state === 'Lunas' ? 'success' : 'warning')
+                            ->visible(fn($record) => $record->status === ServiceStatus::Completed),
+                        TextEntry::make('paid_at')->label('Dibayar pada')->dateTime('d/m/Y H:i')
+                            ->visible(fn($record) => $record->status === ServiceStatus::Completed && filled($record->paid_at)),
                         TextEntry::make('cancel_reason')->label('Alasan')
                             ->columnSpanFull()
                             ->visible(fn($record) => filled($record->cancel_reason)),
                         TextEntry::make('complaint')->label('Keluhan')
                             ->columnSpanFull(),
-                        TextEntry::make('address')->label('Alamat atau patokan')
+                        TextEntry::make('address_note')->label('Alamat atau patokan')
                             ->columnSpanFull()
-                            ->visible(fn($record) => filled($record->address)),
+                            ->visible(fn($record) => filled($record->address_note)),
                         TextEntry::make('maps_link')->label('Peta')
                             ->columnSpanFull()
                             ->state('Buka di Google Maps')

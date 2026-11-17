@@ -33,19 +33,20 @@ function alamatFormData(array $override = []): array
         'status' => ServiceStatus::Confirmed->value,
         'items' => [],
         'serviceParts' => [],
+        'address_note' => 'depan Indomaret, pagar hijau',
     ], $override));
 }
 
 it('ADR-001: Home Service, alamat tersimpan', function () {
     $service = app(CreateBooking::class)->handle(alamatData());
 
-    expect($service->fresh()->address)->toBe('depan Indomaret, pagar hijau');
+    expect($service->fresh()->address_note)->toBe('depan Indomaret, pagar hijau');
 });
 
 it('ADR-002: Home Service tanpa alamat tetap diterima', function () {
     $service = app(CreateBooking::class)->handle(alamatData(['address' => '']));
 
-    expect($service->fresh()->address)->toBeNull();
+    expect($service->fresh()->address_note)->toBeNull();
 });
 
 it('ADR-003: Ke Bengkel, alamat diabaikan', function () {
@@ -55,11 +56,11 @@ it('ADR-003: Ke Bengkel, alamat diabaikan', function () {
         'longitude' => null,
     ]));
 
-    expect($service->fresh()->address)->toBeNull();
+    expect($service->fresh()->address_note)->toBeNull();
 });
 
 it('ADR-004: isi lonceng Home Service memuat alamat', function () {
-    $admin = User::factory()->create();
+    $admin = User::factory()->owner()->create();
 
     app(CreateBooking::class)->handle(alamatData());
 
@@ -79,7 +80,7 @@ it('ADR-005: form pelanggan Home Service tanpa alamat tetap terkirim', function 
         ->call('submit')
         ->assertHasNoErrors();
 
-    expect(Service::where('customer_name', 'Bu Rina')->first()->address)->toBeNull();
+    expect(Service::where('customer_name', 'Bu Rina')->first()->first()->address_note)->toBeNull();
 });
 
 it('ADR-006: form pelanggan Home Service dengan alamat tersimpan', function () {
@@ -95,43 +96,44 @@ it('ADR-006: form pelanggan Home Service dengan alamat tersimpan', function () {
         ->call('submit')
         ->assertHasNoErrors();
 
-    expect(Service::where('customer_name', 'Bu Rina')->first()->address)
+    expect(Service::where('customer_name', 'Bu Rina')->first()->address_note)
         ->toBe('gang kedua, rumah cat biru');
 });
 
 it('ADR-007: form admin, alamat tampil hanya untuk Home Service', function () {
     Livewire::test(CreateService::class)
-        ->assertFormFieldHidden('address')
+        ->assertFormFieldHidden('address_note')
         ->fillForm(['booking_type' => BookingType::HomeService->value])
-        ->assertFormFieldVisible('address');
+        ->assertFormFieldVisible('address_note');
 });
 
 it('ADR-008: form admin Home Service tanpa alamat tetap tersimpan', function () {
     Livewire::test(CreateService::class)
-        ->fillForm(alamatFormData(['phone' => '081234500023', 'address' => null]))
+        ->fillForm(alamatFormData(['customer_phone' => '081234500023', 'address_note' => null]))
         ->call('create')
         ->assertHasNoFormErrors();
 
-    expect(Service::where('phone', '081234500023')->first()->address)->toBeNull();
+    expect(Service::where('customer_phone', '081234500023')->first()->address_note)->toBeNull();
 });
 
 it('ADR-009: form admin Home Service dengan alamat tersimpan', function () {
     Livewire::test(CreateService::class)
-        ->fillForm(alamatFormData(['phone' => '081234500024']))
+        ->fillForm(alamatFormData(['customer_phone' => '081234500024']))
         ->call('create')
         ->assertHasNoFormErrors();
 
-    expect(Service::where('phone', '081234500024')->first()->address)
+    expect(Service::where('customer_phone', '081234500024')->first()->address_note)
         ->toBe('depan Indomaret, pagar hijau');
 });
 
 it('ADR-010: ubah ke Ke Bengkel, alamat dikosongkan', function () {
     $service = Service::factory()->create([
+        'source' => 'admin',
         'status' => ServiceStatus::Confirmed,
         'booking_type' => BookingType::HomeService,
         'latitude' => -7.7174465,
         'longitude' => 113.0755426,
-        'address' => 'depan Indomaret',
+        'address_note' => 'depan Indomaret',
     ]);
 
     Livewire::test(EditService::class, ['record' => $service->getRouteKey()])
@@ -139,10 +141,10 @@ it('ADR-010: ubah ke Ke Bengkel, alamat dikosongkan', function () {
         ->call('save')
         ->assertHasNoFormErrors();
 
-    expect($service->fresh()->address)->toBeNull();
+    expect($service->fresh()->address_note)->toBeNull();
 });
 
 it('ADR-011: tabel tidak punya kolom alamat', function () {
     Livewire::test(ListServices::class)
-        ->assertTableColumnDoesNotExist('address');
+        ->assertTableColumnDoesNotExist('address_note');
 });

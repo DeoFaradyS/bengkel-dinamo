@@ -75,3 +75,47 @@ test('JSA-006: photo_url null tanpa foto, terisi kalau ada foto', function () {
     expect($tanpa->photo_url)->toBeNull()
         ->and($dengan->photo_url)->toContain('service-types/a.jpg');
 });
+/* ------------------------------------------------------------------ */
+/* Hapus jasa = arsip (soft delete), keputusan D1 17 Nov 2026          */
+/* ------------------------------------------------------------------ */
+
+test('JSA-014: hapus jasa dari tabel mengarsipkan (soft delete), foto tidak ikut terhapus', function () {
+    Storage::disk('public')->put('service-types/gulung.jpg', 'x');
+    $type = ServiceType::factory()->create(['photo' => 'service-types/gulung.jpg']);
+
+    Livewire::test(\App\Filament\Resources\ServiceTypes\Pages\ListServiceTypes::class)
+        ->callAction(\Filament\Actions\Testing\TestAction::make('delete')->table($type));
+
+    $this->assertSoftDeleted($type);
+    Storage::disk('public')->assertExists('service-types/gulung.jpg');
+});
+
+test('JSA-015: jasa terarsip tidak muncul di beranda, /layanan, detailnya 404, dan tidak bisa dipilih di form servis', function () {
+    $aktif = ServiceType::factory()->create(['name' => 'Jasa Aktif ZZZ']);
+    $arsip = ServiceType::factory()->create(['name' => 'Jasa Arsip QQQ']);
+    $arsip->delete();
+
+    $this->get('/')->assertSee('Jasa Aktif ZZZ')->assertDontSee('Jasa Arsip QQQ');
+    $this->get('/layanan')->assertSee('Jasa Aktif ZZZ')->assertDontSee('Jasa Arsip QQQ');
+    $this->get('/layanan/' . $arsip->id)->assertNotFound();
+
+    Livewire::test(\App\Filament\Resources\Services\Pages\CreateService::class)
+        ->fillForm(serviceFormData(['status' => 'in_progress', 'items' => [['service_type_id' => $arsip->id]]]))
+        ->call('create')
+        ->assertHasFormErrors();
+});
+
+test('JSA-016: servis aktif yang memakai jasa terarsip tetap bisa dibuka dan disimpan', function () {
+    $type = ServiceType::factory()->create(['name' => 'Ganti bearing']);
+    $service = \App\Models\Service::factory()->status(\App\Enums\ServiceStatus::InProgress)->create();
+    $service->items()->create(['service_type_id' => $type->id, 'name' => $type->name, 'price' => 100000]);
+    $type->delete();
+
+    Livewire::test(\App\Filament\Resources\Services\Pages\EditService::class, ['record' => $service->getRouteKey()])
+        ->assertSuccessful()
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($service->items()->count())->toBe(1)
+        ->and((float) $service->items()->first()->price)->toBe(100000.0);
+});

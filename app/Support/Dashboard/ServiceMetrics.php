@@ -100,7 +100,7 @@ final class ServiceMetrics
         return round($lost / $total * 100, 1);
     }
 
-    /** Booking berstatus Menunggu Konfirmasi saat ini, tidak terikat periode. */
+    /** Booking berstatus Menunggu saat ini, tidak terikat periode. */
     public static function pendingNow(): int
     {
         return Service::query()->where('status', ServiceStatus::Pending->value)->count();

@@ -28,6 +28,7 @@ class ServiceItem extends Model
 
     public function serviceType(): BelongsTo
     {
-        return $this->belongsTo(ServiceType::class);
+        // Jasa yang sudah diarsipkan tetap bisa dibaca dari nota lama.
+        return $this->belongsTo(ServiceType::class)->withTrashed();
     }
 }

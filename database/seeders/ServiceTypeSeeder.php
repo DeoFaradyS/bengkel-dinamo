@@ -4,12 +4,15 @@ namespace Database\Seeders;
 
 use App\Models\ServiceType;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ServiceTypeSeeder extends Seeder
 {
     public function run(): void
     {
-        // Format: nama => [harga acuan, deskripsi]. Foto tidak diisi seeder, upload lewat panel.
+        // Format: nama => [harga acuan, deskripsi].
         $types = [
             'Servis dinamo' => [
                 50000,
@@ -31,10 +34,6 @@ class ServiceTypeSeeder extends Seeder
                 350000,
                 'Penggulungan ulang kumparan dinamo yang rusak atau terbakar.',
             ],
-            'Bubut komutator' => [
-                120000,
-                'Perataan permukaan komutator yang aus atau bergelombang supaya kontak dengan brush kembali rapat.',
-            ],
             'Ganti bendix' => [
                 90000,
                 'Penggantian bendix starter yang slip atau tidak mengait, supaya mesin bisa distarter normal.',
@@ -45,12 +44,37 @@ class ServiceTypeSeeder extends Seeder
             ],
         ];
 
+        $imageDir = database_path('seeders/images/service-types');
+
         foreach ($types as $name => [$price, $description]) {
-            // Foto sengaja tidak disentuh, supaya foto yang sudah diunggah tidak hilang saat seeder jalan lagi.
-            ServiceType::updateOrCreate(
+            $type = ServiceType::updateOrCreate(
                 ['name' => $name],
                 ['default_price' => $price, 'description' => $description],
             );
+
+            $this->attachBundledPhoto($type, $imageDir);
         }
+    }
+
+    // Foto bawaan: database/seeders/images/service-types/{slug nama}.*
+    // Dipasang hanya kalau jasa belum punya foto (atau berkasnya hilang dari disk),
+    // jadi foto yang diunggah lewat panel tidak ditimpa.
+    private function attachBundledPhoto(ServiceType $type, string $imageDir): void
+    {
+        if (filled($type->photo) && Storage::disk('public')->exists($type->photo)) {
+            return;
+        }
+
+        $source = File::glob($imageDir . '/' . Str::slug($type->name) . '.*')[0] ?? null;
+
+        if ($source === null) {
+            return;
+        }
+
+        $photo = 'service-types/' . basename($source);
+        Storage::disk('public')->put($photo, File::get($source));
+
+        $type->photo = $photo;
+        $type->save();
     }
 }

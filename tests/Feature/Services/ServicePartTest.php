@@ -10,7 +10,8 @@ use Livewire\Livewire;
 // Pembungkus tipis: isi 'serviceParts', sisanya dari serviceFormData() di Pest.php.
 function partFormData(array $serviceParts = [], array $override = []): array
 {
-    return serviceFormData(array_merge(['serviceParts' => $serviceParts], $override));
+    // Spare part baru bisa diisi saat Dikerjakan.
+    return serviceFormData(array_merge(['status' => 'in_progress', 'serviceParts' => $serviceParts], $override));
 }
 
 /* ------------------------------------------------------------------ */

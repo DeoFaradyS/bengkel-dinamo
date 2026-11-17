@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Enums\BookingType;
 use App\Models\WorkshopSetting;
 use BackedEnum;
 use Filament\Forms\Components\TextInput;
@@ -47,7 +48,7 @@ class JarakOngkos extends Page
                 Grid::make(['default' => 1, 'lg' => 5])
                     ->extraAttributes(['class' => 'jo-grid'])
                     ->schema([
-                        Section::make('Pengaturan Home Service')
+                        Section::make('Pengaturan ' . BookingType::HomeService->getLabel())
                             ->columnSpan(['default' => 1, 'lg' => 3])
                             ->columns(2)
                             ->schema([

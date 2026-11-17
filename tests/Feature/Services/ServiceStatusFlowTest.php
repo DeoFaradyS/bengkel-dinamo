@@ -80,12 +80,15 @@ it('FLW-005: form Edit cuma tampilkan status sekarang dan yang sah', function (S
     'in progress' => [ServiceStatus::InProgress, [ServiceStatus::InProgress, ServiceStatus::Completed, ServiceStatus::Cancelled]],
 ]);
 
-it('FLW-006: form Create menampilkan semua status kecuali Kedaluwarsa', function () {
+// Sejak 17 Nov 2026 servis buatan admin hanya bisa dibuat Dikonfirmasi, Dikerjakan,
+// atau Selesai. Sebelumnya semua status kecuali Kedaluwarsa.
+it('FLW-006: form Create hanya menampilkan Dikonfirmasi, Dikerjakan, dan Selesai', function () {
     Livewire::test(CreateService::class)
         ->assertFormFieldExists('status', function (ToggleButtons $field) {
-            $options = $field->getOptions();
-
-            return count($options) === count(ServiceStatus::cases()) - 1
-                && ! array_key_exists(ServiceStatus::Expired->value, $options);
+            return array_keys($field->getOptions()) === [
+                ServiceStatus::Confirmed->value,
+                ServiceStatus::InProgress->value,
+                ServiceStatus::Completed->value,
+            ];
         });
 });

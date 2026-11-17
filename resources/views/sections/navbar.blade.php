@@ -1,11 +1,11 @@
-@php
-  $waLink = \App\Support\WhatsAppLink::make('08882509745', 'Halo Budi Dinamo, saya mau tanya soal servis.');
-@endphp
-
 {{-- Jarak scroll untuk header sticky, supaya judul section tidak tertutup saat tautan #anchor diklik --}}
 <style>
   html {
     scroll-padding-top: 6rem;
+  }
+
+  [x-cloak] {
+    display: none !important;
   }
 </style>
 
@@ -14,8 +14,9 @@
 
     <div class="flex items-center lg:gap-16">
 
-      <a href="/" class="flex items-center text-2xl font-bold text-neutral-900" aria-label="Beranda">
-        Budi<span class="text-red-600">Dinamo</span>
+      <a href="/" class="flex items-center shrink-0" aria-label="Beranda">
+        <img src="{{ asset('images/logo-dinamo.png') }}" alt="Dinamo, Bengkel Cak Budi" width="787" height="200"
+          class="h-10 w-auto">
       </a>
 
       <ul class="hidden lg:flex items-center gap-10 text-sm font-semibold uppercase text-neutral-800">
@@ -25,12 +26,7 @@
       </ul>
 
       <div class="hidden lg:flex items-center gap-4 ml-auto">
-        {{-- PLACEHOLDER: belum ada fungsi. Menunggu keputusan poin 10 (login pelanggan). Ganti atau hapus sebelum
-        sidang. --}}
-        <button type="button"
-          class="px-4 py-3 text-sm font-semibold text-neutral-800 transition-colors hover:text-red-600">Masuk</button>
-        <button type="button"
-          class="px-6 py-3 bg-neutral-800 rounded-[10px] text-white font-semibold transition-colors hover:bg-neutral-700">Daftar</button>
+        @include('sections.navbar-auth')
       </div>
 
       <button type="button" id="menuBtn" class="lg:hidden size-11 flex items-center justify-center ml-auto"
@@ -51,6 +47,7 @@
           <a href="/#layanan">Layanan</a>
           <a href="/#lokasi">Lokasi</a>
           <a href="/#cek-booking">Cek Booking</a>
+          @include('sections.navbar-auth', ['mobile' => true])
         </div>
       </div>
     </div>

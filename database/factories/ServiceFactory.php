@@ -11,7 +11,7 @@ class ServiceFactory extends Factory
     {
         return [
             'customer_name' => $this->faker->name(),
-            'phone' => $this->faker->unique()->numerify('08##########'),
+            'customer_phone' => $this->faker->unique()->numerify('08##########'),
             'complaint' => 'Dinamo tidak mau engkol',
             'scheduled_at' => now()->addDay(),
             'status' => ServiceStatus::Confirmed,

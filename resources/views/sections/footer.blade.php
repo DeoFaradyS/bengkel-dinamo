@@ -1,9 +1,12 @@
-<footer class="bg-neutral-900 text-white pt-16">
-  <div class="max-w-[1200px] mx-auto px-6 grid grid-cols-2 lg:grid-cols-4 gap-10">
+<footer class="bg-neutral-900 text-white py-16">
+  <div class="max-w-[1200px] mx-auto px-6 grid grid-cols-2 lg:grid-cols-3 gap-10">
 
-    <div>
-      <p class="font-semibold">Budi Dinamo</p>
-      <p class="text-neutral-500 text-sm mt-2">© {{ date('Y') }} Budi Dinamo. Hak cipta dilindungi.</p>
+    <div class="col-span-2 lg:col-span-1">
+      <a href="/" aria-label="Beranda" class="inline-block">
+        <img src="{{ asset('images/logo-dinamo-putih.png') }}" alt="Dinamo, Bengkel Cak Budi" width="787" height="200"
+          class="h-10 w-auto">
+      </a>
+      <p class="text-neutral-500 text-sm mt-4">© {{ date('Y') }} Budi Dinamo. Hak cipta dilindungi.</p>
     </div>
 
     <nav>
@@ -27,19 +30,5 @@
       </ul>
     </div>
 
-    <nav>
-      <p class="text-neutral-500 text-sm mb-3">Legal</p>
-      <ul class="space-y-2 text-sm">
-        <li><a href="#" class="hover:text-neutral-300">Kebijakan Privasi</a></li>
-        <li><a href="#" class="hover:text-neutral-300">Syarat &amp; Ketentuan</a></li>
-      </ul>
-    </nav>
-
-  </div>
-
-  <div class="border-t border-neutral-800 mt-10 pt-4 overflow-hidden">
-    <p class="relative text-center leading-none font-bold text-[80px] sm:text-[140px] lg:text-[200px] bg-gradient-to-b from-white to-neutral-900 bg-clip-text text-transparent select-none">
-      Budi Dinamo
-    </p>
   </div>
 </footer>

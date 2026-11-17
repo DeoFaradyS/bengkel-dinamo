@@ -18,7 +18,7 @@ function makeService(array $override = []): Service
 {
     return Service::create(array_merge([
         'customer_name' => 'Budi',
-        'phone' => '081234567890',
+        'customer_phone' => '081234567890',
         'complaint' => 'Dinamo panas',
         'scheduled_at' => now(),
         'status' => ServiceStatus::Pending,
@@ -89,4 +89,35 @@ it('TRN-008: Home Service tanpa lokasi di bengkel, ongkos 0 dan tidak error', fu
     ]);
 
     expect($data['distance_km'])->toBeNull();
+});
+it('TRN-009: Total di tabel servis admin = jasa + part + ongkos transport', function () {
+    $service = makeService(['status' => ServiceStatus::Confirmed]);
+    $service->items()->create(['name' => 'Servis dinamo', 'price' => 50000]);
+
+    \Livewire\Livewire::test(\App\Filament\Resources\Services\Pages\ListServices::class)
+        ->set('activeTab', 'all')
+        ->assertTableColumnStateSet('total', 52500, $service);
+});
+
+it('TRN-010: Total di tabel servis admin kosong (bukan 0) kalau belum ada jasa, part, maupun ongkos', function () {
+    $service = makeService([
+        'status' => ServiceStatus::Confirmed,
+        'booking_type' => BookingType::Workshop,
+        'distance_km' => null,
+    ]);
+
+    \Livewire\Livewire::test(\App\Filament\Resources\Services\Pages\ListServices::class)
+        ->set('activeTab', 'all')
+        ->assertTableColumnStateSet('total', null, $service);
+});
+
+it('TRN-011: urut Total di tabel servis admin ikut menghitung ongkos transport', function () {
+    $mahal = makeService(['distance_km' => 10]);           // ongkos saja, Rp5.000
+    $murah = makeService(['booking_type' => BookingType::Workshop, 'distance_km' => null]);
+    $murah->items()->create(['name' => 'Cek', 'price' => 3000]);
+
+    \Livewire\Livewire::test(\App\Filament\Resources\Services\Pages\ListServices::class)
+        ->set('activeTab', 'all')
+        ->sortTable('total', 'desc')
+        ->assertCanSeeTableRecords([$mahal, $murah], inOrder: true);
 });

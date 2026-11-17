@@ -54,14 +54,31 @@ class ServiceForm
     {
         $current = $record?->status;
 
-        // Create: semua status kecuali Kedaluwarsa (hanya diberi sistem). Edit: status sekarang + yang sah.
+        // Create: servis buatan admin langsung Dikonfirmasi, Dikerjakan, atau Selesai
+        // (tidak ada yang perlu ditunggu, dan tidak masuk akal dibuat dalam keadaan batal).
+        // Edit: status sekarang + yang sah.
         $cases = $current instanceof ServiceStatus
             ? [$current, ...$current->allowedNext()]
-            : array_filter(ServiceStatus::cases(), fn(ServiceStatus $s) => $s !== ServiceStatus::Expired);
+            : [ServiceStatus::Confirmed, ServiceStatus::InProgress, ServiceStatus::Completed];
 
         return collect($cases)
             ->mapWithKeys(fn(ServiceStatus $s) => [$s->value => $s->getLabel()])
             ->all();
+    }
+
+    // Booking online: data pelanggan hanya bisa dilihat. Lihat Service::isCustomerDataLocked().
+    private static function locked(?Service $record): bool
+    {
+        return $record?->isCustomerDataLocked() ?? false;
+    }
+
+    // Jasa dan spare part baru diisi saat servis dikerjakan (atau langsung diselesaikan).
+    private static function workStarted(Get $get): bool
+    {
+        $status = $get('status');
+        $status = $status instanceof ServiceStatus ? $status : ServiceStatus::tryFrom((string) $status);
+
+        return in_array($status, [ServiceStatus::InProgress, ServiceStatus::Completed], true);
     }
 
     private static function isHome(Get $get): bool
@@ -84,7 +101,7 @@ class ServiceForm
         return collect($get('items') ?? [])
             ->filter(fn($r) => filled($r['service_type_id'] ?? null))
             ->map(fn($r) => [
-                'name' => $r['name'] ?? ServiceType::find($r['service_type_id'])?->name ?? '-',
+                'name' => $r['name'] ?? ServiceType::withTrashed()->find($r['service_type_id'])?->name ?? '-',
                 'total' => self::num($r['price'] ?? 0),
             ])->values()->all();
     }
@@ -135,8 +152,10 @@ class ServiceForm
                     ->columns(['default' => 1, 'md' => 2])
                     ->schema([
                         TextInput::make('customer_name')->label('Nama Pelanggan')
+                            ->disabled(fn(?Service $record) => self::locked($record))
                             ->required(),
-                        TextInput::make('phone')->label('No. HP')
+                        TextInput::make('customer_phone')->label('No. HP')
+                            ->disabled(fn(?Service $record) => self::locked($record))
                             ->tel()
                             ->required()
                             ->maxLength(16)
@@ -155,6 +174,7 @@ class ServiceForm
                             ->native(false)
                             ->seconds(false)
                             ->displayFormat('d/m/Y H:i')
+                            ->disabled(fn(?Service $record) => self::locked($record))
                             ->default(now())
                             ->live()
                             ->hint(function (Get $get, ?Service $record): ?string {
@@ -178,6 +198,7 @@ class ServiceForm
                             ->required(),
 
                         Select::make('booking_type')->label('Tipe Layanan')
+                            ->disabled(fn(?Service $record) => self::locked($record))
                             ->options(BookingType::class)
                             ->default(BookingType::Workshop)
                             ->live()
@@ -185,7 +206,7 @@ class ServiceForm
                                 if (self::typeOf($state) !== BookingType::HomeService) {
                                     $set('latitude', null);
                                     $set('longitude', null);
-                                    $set('address', null);
+                                    $set('address_note', null);
                                 }
                             })
                             ->required(),
@@ -212,13 +233,16 @@ class ServiceForm
                             ->validationMessages([
                                 'required' => 'Isi alasan penolakan atau pembatalan.',
                             ])
-                            ->placeholder('Contoh: pelanggan batal, kerusakan parah'),
+                            ->helperText('Alasan ini terlihat oleh pelanggan di Cek Booking.')
+                            ->placeholder('Contoh: jadwal montir penuh, kerusakan di luar layanan bengkel'),
                         Textarea::make('complaint')->label('Keluhan')
+                            ->disabled(fn(?Service $record) => self::locked($record))
                             ->columnSpanFull()
                             ->rows(3)
                             ->required(),
 
                         TextInput::make('latitude')->label('Latitude')
+                            ->disabled(fn(?Service $record) => self::locked($record))
                             ->numeric()
                             ->minValue(-90)
                             ->maxValue(90)
@@ -228,6 +252,7 @@ class ServiceForm
                             ->live(onBlur: true)
                             ->helperText('Contoh: -7.7174465'),
                         TextInput::make('longitude')->label('Longitude')
+                            ->disabled(fn(?Service $record) => self::locked($record))
                             ->numeric()
                             ->minValue(-180)
                             ->maxValue(180)
@@ -238,8 +263,9 @@ class ServiceForm
                             ->helperText('Contoh: 113.0755426'),
                         View::make('filament.forms.pin-map')
                             ->columnSpanFull()
-                            ->visible(fn(Get $get) => self::isHome($get)),
-                        TextInput::make('address')->label('Alamat atau patokan (opsional)')
+                            ->visible(fn(Get $get, ?Service $record) => self::isHome($get) && !self::locked($record)),
+                        TextInput::make('address_note')->label('Alamat atau patokan (opsional)')
+                            ->disabled(fn(?Service $record) => self::locked($record))
                             ->columnSpanFull()
                             ->maxLength(255)
                             ->visible(fn(Get $get) => self::isHome($get))
@@ -257,6 +283,7 @@ class ServiceForm
                     ]),
 
                 Section::make('Jasa')
+                    ->visible(fn(Get $get) => self::workStarted($get))
                     ->schema([
                         Repeater::make('items')
                             ->relationship()
@@ -290,7 +317,13 @@ class ServiceForm
                             ->schema([
                                 Select::make('service_type_id')
                                     ->label('Jasa')
-                                    ->options(fn() => ServiceType::query()->orderBy('name')->pluck('name', 'id'))
+                                    // Pilihan hanya jasa aktif. Jasa terarsip yang sudah terpilih di baris ini
+                                    // tetap ikut, supaya servis lama masih bisa dibuka dan disimpan.
+                                    ->options(fn($record) => ServiceType::withTrashed()
+                                        ->where(fn($q) => $q->whereNull('deleted_at')
+                                            ->orWhere('id', $record instanceof \App\Models\ServiceItem ? $record->service_type_id : null))
+                                        ->orderBy('name')
+                                        ->pluck('name', 'id'))
                                     ->searchable()
                                     ->preload()
                                     ->required(fn(Get $get) => in_array($get('../../status'), [ServiceStatus::Completed, ServiceStatus::Completed->value], true))
@@ -316,6 +349,7 @@ class ServiceForm
                     ]),
 
                 Section::make('Spare Part')
+                    ->visible(fn(Get $get) => self::workStarted($get))
                     ->schema([
                         Repeater::make('serviceParts')
                             ->relationship()

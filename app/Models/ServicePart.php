@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class ServicePart extends Model
 {
     use HasFactory;
-    public $timestamps = false;
 
     protected $fillable = ['service_id', 'spare_part_id', 'quantity', 'unit_price'];
 

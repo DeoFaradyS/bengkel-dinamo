@@ -16,14 +16,17 @@ use App\Actions\CreateBooking;
 use Illuminate\Validation\ValidationException;
 use App\Enums\StockMovementType;
 use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Service extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'user_id',
+        'source',
         'customer_name',
-        'phone',
+        'customer_phone',
         'complaint',
         'scheduled_at',
         'status',
@@ -31,22 +34,29 @@ class Service extends Model
         'booking_type',
         'latitude',
         'longitude',
-        'address',
+        'address_note',
         'distance_km',
         'fuel_price',
         'transport_fee',
+        'mechanic_names',
+    ];
+
+    protected $attributes = [
+        'source' => 'online',
     ];
 
     protected $casts = [
+        'source' => \App\Enums\ServiceSource::class,
         'status' => ServiceStatus::class,
         'booking_type' => BookingType::class,
         'latitude' => 'float',
         'longitude' => 'float',
         'scheduled_at' => 'datetime',
-        'stock_synced_at' => 'datetime',
+        'stock_deducted_at' => 'datetime',
         'distance_km' => 'float',
         'fuel_price' => 'integer',
         'transport_fee' => 'integer',
+        'paid_at' => 'datetime',
     ];
 
     public function items(): HasMany
@@ -54,8 +64,18 @@ class Service extends Model
         return $this->hasMany(ServiceItem::class);
     }
 
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
     protected static function booted(): void
     {
+        // Setiap servis dapat kode booking 6 angka yang unik (termasuk yang sudah diarsip).
+        static::creating(function (Service $service) {
+            $service->booking_code ??= self::newBookingCode();
+        });
+
         static::saving(function (Service $service) {
             if ($service->booking_type !== BookingType::HomeService) {
                 $service->fuel_price = null;
@@ -81,6 +101,22 @@ class Service extends Model
             $service->fuel_price = (int) $fuelPrice;
             $service->transport_fee = self::transportFee((float) $service->distance_km, (int) $fuelPrice);
         });
+    }
+
+    // Booking online: data yang ditulis pelanggan (termasuk jadwal) tidak boleh diubah admin.
+    // Pelanggan yang mau ganti jadwal membatalkan booking lalu booking ulang.
+    public function isCustomerDataLocked(): bool
+    {
+        return $this->source === \App\Enums\ServiceSource::Online;
+    }
+
+    public static function newBookingCode(): string
+    {
+        do {
+            $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        } while (self::withTrashed()->where('booking_code', $code)->exists());
+
+        return $code;
     }
 
     public static function transportFee(float $km, int $fuelPrice): int
@@ -113,7 +149,7 @@ class Service extends Model
 
     public function syncStock(): void
     {
-        if ($this->stock_synced_at) {
+        if ($this->stock_deducted_at) {
             return;
         }
 
@@ -121,7 +157,7 @@ class Service extends Model
 
             $fresh = self::lockForUpdate()->find($this->id);
 
-            if ($fresh->stock_synced_at) {
+            if ($fresh->stock_deducted_at) {
                 return;
             }
             foreach ($this->serviceParts()->get() as $servicePart) {
@@ -139,7 +175,7 @@ class Service extends Model
                 );
             }
 
-            $this->forceFill(['stock_synced_at' => now()])->save();
+            $this->forceFill(['stock_deducted_at' => now()])->save();
         });
     }
 

@@ -1,9 +1,61 @@
 <div>
     @if ($submitted)
-        <div class="flex flex-col gap-2 py-6 text-center">
-            <p class="text-lg font-semibold text-neutral-800">Booking terkirim</p>
-            <p class="text-neutral-500">Kami akan menghubungi untuk konfirmasi.</p>
-        </div>
+        @if ($bookingCode)
+            <div class="flex flex-col gap-5 py-2 text-center" x-data="{
+                    tersalin: false,
+                    salin() {
+                        const kode = '{{ $bookingCode }}';
+                        // Clipboard API hanya jalan di https/localhost, selain itu pakai cara lama.
+                        const lama = () => {
+                            const t = document.createElement('textarea');
+                            t.value = kode;
+                            document.body.appendChild(t);
+                            t.select();
+                            document.execCommand('copy');
+                            t.remove();
+                        };
+                        (navigator.clipboard?.writeText(kode) ?? Promise.reject()).catch(lama);
+                        this.tersalin = true;
+                        setTimeout(() => this.tersalin = false, 2000);
+                    },
+                }">
+                <div class="flex flex-col gap-1">
+                    <p class="text-xl font-semibold text-neutral-800">Booking terkirim</p>
+                    <p class="text-neutral-500">Simpan kode ini untuk cek status booking.</p>
+                </div>
+
+                <div class="flex flex-col items-center gap-3 p-5 bg-neutral-50 border border-neutral-200 rounded-2xl">
+                    <p class="text-sm text-neutral-500">Kode booking</p>
+                    <p class="text-4xl font-bold tracking-[0.2em] text-neutral-900 tabular-nums">
+                        {{ substr($bookingCode, 0, 3) }} {{ substr($bookingCode, 3) }}
+                    </p>
+                    <button type="button" x-on:click="salin()"
+                        class="px-5 py-2.5 bg-white border border-neutral-300 rounded-[10px] font-semibold text-neutral-700 hover:border-neutral-400 focus:outline-none focus:ring-2 focus:ring-red-500">
+                        <span x-show="!tersalin">Salin kode</span>
+                        <span x-show="tersalin" style="display:none">Tersalin &check;</span>
+                    </button>
+                </div>
+
+                <a href="{{ $waLink }}" target="_blank" rel="noopener"
+                    class="px-6 py-4 bg-green-600 rounded-[10px] text-white text-lg font-semibold hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                    Konfirmasi ke WhatsApp
+                </a>
+
+                <p class="text-sm text-neutral-500">
+                    Pesan berisi kode booking akan terkirim ke bengkel. Kalau lupa kode, cari di chat WhatsApp itu.
+                </p>
+
+                <button type="button" wire:click="bookingBaru"
+                    class="self-center px-2 py-1 font-semibold text-neutral-600 underline underline-offset-4 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 rounded">
+                    Buat booking lain
+                </button>
+            </div>
+        @else
+            <div class="flex flex-col gap-2 py-6 text-center">
+                <p class="text-lg font-semibold text-neutral-800">Booking terkirim</p>
+                <p class="text-neutral-500">Kami akan menghubungi untuk konfirmasi.</p>
+            </div>
+        @endif
     @else
         <form wire:submit="submit" class="flex flex-col gap-4">
             <div style="display:none" aria-hidden="true">
@@ -32,7 +84,14 @@
             <div class="flex flex-col gap-1">
                 <input type="tel" wire:model="phone" placeholder="Nomor HP, contoh 081234567890"
                     class="w-full p-4 bg-neutral-100 rounded-[10px] text-neutral-800 placeholder:text-neutral-400 outline-none focus:ring-2 focus:ring-red-500">
-                @error('phone') <small class="text-sm text-red-600">{{ $message }}</small> @enderror
+                @error('phone')
+                    <small class="text-sm text-red-600">
+                        {{ $message }}
+                        @if ($message === \App\Actions\CreateBooking::ACTIVE_BOOKING_MESSAGE)
+                            <a href="/#cek-booking" class="font-semibold underline underline-offset-2">Buka Cek Booking</a>
+                        @endif
+                    </small>
+                @enderror
             </div>
 
             <div class="flex flex-col gap-2">
@@ -43,17 +102,17 @@
                         class="w-full p-4 bg-neutral-100 rounded-[10px] text-neutral-800 outline-none cursor-pointer focus:ring-2 focus:ring-red-500">
                 </div>
 
-                {{-- Jam yang sudah lewat disembunyikan. Jam yang sudah dipesan orang lain tetap tampil, dicoret. --}}
-                @php $slotTampil = $daftarSlot->reject(fn ($s) => $s['time']->isPast()); @endphp
-
-                @if ($slotTampil->isEmpty())
+                {{-- Semua jam di tanggal itu tampil. Yang sudah lewat, terlalu dekat, atau penuh dicoret dan tidak bisa dipilih. --}}
+                @if ($daftarSlot->isEmpty())
                     <p class="text-sm text-neutral-500">Tidak ada jam tersedia di tanggal ini. Pilih tanggal lain.</p>
                 @else
+                    @php $batasPesan = now()->addMinutes((int) config('booking.min_lead_minutes')); @endphp
                     <div class="grid grid-cols-3 sm:grid-cols-5 gap-2">
-                        @foreach ($slotTampil as $item)
+                        @foreach ($daftarSlot as $item)
                             @php $value = $item['time']->format('Y-m-d H:i'); @endphp
                             <button type="button" wire:key="slot-{{ $value }}" wire:click="pilihSlot('{{ $value }}')"
                                 @disabled(!$item['available'])
+                                @unless ($item['available']) title="{{ $item['time']->lt($batasPesan) ? 'Sudah lewat' : 'Penuh' }}" @endunless
                                 class="py-3 rounded-[10px] text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-red-500 {{ $scheduled_at === $value ? 'bg-red-600 text-white' : ($item['available'] ? 'bg-neutral-100 text-neutral-800' : 'bg-neutral-100 text-neutral-300 line-through cursor-not-allowed') }}">
                                 {{ $item['time']->format('H.i') }}
                             </button>

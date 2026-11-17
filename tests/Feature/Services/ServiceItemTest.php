@@ -13,10 +13,11 @@ function makeServiceWithItems(array $items = [], array $override = []): Service
 {
     $service = Service::create(array_merge([
         'customer_name' => 'Pak Budi',
-        'phone' => '08' . random_int(100000000, 999999999),
+        'customer_phone' => '08' . random_int(100000000, 999999999),
         'complaint' => 'Dinamo tidak mau engkol',
         'scheduled_at' => now()->addDay(),
-        'status' => 'confirmed',
+        // Jasa baru bisa diisi saat Dikerjakan (form menyembunyikannya sebelum itu).
+        'status' => 'in_progress',
     ], $override));
 
     foreach ($items as [$type, $price]) {
@@ -40,6 +41,7 @@ it('TSJ-001: servis dengan dua jasa, dua baris tersimpan', function () {
 
     Livewire::test(CreateService::class)
         ->fillForm(serviceFormData([
+            'status' => 'in_progress',
             'items' => [
                 ['service_type_id' => $a->id, 'name' => $a->name, 'price' => 50000],
                 ['service_type_id' => $b->id, 'name' => $b->name, 'price' => 100000],
@@ -56,6 +58,7 @@ it('TSJ-002: pilih jasa, name dan price terisi dari katalog', function () {
 
     Livewire::test(CreateService::class)
         ->fillForm(serviceFormData([
+            'status' => 'in_progress',
             'items' => [
                 ['service_type_id' => $type->id],
             ]
@@ -69,6 +72,7 @@ it('TSJ-003: harga diubah admin, baris pakai harga baru, katalog tidak berubah',
 
     Livewire::test(CreateService::class)
         ->fillForm(serviceFormData([
+            'status' => 'in_progress',
             'items' => [
                 ['service_type_id' => $type->id, 'name' => $type->name, 'price' => 60000],
             ]
@@ -114,6 +118,7 @@ it('TSJ-005: harga kosong ditolak', function () {
 
     Livewire::test(CreateService::class)
         ->fillForm(serviceFormData([
+            'status' => 'in_progress',
             'items' => [
                 ['service_type_id' => $type->id, 'name' => $type->name, 'price' => null],
             ]
@@ -129,6 +134,7 @@ it('TSJ-006: harga bukan angka ditolak', function () {
 
     Livewire::test(CreateService::class)
         ->fillForm(serviceFormData([
+            'status' => 'in_progress',
             'items' => [
                 ['service_type_id' => $type->id, 'name' => $type->name, 'price' => 'abc'],
             ]
@@ -144,6 +150,7 @@ it('TSJ-007: harga negatif ditolak', function () {
 
     Livewire::test(CreateService::class)
         ->fillForm(serviceFormData([
+            'status' => 'in_progress',
             'items' => [
                 ['service_type_id' => $type->id, 'name' => $type->name, 'price' => -1],
             ]
@@ -159,6 +166,7 @@ it('TSJ-008: harga 0 diterima', function () {
 
     Livewire::test(CreateService::class)
         ->fillForm(serviceFormData([
+            'status' => 'in_progress',
             'items' => [
                 ['service_type_id' => $type->id, 'name' => $type->name, 'price' => 0],
             ]
@@ -190,8 +198,11 @@ it('TSJ-010: jasa dihapus dari katalog, baris nota tetap utuh', function () {
 
     $item = $service->items()->first();
 
+    // Sejak D1 (17 Nov 2026) hapus jasa = arsip, jadi tautan ke jasa tetap ada.
+    // Sebelumnya hapus permanen dan service_type_id jadi NULL.
     expect($item)->not->toBeNull()
-        ->and($item->service_type_id)->toBeNull()
+        ->and($item->service_type_id)->toBe($type->id)
+        ->and($item->serviceType?->name)->toBe('Ganti bearing')
         ->and($item->name)->toBe('Ganti bearing')
         ->and((float) $item->price)->toBe(100000.0);
 });

@@ -1,7 +1,11 @@
 <?php
 
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\RiwayatController;
 use App\Models\ServiceType;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfilController;
 
 Route::get('/', function () {
     return view('welcome', [
@@ -21,3 +25,19 @@ Route::get('/layanan', function () {
 Route::get('/layanan/{serviceType}', function (ServiceType $serviceType) {
     return view('layanan.show', ['service' => $serviceType]);
 });
+
+Route::middleware('guest')->group(function () {
+    Route::get('/daftar', [RegisterController::class, 'create'])->name('register');
+    Route::post('/daftar', [RegisterController::class, 'store'])->middleware('throttle:10,1');
+    Route::get('/masuk', [LoginController::class, 'create'])->name('login');
+    Route::post('/masuk', [LoginController::class, 'store'])->middleware('throttle:5,1');
+});
+
+Route::post('/keluar', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
+
+Route::get('/riwayat', RiwayatController::class)->middleware('auth')->name('riwayat');
+Route::get('/riwayat/{id}', [RiwayatController::class, 'show'])->whereNumber('id')->middleware('auth')->name('riwayat.show');
+Route::post('/riwayat/{id}/batal', [RiwayatController::class, 'batal'])->whereNumber('id')->middleware(['auth', 'throttle:10,1'])->name('riwayat.batal');
+Route::get('/riwayat/{id}/invoice', [RiwayatController::class, 'invoice'])->whereNumber('id')->middleware('auth')->name('riwayat.invoice');
+Route::get('/profil', [ProfilController::class, 'edit'])->middleware('auth')->name('profil');
+Route::put('/profil', [ProfilController::class, 'update'])->middleware('auth');

@@ -12,7 +12,7 @@ function alasanData(array $override = []): array
 {
     return array_merge([
         'customer_name' => 'Pak Tono',
-        'phone' => '081234500030',
+        'customer_phone' => '081234500030',
         'complaint' => 'Dinamo rusak berat',
         'scheduled_at' => now()->addDay(),
         'status' => ServiceStatus::Rejected->value,
@@ -49,12 +49,17 @@ it('RSN-004: Dibatalkan tanpa alasan ditolak form', function () {
         ->assertHasFormErrors(['cancel_reason' => 'required']);
 });
 
+// Sejak 17 Nov 2026 servis tidak bisa dibuat langsung Ditolak, jadi alasan diisi lewat ubah.
 it('RSN-005: Ditolak dengan alasan tersimpan', function () {
-    Livewire::test(CreateService::class)
-        ->fillForm(alasanData(['cancel_reason' => 'Biaya melebihi harga unit baru']))
-        ->call('create')
+    $service = Service::factory()->create([
+        'customer_phone' => '081234500030',
+        'status' => ServiceStatus::Pending,
+    ]);
+
+    Livewire::test(\App\Filament\Resources\Services\Pages\EditService::class, ['record' => $service->getRouteKey()])
+        ->fillForm(['status' => ServiceStatus::Rejected->value, 'cancel_reason' => 'Biaya melebihi harga unit baru'])
+        ->call('save')
         ->assertHasNoFormErrors();
 
-    expect(Service::where('phone', '081234500030')->first()->cancel_reason)
-        ->toBe('Biaya melebihi harga unit baru');
+    expect($service->fresh()->cancel_reason)->toBe('Biaya melebihi harga unit baru');
 });

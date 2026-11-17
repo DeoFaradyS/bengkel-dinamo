@@ -10,7 +10,7 @@ function dataServis(array $extra = []): array
 {
     return array_merge([
         'customer_name' => 'Budi',
-        'phone' => '081234567890',
+        'customer_phone' => '081234567890',
         'complaint' => 'Dinamo starter mati',
         'scheduled_at' => nextSlot(),
     ], $extra);
@@ -43,5 +43,5 @@ it('BKT-003: workshop boleh tanpa koordinat', function () {
 
 it('BKT-004: label BookingType', function () {
     expect(BookingType::Workshop->getLabel())->toBe('Ke Bengkel')
-        ->and(BookingType::HomeService->getLabel())->toBe('Home Service');
+        ->and(BookingType::HomeService->getLabel())->toBe('Panggil Montir');
 });

@@ -10,4 +10,5 @@ return [
     'max_days_ahead' => 14,     // pelanggan bisa booking sampai 14 hari ke depan
     'expire_hours' => 24,       // dipakai nanti (langkah 3)
     'expire_before_minutes' => 0,
+    'whatsapp' => '08882509745', // nomor WA bengkel untuk tombol konfirmasi dan tombol WA melayang
 ];

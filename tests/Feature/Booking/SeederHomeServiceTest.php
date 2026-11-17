@@ -11,8 +11,8 @@ it('SED-001: seeder punya servis Home Service dengan koordinat', function () {
 
     expect($home->count())->toBeGreaterThanOrEqual(3)
         ->and($home->every(fn ($s) => $s->latitude !== null && $s->longitude !== null))->toBeTrue()
-        ->and($home->contains(fn ($s) => filled($s->address)))->toBeTrue()
-        ->and($home->contains(fn ($s) => blank($s->address)))->toBeTrue();
+        ->and($home->contains(fn ($s) => filled($s->address_note)))->toBeTrue()
+        ->and($home->contains(fn ($s) => blank($s->address_note)))->toBeTrue();
 });
 
 it('SED-002: servis Ke Bengkel di seeder tanpa koordinat', function () {
@@ -21,5 +21,5 @@ it('SED-002: servis Ke Bengkel di seeder tanpa koordinat', function () {
     $workshop = Service::where('booking_type', BookingType::Workshop->value)->get();
 
     expect($workshop->count())->toBeGreaterThanOrEqual(10)
-        ->and($workshop->every(fn ($s) => $s->latitude === null && $s->address === null))->toBeTrue();
+        ->and($workshop->every(fn ($s) => $s->latitude === null && $s->address_note === null))->toBeTrue();
 });

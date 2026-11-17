@@ -103,7 +103,9 @@ class EditService extends EditRecord
 
     protected function beforeValidate(): void
     {
-        $this->data['phone'] = PhoneNumber::normalize($this->data['phone'] ?? null);
+        if (!$this->record->isCustomerDataLocked()) {
+            $this->data['customer_phone'] = PhoneNumber::normalize($this->data['customer_phone'] ?? null);
+        }
     }
 
     protected function getFormActions(): array
@@ -117,6 +119,15 @@ class EditService extends EditRecord
     protected function mutateFormDataBeforeSave(array $data): array
     {
         $record = $this->record;
+
+        // Isian yang dikunci (booking online) tidak ikut disimpan: nilai lama tetap.
+        if ($record->isCustomerDataLocked()) {
+            foreach (['customer_name', 'customer_phone', 'complaint', 'scheduled_at', 'booking_type', 'latitude', 'longitude', 'address_note'] as $field) {
+                unset($data[$field]);
+            }
+
+            return $data;
+        }
 
         $type = $data['booking_type'] ?? null;
         $type = $type instanceof \App\Enums\BookingType ? $type : \App\Enums\BookingType::tryFrom((string) $type);
