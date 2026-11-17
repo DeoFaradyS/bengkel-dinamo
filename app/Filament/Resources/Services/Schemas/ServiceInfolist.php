@@ -38,6 +38,7 @@ class ServiceInfolist
                     ->columns(['default' => 1, 'md' => 2])
                     ->schema([
                         TextEntry::make('booking_code')->label('Kode Booking')->copyable(),
+                        TextEntry::make('source')->label('Asal')->badge(),
                         TextEntry::make('customer_name')->label('Nama Pelanggan'),
                         TextEntry::make('customer_phone')->label('No. HP'),
                         TextEntry::make('scheduled_at')->label('Tanggal & Jam')->dateTime('d/m/Y H:i'),

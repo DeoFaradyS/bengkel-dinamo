@@ -110,7 +110,11 @@ it('STK-006: buat servis status non-Selesai, stok tidak berkurang', function (Se
         ->assertHasNoFormErrors();
 
     expect($part->fresh()->stock)->toBe(10);
-})->with('statusNonSelesai');
+})->with([
+    // Status lain tidak bisa dipilih saat membuat servis dari panel (FLW-006).
+    'Confirmed' => ServiceStatus::Confirmed,
+    'InProgress' => ServiceStatus::InProgress,
+]);
 
 it('STK-007: buat servis langsung Selesai, stok langsung berkurang', function () {
     $type = ServiceType::factory()->create();

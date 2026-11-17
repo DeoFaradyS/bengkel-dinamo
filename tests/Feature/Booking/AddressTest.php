@@ -128,6 +128,7 @@ it('ADR-009: form admin Home Service dengan alamat tersimpan', function () {
 
 it('ADR-010: ubah ke Ke Bengkel, alamat dikosongkan', function () {
     $service = Service::factory()->create([
+        'source' => 'admin',
         'status' => ServiceStatus::Confirmed,
         'booking_type' => BookingType::HomeService,
         'latitude' => -7.7174465,

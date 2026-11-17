@@ -1,6 +1,6 @@
 # Peta Tes: SIM Bengkel Cak Budi Dinamo
 
-Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (566 lulus per 17 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
+Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (574 lulus per 17 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
 
 Jalankan: `php artisan test`, atau satu modul: `php artisan test --filter=Riwayat`.
 
@@ -34,7 +34,8 @@ Catatan umum:
 | SPF-001..015 | ServicePartTest | Baris part: qty tidak melebihi stok, harga satuan disalin dan terkunci, part ganda ditolak, subtotal dan grand total | aturan 6, 7 |
 | HPU-001..007 | ServicePhoneTest | Satu HP satu servis aktif, +62 dan 08 dianggap sama, HP disimpan `08...` | aturan 4 |
 | KNC-001..011 | ServiceLockTest | Servis final terkunci: tidak bisa diedit, 403 di Edit, klik baris ke Lihat | aturan 3 |
-| FLW-001..006 | ServiceStatusFlowTest | Transisi status sah dan terlarang, pilihan status di form | aturan 3 |
+| FLW-001..006 | ServiceStatusFlowTest | Transisi status sah dan terlarang, pilihan status di form (FLW-006 sejak 17 Nov: Tambah servis hanya Dikonfirmasi, Dikerjakan, Selesai) | aturan 3, 20 |
+| SRC-001..010 | ServiceSourceTest | Asal servis: booking beranda online, Tambah servis admin, data pelanggan booking online terkunci dan tidak bisa dipaksa, jadwal bisa digeser saat Dikonfirmasi tapi terkunci saat Dikerjakan, servis admin bebas diubah, Jasa dan Spare Part hanya saat Dikerjakan/Selesai, jasa lama tidak terhapus | aturan 20 |
 | ANT-001..012 | ServiceQueueTest | Antrian: satu `in_progress`, urutan confirmed, modal blokir | aturan 11 |
 | STK-001..008, 012..013 | ServiceStockTest | Stok berkurang saat Selesai, sekali saja, stok kurang membatalkan, modal konfirmasi | aturan 2 |
 | STK-010..011 | ServiceStockFormTest | Stok kurang lewat form tidak error, batal atau tolak tidak mengurangi stok | aturan 2 |
@@ -63,7 +64,7 @@ Catatan umum:
 | ADM-001..004 | AdminBookingTypeTest | Kolom, badge, filter tipe di tabel admin, link Peta | |
 | FRM-001..008 | AdminServiceFormTypeTest | Form admin: pilihan tipe, koordinat tampil atau tersembunyi, validasi, dikosongkan saat pindah ke workshop | |
 | FRM-009..010 | AdminServiceFormMapTest | Preview peta di form admin hanya untuk Home Service | |
-| RSN-001..005 | CancelReasonFormTest | Alasan wajib untuk Ditolak dan Dibatalkan, tersembunyi untuk status aktif | |
+| RSN-001..005 | CancelReasonFormTest | Alasan wajib untuk Ditolak dan Dibatalkan, tersembunyi untuk status aktif (RSN-005 sejak 17 Nov lewat form ubah) | |
 | NTF-001..003, 010..011 | BookingNotificationTest, BookingNotificationTypeTest | Notifikasi booking baru ke owner, isi memuat nama dan tipe | aturan 10 |
 | SED-001..002 | SeederHomeServiceTest | Seeder punya servis Home Service dengan koordinat | |
 

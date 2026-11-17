@@ -39,7 +39,7 @@ it('HPU-003: HP sama dengan servis yang di-soft-delete boleh', function () {
 });
 
 it('HPU-004: edit servis sendiri, HP tidak bentrok dengan dirinya', function () {
-    $service = Service::factory()->create(['customer_phone' => '081234500001']);
+    $service = Service::factory()->create(['customer_phone' => '081234500001', 'source' => 'admin']);
 
     Livewire::test(EditService::class, ['record' => $service->getRouteKey()])
         ->fillForm(['complaint' => 'Keluhan diubah'])

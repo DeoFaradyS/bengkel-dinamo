@@ -100,14 +100,14 @@ test('JSA-015: jasa terarsip tidak muncul di beranda, /layanan, detailnya 404, d
     $this->get('/layanan/' . $arsip->id)->assertNotFound();
 
     Livewire::test(\App\Filament\Resources\Services\Pages\CreateService::class)
-        ->fillForm(serviceFormData(['items' => [['service_type_id' => $arsip->id]]]))
+        ->fillForm(serviceFormData(['status' => 'in_progress', 'items' => [['service_type_id' => $arsip->id]]]))
         ->call('create')
         ->assertHasFormErrors();
 });
 
 test('JSA-016: servis aktif yang memakai jasa terarsip tetap bisa dibuka dan disimpan', function () {
     $type = ServiceType::factory()->create(['name' => 'Ganti bearing']);
-    $service = \App\Models\Service::factory()->create();
+    $service = \App\Models\Service::factory()->status(\App\Enums\ServiceStatus::InProgress)->create();
     $service->items()->create(['service_type_id' => $type->id, 'name' => $type->name, 'price' => 100000]);
     $type->delete();
 

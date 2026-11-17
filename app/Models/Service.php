@@ -24,6 +24,7 @@ class Service extends Model
 
     protected $fillable = [
         'user_id',
+        'source',
         'customer_name',
         'customer_phone',
         'complaint',
@@ -40,7 +41,12 @@ class Service extends Model
         'mechanic_names',
     ];
 
+    protected $attributes = [
+        'source' => 'online',
+    ];
+
     protected $casts = [
+        'source' => \App\Enums\ServiceSource::class,
         'status' => ServiceStatus::class,
         'booking_type' => BookingType::class,
         'latitude' => 'float',
@@ -95,6 +101,20 @@ class Service extends Model
             $service->fuel_price = (int) $fuelPrice;
             $service->transport_fee = self::transportFee((float) $service->distance_km, (int) $fuelPrice);
         });
+    }
+
+    // Booking online: data yang ditulis pelanggan tidak boleh diubah admin.
+    public function isCustomerDataLocked(): bool
+    {
+        return $this->source === \App\Enums\ServiceSource::Online;
+    }
+
+    // Jadwal booking online masih boleh digeser selama belum dikerjakan
+    // (pelanggan sering minta ganti jam lewat WA). Servis buatan admin selalu boleh.
+    public function isScheduleLocked(): bool
+    {
+        return $this->isCustomerDataLocked()
+            && !in_array($this->status, [ServiceStatus::Pending, ServiceStatus::Confirmed], true);
     }
 
     public static function newBookingCode(): string

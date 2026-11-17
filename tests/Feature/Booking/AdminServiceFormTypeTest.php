@@ -91,6 +91,7 @@ it('FRM-007: Ke Bengkel tersimpan tanpa koordinat', function () {
 
 it('FRM-008: ubah Home Service jadi Ke Bengkel, koordinat dikosongkan', function () {
     $service = Service::factory()->create([
+        'source' => 'admin',
         'status' => ServiceStatus::Confirmed,
         'booking_type' => BookingType::HomeService,
         'latitude' => -7.7174465,

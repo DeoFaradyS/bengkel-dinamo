@@ -42,6 +42,9 @@ class ServicesTable
                     ->sortable(),
                 TextColumn::make('booking_type')->label('Tipe')
                     ->badge(),
+                TextColumn::make('source')->label('Asal')
+                    ->badge()
+                    ->toggleable(),
                 TextColumn::make('status')->label('Status')
                     ->badge()
                     ->visible(fn($livewire) => ($livewire->activeTab ?? null) === 'all'),

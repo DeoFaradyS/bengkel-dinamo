@@ -54,14 +54,31 @@ class ServiceForm
     {
         $current = $record?->status;
 
-        // Create: semua status kecuali Kedaluwarsa (hanya diberi sistem). Edit: status sekarang + yang sah.
+        // Create: servis buatan admin langsung Dikonfirmasi, Dikerjakan, atau Selesai
+        // (tidak ada yang perlu ditunggu, dan tidak masuk akal dibuat dalam keadaan batal).
+        // Edit: status sekarang + yang sah.
         $cases = $current instanceof ServiceStatus
             ? [$current, ...$current->allowedNext()]
-            : array_filter(ServiceStatus::cases(), fn(ServiceStatus $s) => $s !== ServiceStatus::Expired);
+            : [ServiceStatus::Confirmed, ServiceStatus::InProgress, ServiceStatus::Completed];
 
         return collect($cases)
             ->mapWithKeys(fn(ServiceStatus $s) => [$s->value => $s->getLabel()])
             ->all();
+    }
+
+    // Booking online: data pelanggan hanya bisa dilihat. Lihat Service::isCustomerDataLocked().
+    private static function locked(?Service $record): bool
+    {
+        return $record?->isCustomerDataLocked() ?? false;
+    }
+
+    // Jasa dan spare part baru diisi saat servis dikerjakan (atau langsung diselesaikan).
+    private static function workStarted(Get $get): bool
+    {
+        $status = $get('status');
+        $status = $status instanceof ServiceStatus ? $status : ServiceStatus::tryFrom((string) $status);
+
+        return in_array($status, [ServiceStatus::InProgress, ServiceStatus::Completed], true);
     }
 
     private static function isHome(Get $get): bool
@@ -134,9 +151,15 @@ class ServiceForm
                 Section::make('Data Servis')
                     ->columns(['default' => 1, 'md' => 2])
                     ->schema([
+                        Text::make('Booking online: nama, No. HP, keluhan, tipe layanan, dan lokasi ditulis pelanggan, jadi tidak bisa diubah.')
+                            ->color('gray')
+                            ->columnSpanFull()
+                            ->visible(fn(?Service $record) => self::locked($record)),
                         TextInput::make('customer_name')->label('Nama Pelanggan')
+                            ->disabled(fn(?Service $record) => self::locked($record))
                             ->required(),
                         TextInput::make('customer_phone')->label('No. HP')
+                            ->disabled(fn(?Service $record) => self::locked($record))
                             ->tel()
                             ->required()
                             ->maxLength(16)
@@ -155,6 +178,7 @@ class ServiceForm
                             ->native(false)
                             ->seconds(false)
                             ->displayFormat('d/m/Y H:i')
+                            ->disabled(fn(?Service $record) => $record?->isScheduleLocked() ?? false)
                             ->default(now())
                             ->live()
                             ->hint(function (Get $get, ?Service $record): ?string {
@@ -178,6 +202,7 @@ class ServiceForm
                             ->required(),
 
                         Select::make('booking_type')->label('Tipe Layanan')
+                            ->disabled(fn(?Service $record) => self::locked($record))
                             ->options(BookingType::class)
                             ->default(BookingType::Workshop)
                             ->live()
@@ -215,11 +240,13 @@ class ServiceForm
                             ->helperText('Alasan ini terlihat oleh pelanggan di Cek Booking.')
                             ->placeholder('Contoh: jadwal montir penuh, kerusakan di luar layanan bengkel'),
                         Textarea::make('complaint')->label('Keluhan')
+                            ->disabled(fn(?Service $record) => self::locked($record))
                             ->columnSpanFull()
                             ->rows(3)
                             ->required(),
 
                         TextInput::make('latitude')->label('Latitude')
+                            ->disabled(fn(?Service $record) => self::locked($record))
                             ->numeric()
                             ->minValue(-90)
                             ->maxValue(90)
@@ -229,6 +256,7 @@ class ServiceForm
                             ->live(onBlur: true)
                             ->helperText('Contoh: -7.7174465'),
                         TextInput::make('longitude')->label('Longitude')
+                            ->disabled(fn(?Service $record) => self::locked($record))
                             ->numeric()
                             ->minValue(-180)
                             ->maxValue(180)
@@ -239,8 +267,9 @@ class ServiceForm
                             ->helperText('Contoh: 113.0755426'),
                         View::make('filament.forms.pin-map')
                             ->columnSpanFull()
-                            ->visible(fn(Get $get) => self::isHome($get)),
+                            ->visible(fn(Get $get, ?Service $record) => self::isHome($get) && !self::locked($record)),
                         TextInput::make('address_note')->label('Alamat atau patokan (opsional)')
+                            ->disabled(fn(?Service $record) => self::locked($record))
                             ->columnSpanFull()
                             ->maxLength(255)
                             ->visible(fn(Get $get) => self::isHome($get))
@@ -258,6 +287,7 @@ class ServiceForm
                     ]),
 
                 Section::make('Jasa')
+                    ->visible(fn(Get $get) => self::workStarted($get))
                     ->schema([
                         Repeater::make('items')
                             ->relationship()
@@ -323,6 +353,7 @@ class ServiceForm
                     ]),
 
                 Section::make('Spare Part')
+                    ->visible(fn(Get $get) => self::workStarted($get))
                     ->schema([
                         Repeater::make('serviceParts')
                             ->relationship()
