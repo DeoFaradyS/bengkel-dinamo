@@ -21,6 +21,7 @@
         }
 
         .header {
+            width: 100%;
             margin-bottom: 20px;
             border-bottom: 2px solid #222;
             padding-bottom: 10px;
@@ -77,10 +78,24 @@
 </head>
 
 <body>
-    <div class="header">
-        <h1>Bengkel Dinamo</h1>
-        <div class="muted">Invoice {{ $invoiceNumber }}</div>
-    </div>
+    @php
+        // Logo disisipkan sebagai data URI supaya DomPDF tidak perlu mengambil file lewat URL.
+        $logo = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path('images/logo-dinamo.png')));
+    @endphp
+
+    <table class="header" width="100%">
+        <tr>
+            <td style="vertical-align: middle;">
+                <img src="{{ $logo }}" alt="Dinamo, Bengkel Cak Budi" style="height: 44px;">
+                <div class="muted" style="margin-top: 6px;">Nguling, Pasuruan, Jawa Timur &middot; +62 888-2509-745</div>
+            </td>
+            <td class="right" style="vertical-align: middle;">
+                <h1>INVOICE</h1>
+                <div class="muted">{{ $invoiceNumber }}</div>
+                <div class="muted">Kode booking {{ $service->booking_code }}</div>
+            </td>
+        </tr>
+    </table>
 
     <table class="info">
         <tr>
