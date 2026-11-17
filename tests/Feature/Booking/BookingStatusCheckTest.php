@@ -173,7 +173,6 @@ test('CEK-014: booking dibatalkan atau ditolak, alasan dari bengkel tampil', fun
 
     cekBooking($s->booking_code, '081234567890')
         ->assertSet('results', fn ($r) => $r[0]['cancel_reason'] === 'Jadwal montir penuh')
-        ->assertSee('Alasan dari bengkel')
         ->assertSee('Jadwal montir penuh');
 })->with([ServiceStatus::Cancelled, ServiceStatus::Rejected]);
 

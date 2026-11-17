@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\CancelBookingByCustomer;
 use App\Enums\BookingType;
 use App\Enums\ServiceStatus;
 use App\Enums\UserRole;
@@ -84,6 +85,25 @@ class RiwayatController extends Controller
             ->findOrFail($id);
 
         return view('riwayat-detail', ['service' => $service]);
+    }
+
+    // Pelanggan membatalkan booking miliknya sendiri, hanya selama Menunggu.
+    public function batal(Request $request, int $id): RedirectResponse
+    {
+        if ($request->user()->role === UserRole::Owner) {
+            return redirect('/admin');
+        }
+
+        $service = Service::query()
+            ->where('user_id', $request->user()->id)
+            ->findOrFail($id);
+
+        $ok = app(CancelBookingByCustomer::class)->handle($service, $request->input('alasan'));
+
+        return redirect()->route('riwayat.show', $service->id)->with(
+            'status',
+            $ok ? 'Booking dibatalkan. Kamu bisa langsung booking lagi.' : 'Booking ini sudah tidak bisa dibatalkan dari sini. Hubungi bengkel lewat WhatsApp.',
+        );
     }
 
     public function invoice(Request $request, int $id): Response|RedirectResponse

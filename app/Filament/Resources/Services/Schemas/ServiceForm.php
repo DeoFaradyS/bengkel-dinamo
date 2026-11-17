@@ -151,10 +151,6 @@ class ServiceForm
                 Section::make('Data Servis')
                     ->columns(['default' => 1, 'md' => 2])
                     ->schema([
-                        Text::make('Booking online: nama, No. HP, keluhan, tipe layanan, dan lokasi ditulis pelanggan, jadi tidak bisa diubah.')
-                            ->color('gray')
-                            ->columnSpanFull()
-                            ->visible(fn(?Service $record) => self::locked($record)),
                         TextInput::make('customer_name')->label('Nama Pelanggan')
                             ->disabled(fn(?Service $record) => self::locked($record))
                             ->required(),
@@ -178,7 +174,7 @@ class ServiceForm
                             ->native(false)
                             ->seconds(false)
                             ->displayFormat('d/m/Y H:i')
-                            ->disabled(fn(?Service $record) => $record?->isScheduleLocked() ?? false)
+                            ->disabled(fn(?Service $record) => self::locked($record))
                             ->default(now())
                             ->live()
                             ->hint(function (Get $get, ?Service $record): ?string {

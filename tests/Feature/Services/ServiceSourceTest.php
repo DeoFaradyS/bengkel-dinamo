@@ -67,7 +67,7 @@ test('SRC-003: booking online, isian data pelanggan terkunci di form ubah', func
         ->assertFormFieldDisabled('latitude')
         ->assertFormFieldDisabled('longitude')
         ->assertFormFieldDisabled('address_note')
-        ->assertFormFieldEnabled('scheduled_at')
+        ->assertFormFieldDisabled('scheduled_at')
         ->assertFormFieldEnabled('status');
 });
 
@@ -93,16 +93,18 @@ test('SRC-004: booking online, data pelanggan yang dipaksa diubah tetap tidak te
         ->and($s->booking_type)->toBe(BookingType::Workshop);
 });
 
-test('SRC-005: booking online Dikonfirmasi, jadwal masih bisa digeser', function () {
+// Awalnya (17 Nov 2026, tahap 1) jadwal Dikonfirmasi boleh digeser admin. Diputuskan ulang
+// di hari yang sama: jadwal ikut terkunci, pelanggan membatalkan lalu booking ulang (BTL).
+test('SRC-005: booking online Dikonfirmasi, jadwal juga terkunci', function () {
     $s = servisOnline(['status' => ServiceStatus::Confirmed]);
-    $baru = nextSlot(3, 10);
+    $lama = $s->scheduled_at;
 
     ubahServis($s)
-        ->fillForm(['scheduled_at' => $baru->format('Y-m-d H:i:s')])
-        ->call('save')
-        ->assertHasNoFormErrors();
+        ->assertFormFieldDisabled('scheduled_at')
+        ->set('data.scheduled_at', nextSlot(3, 10)->format('Y-m-d H:i:s'))
+        ->call('save');
 
-    expect($s->fresh()->scheduled_at->equalTo($baru))->toBeTrue();
+    expect($s->fresh()->scheduled_at->equalTo($lama))->toBeTrue();
 });
 
 test('SRC-006: booking online Dikerjakan, jadwal terkunci', function () {
@@ -159,7 +161,6 @@ test('SRC-010: servis Dikonfirmasi yang sudah punya jasa, disimpan tanpa jasanya
     $s->items()->create(['service_type_id' => $type->id, 'name' => $type->name, 'price' => 50000]);
 
     ubahServis($s)
-        ->fillForm(['scheduled_at' => nextSlot(3, 10)->format('Y-m-d H:i:s')])
         ->call('save')
         ->assertHasNoFormErrors();
 

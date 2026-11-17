@@ -103,18 +103,11 @@ class Service extends Model
         });
     }
 
-    // Booking online: data yang ditulis pelanggan tidak boleh diubah admin.
+    // Booking online: data yang ditulis pelanggan (termasuk jadwal) tidak boleh diubah admin.
+    // Pelanggan yang mau ganti jadwal membatalkan booking lalu booking ulang.
     public function isCustomerDataLocked(): bool
     {
         return $this->source === \App\Enums\ServiceSource::Online;
-    }
-
-    // Jadwal booking online masih boleh digeser selama belum dikerjakan
-    // (pelanggan sering minta ganti jam lewat WA). Servis buatan admin selalu boleh.
-    public function isScheduleLocked(): bool
-    {
-        return $this->isCustomerDataLocked()
-            && !in_array($this->status, [ServiceStatus::Pending, ServiceStatus::Confirmed], true);
     }
 
     public static function newBookingCode(): string

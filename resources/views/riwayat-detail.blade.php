@@ -22,6 +22,13 @@
     <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 class="text-3xl font-bold text-neutral-800">Detail Booking</h1>
 
+        @if ($service->status === \App\Enums\ServiceStatus::Pending)
+            <button type="button" x-data x-on:click="$dispatch('buka-batal')"
+                class="inline-flex items-center gap-2 rounded-[10px] border border-neutral-300 bg-white px-5 py-3 text-sm font-semibold text-neutral-700 transition-colors hover:border-red-400 hover:text-red-600">
+                Batalkan booking
+            </button>
+        @endif
+
         @if ($done)
             <a href="{{ route('riwayat.invoice', $service->id) }}" target="_blank" rel="noopener"
                 class="inline-flex items-center gap-2 rounded-[10px] bg-neutral-800 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-neutral-700">
@@ -30,6 +37,47 @@
             </a>
         @endif
     </div>
+
+    @if (session('status'))
+        <p class="mb-6 rounded-[10px] border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm font-semibold text-neutral-800" role="status">
+            {{ session('status') }}
+            @if ($service->status === \App\Enums\ServiceStatus::Cancelled)
+                <a href="/#booking" class="ml-1 text-red-600 underline underline-offset-2">Buat booking baru</a>
+            @endif
+        </p>
+    @endif
+
+    @if ($service->status === \App\Enums\ServiceStatus::Pending)
+        {{-- Konfirmasi batal: pelanggan boleh membatalkan sendiri hanya selama Menunggu. --}}
+        <form method="POST" action="{{ route('riwayat.batal', $service->id) }}" x-data="{ buka: false }"
+            x-on:buka-batal.window="buka = true" x-show="buka" style="display:none"
+            class="mb-6 flex flex-col gap-4 rounded-[10px] border border-red-200 bg-red-50 p-5">
+            @csrf
+            <p class="text-base font-semibold text-neutral-900">Batalkan booking ini?</p>
+            <p class="text-sm text-neutral-700">Booking yang dibatalkan tidak bisa dikembalikan, tapi kamu bisa langsung booking lagi.</p>
+
+            <fieldset class="flex flex-col gap-2">
+                <legend class="mb-2 text-sm text-neutral-600">Alasan (boleh dikosongkan)</legend>
+                @foreach (\App\Actions\CancelBookingByCustomer::REASONS as $opsi)
+                    <label class="flex cursor-pointer items-center gap-3 text-sm text-neutral-800">
+                        <input type="radio" name="alasan" value="{{ $opsi }}" class="size-4 accent-red-600">
+                        {{ $opsi }}
+                    </label>
+                @endforeach
+            </fieldset>
+
+            <div class="flex flex-wrap gap-3">
+                <button type="submit"
+                    class="rounded-[10px] bg-red-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-red-700">
+                    Ya, batalkan
+                </button>
+                <button type="button" x-on:click="buka = false"
+                    class="rounded-[10px] border border-neutral-300 bg-white px-5 py-3 text-sm font-semibold text-neutral-700 hover:border-neutral-400">
+                    Kembali
+                </button>
+            </div>
+        </form>
+    @endif
 
     <div class="flex flex-col gap-6">
 
@@ -88,7 +136,7 @@
                 {{-- D3: alasan hanya untuk booking yang dibatalkan atau ditolak, sama dengan Cek Booking. --}}
                 @if (in_array($service->status, [\App\Enums\ServiceStatus::Cancelled, \App\Enums\ServiceStatus::Rejected], true) && filled($service->cancel_reason))
                     <div class="sm:col-span-2">
-                        <dt class="{{ $dt }}">Alasan dari bengkel</dt>
+                        <dt class="{{ $dt }}">Alasan</dt>
                         <dd class="{{ $dd }} whitespace-pre-line">{{ $service->cancel_reason }}</dd>
                     </div>
                 @endif

@@ -122,12 +122,8 @@ class EditService extends EditRecord
 
         // Isian yang dikunci (booking online) tidak ikut disimpan: nilai lama tetap.
         if ($record->isCustomerDataLocked()) {
-            foreach (['customer_name', 'customer_phone', 'complaint', 'booking_type', 'latitude', 'longitude', 'address_note'] as $field) {
+            foreach (['customer_name', 'customer_phone', 'complaint', 'scheduled_at', 'booking_type', 'latitude', 'longitude', 'address_note'] as $field) {
                 unset($data[$field]);
-            }
-
-            if ($record->isScheduleLocked()) {
-                unset($data['scheduled_at']);
             }
 
             return $data;

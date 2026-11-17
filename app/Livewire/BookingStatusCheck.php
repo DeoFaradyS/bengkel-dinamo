@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Actions\CancelBookingByCustomer;
 use App\Enums\BookingType;
 use App\Enums\ServiceStatus;
 use App\Models\Service;
@@ -37,6 +38,35 @@ class BookingStatusCheck extends Component
 
         RateLimiter::hit($key, 60);
 
+        $this->results = $this->toResults($this->findMatches());
+    }
+
+    // Pelanggan membatalkan booking yang sedang tampil. Kode dan HP dicocokkan ulang
+    // di server dan ikut batas percobaan, jadi tidak bisa dipakai menebak booking orang lain.
+    public function batalkan(string $kode, ?string $alasan = null): void
+    {
+        $key = 'cek-booking:' . request()->ip();
+
+        if (RateLimiter::tooManyAttempts($key, 5)) {
+            $this->addError('phone', 'Terlalu banyak percobaan. Coba lagi dalam ' . RateLimiter::availableIn($key) . ' detik.');
+
+            return;
+        }
+
+        RateLimiter::hit($key, 60);
+
+        $service = $this->findMatches()->firstWhere('booking_code', $kode);
+
+        if ($service !== null) {
+            app(CancelBookingByCustomer::class)->handle($service, $alasan);
+        }
+
+        $this->results = $this->toResults($this->findMatches());
+    }
+
+    /** @return \Illuminate\Support\Collection<int, Service> */
+    private function findMatches()
+    {
         $phone = PhoneNumber::normalize($this->phone);
 
         // Spasi dan tanda strip diabaikan, jadi "482 915" sama dengan "482915".
@@ -44,13 +74,16 @@ class BookingStatusCheck extends Component
 
         // Kode dan nomor HP harus cocok dua-duanya. Pesan gagal sama untuk kode salah
         // dan nomor salah, supaya booking orang lain tidak bisa ditebak.
-        $services = $phone
+        return $phone && $code !== ''
             ? Service::where('booking_code', $code)
                 ->where('customer_phone', $phone)
                 ->get()
             : collect();
+    }
 
-        $this->results = $services->map(fn (Service $s) => [
+    private function toResults($services): array
+    {
+        return $services->map(fn (Service $s) => [
             'booking_code' => $s->booking_code,
             'status' => $s->status->value,
             'status_label' => self::statusLabel($s->status->value),

@@ -94,7 +94,7 @@
 
                         @if ($r['cancel_reason'])
                             <div class="flex flex-col gap-1 p-4 bg-neutral-50 border-l-4 border-neutral-300 rounded-r-lg">
-                                <p class="text-base text-neutral-500">Alasan dari bengkel</p>
+                                <p class="text-base text-neutral-500">Alasan</p>
                                 <p class="text-lg text-neutral-800 leading-relaxed break-words">{{ $r['cancel_reason'] }}</p>
                             </div>
                         @endif
@@ -130,6 +130,52 @@
                                 </div>
                             @endif
                         </dl>
+
+                        @if ($r['status'] === 'pending')
+                            {{-- Pelanggan boleh membatalkan sendiri hanya selama Menunggu. --}}
+                            <div x-data="{ buka: false, alasan: '' }" class="flex flex-col gap-4 pt-6 border-t border-neutral-100">
+                                <button type="button" x-show="!buka" x-on:click="buka = true"
+                                    class="self-start px-5 py-3 border border-neutral-300 rounded-[10px] text-lg font-semibold text-neutral-700 hover:border-red-400 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-500">
+                                    Batalkan booking
+                                </button>
+
+                                <div x-show="buka" style="display:none" class="flex flex-col gap-4 p-5 bg-red-50 rounded-xl">
+                                    <p class="text-lg font-semibold text-neutral-900">Batalkan booking ini?</p>
+                                    <p class="text-base text-neutral-700">Booking yang dibatalkan tidak bisa dikembalikan, tapi kamu bisa langsung booking lagi.</p>
+
+                                    <fieldset class="flex flex-col gap-2">
+                                        <legend class="mb-2 text-base text-neutral-600">Alasan (boleh dikosongkan)</legend>
+                                        @foreach (\App\Actions\CancelBookingByCustomer::REASONS as $opsi)
+                                            <label class="flex items-center gap-3 text-lg text-neutral-800 cursor-pointer">
+                                                <input type="radio" x-model="alasan" value="{{ $opsi }}" class="size-5 accent-red-600">
+                                                {{ $opsi }}
+                                            </label>
+                                        @endforeach
+                                    </fieldset>
+
+                                    <div class="flex flex-col sm:flex-row gap-3">
+                                        <button type="button" wire:click="batalkan('{{ $r['booking_code'] }}', alasan || null)"
+                                            wire:loading.attr="disabled" wire:target="batalkan"
+                                            class="px-5 py-3 bg-red-600 rounded-[10px] text-lg font-semibold text-white hover:bg-red-700 disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                                            Ya, batalkan
+                                        </button>
+                                        <button type="button" x-on:click="buka = false"
+                                            class="px-5 py-3 bg-white border border-neutral-300 rounded-[10px] text-lg font-semibold text-neutral-700 hover:border-neutral-400 focus:outline-none focus:ring-2 focus:ring-red-500">
+                                            Kembali
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        @elseif ($r['status'] === 'confirmed')
+                            <p class="pt-6 border-t border-neutral-100 text-lg text-neutral-700">
+                                Tidak jadi datang?
+                                <a href="{{ \App\Support\WhatsAppLink::make(config('booking.whatsapp'), 'Halo Budi Dinamo, saya mau membatalkan booking dengan kode ' . $r['booking_code'] . '.') }}"
+                                    target="_blank" rel="noopener" class="font-semibold text-red-600 underline underline-offset-2">Hubungi bengkel lewat WhatsApp</a>.
+                            </p>
+                        @elseif (in_array($r['status'], ['cancelled', 'rejected', 'expired'], true))
+                            <a href="/#booking"
+                                class="self-start pt-6 text-lg font-semibold text-red-600 underline underline-offset-4">Buat booking baru</a>
+                        @endif
                     </div>
                 @endforeach
             </div>

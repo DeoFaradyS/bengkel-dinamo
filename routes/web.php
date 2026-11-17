@@ -37,6 +37,7 @@ Route::post('/keluar', [LoginController::class, 'destroy'])->middleware('auth')-
 
 Route::get('/riwayat', RiwayatController::class)->middleware('auth')->name('riwayat');
 Route::get('/riwayat/{id}', [RiwayatController::class, 'show'])->whereNumber('id')->middleware('auth')->name('riwayat.show');
+Route::post('/riwayat/{id}/batal', [RiwayatController::class, 'batal'])->whereNumber('id')->middleware(['auth', 'throttle:10,1'])->name('riwayat.batal');
 Route::get('/riwayat/{id}/invoice', [RiwayatController::class, 'invoice'])->whereNumber('id')->middleware('auth')->name('riwayat.invoice');
 Route::get('/profil', [ProfilController::class, 'edit'])->middleware('auth')->name('profil');
 Route::put('/profil', [ProfilController::class, 'update'])->middleware('auth');

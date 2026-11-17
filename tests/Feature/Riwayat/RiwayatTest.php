@@ -155,7 +155,6 @@ test('RWY-013: alasan batal tampil di detail booking yang dibatalkan', function 
 
     $this->actingAs($user)->get('/riwayat/'.$service->id)
         ->assertOk()
-        ->assertSee('Alasan dari bengkel')
         ->assertSee('Jadwal montir penuh');
 });
 
