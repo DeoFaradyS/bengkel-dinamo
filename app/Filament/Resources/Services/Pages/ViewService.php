@@ -13,6 +13,8 @@ use Filament\Support\Icons\Heroicon;
 
 class ViewService extends ViewRecord
 {
+    use Concerns\ShowsSourceBadge;
+
     protected static string $resource = ServiceResource::class;
 
     protected function getHeaderActions(): array

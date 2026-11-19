@@ -43,9 +43,6 @@ class ServicesTable
                 TextColumn::make('booking_type')->label('Tipe')
                     ->badge()
                     ->icon(false),
-                TextColumn::make('source')->label('Asal')
-                    ->badge()
-                    ->toggleable(),
                 TextColumn::make('status')->label('Status')
                     ->badge()
                     ->visible(fn($livewire) => ($livewire->activeTab ?? null) === 'all'),
@@ -85,6 +82,9 @@ class ServicesTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                SelectFilter::make('source')
+                    ->label('Dibuat oleh')
+                    ->options(\App\Enums\ServiceSource::class),
                 SelectFilter::make('booking_type')
                     ->label('Tipe')
                     ->options(BookingType::class),

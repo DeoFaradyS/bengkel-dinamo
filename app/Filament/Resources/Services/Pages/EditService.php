@@ -13,6 +13,8 @@ use Filament\Support\Exceptions\Halt;
 
 class EditService extends EditRecord
 {
+    use Concerns\ShowsSourceBadge;
+
     protected static string $resource = ServiceResource::class;
 
     public bool $completeConfirmed = false;
