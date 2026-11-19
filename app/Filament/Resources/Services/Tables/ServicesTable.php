@@ -38,7 +38,7 @@ class ServicesTable
                 TextColumn::make('customer_phone')->label('No. HP')
                     ->searchable(),
                 TextColumn::make('scheduled_at')->label('Tanggal & Jam')
-                    ->dateTime('d/m/Y H:i')
+                    ->dateTime('j M Y, H.i')
                     ->sortable(),
                 TextColumn::make('booking_type')->label('Tipe')
                     ->badge()
@@ -76,11 +76,11 @@ class ServicesTable
                     ->sortable(query: fn($query, string $direction) => $query
                         ->orderByRaw('(COALESCE(items_sum_price, 0) + COALESCE(parts_sum, 0) + COALESCE(transport_fee, 0)) ' . $direction)),
                 TextColumn::make('created_at')->label('Dibuat')
-                    ->dateTime('d/m/Y H:i')
+                    ->dateTime('j M Y, H.i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')->label('Diubah')
-                    ->dateTime('d/m/Y H:i')
+                    ->dateTime('j M Y, H.i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

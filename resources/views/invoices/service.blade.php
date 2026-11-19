@@ -102,7 +102,7 @@
             <td width="18%">Pelanggan</td>
             <td width="32%">: {{ $service->customer_name }}</td>
             <td width="18%">Tanggal</td>
-            <td>: {{ $service->scheduled_at->format('d/m/Y H:i') }}</td>
+            <td>: {{ $service->scheduled_at->translatedFormat('j F Y, H.i') }}</td>
         </tr>
         <tr>
             <td>No. HP</td>

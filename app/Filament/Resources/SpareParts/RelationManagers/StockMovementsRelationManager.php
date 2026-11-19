@@ -19,7 +19,7 @@ class StockMovementsRelationManager extends RelationManager
             ->defaultSort('id', 'desc')
             ->columns([
                 TextColumn::make('created_at')->label('Tanggal')
-                    ->dateTime('d/m/Y H:i'),
+                    ->dateTime('j M Y, H.i'),
                 TextColumn::make('type')->label('Jenis')
                     ->badge()
                     ->formatStateUsing(fn($state) => $state instanceof StockMovementType ? $state->label() : $state),

@@ -86,7 +86,7 @@ test('RWY-006: urutan terbaru dulu berdasarkan jadwal', function () {
     servisRiwayat($user, ['complaint' => 'Keluhan baru BBB', 'scheduled_at' => $baru]);
 
     $this->actingAs($user)->get('/riwayat')
-        ->assertSeeInOrder([$baru->format('d/m/Y H:i'), $lama->format('d/m/Y H:i')]);
+        ->assertSeeInOrder([$baru->translatedFormat('j M Y, H.i'), $lama->translatedFormat('j M Y, H.i')]);
 });
 
 test('RWY-007: paginasi 10 per halaman', function () {

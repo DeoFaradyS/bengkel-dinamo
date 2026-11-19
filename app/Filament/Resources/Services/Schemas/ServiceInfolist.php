@@ -46,7 +46,7 @@ class ServiceInfolist
                         TextEntry::make('source')->label('Asal')->badge(),
                         TextEntry::make('customer_name')->label('Nama Pelanggan'),
                         TextEntry::make('customer_phone')->label('No. HP'),
-                        TextEntry::make('scheduled_at')->label('Tanggal & Jam')->dateTime('d/m/Y H:i'),
+                        TextEntry::make('scheduled_at')->label('Tanggal & Jam')->dateTime('j M Y, H.i'),
                         TextEntry::make('booking_type')->label('Tipe Layanan')->badge(),
                         TextEntry::make('complaint')->label('Keluhan')
                             ->columnSpanFull(),
@@ -116,7 +116,7 @@ class ServiceInfolist
                             ->state(fn($record) => $record->paid_at ? 'Lunas' : 'Belum Lunas')
                             ->color(fn($state) => $state === 'Lunas' ? 'success' : 'warning')
                             ->visible(fn($record) => $record->status === ServiceStatus::Completed),
-                        TextEntry::make('paid_at')->label('Dibayar pada')->dateTime('d/m/Y H:i')
+                        TextEntry::make('paid_at')->label('Dibayar pada')->dateTime('j M Y, H.i')
                             ->visible(fn($record) => $record->status === ServiceStatus::Completed && filled($record->paid_at)),
                         TextEntry::make('cancel_reason')->label('Alasan')
                             ->visible(fn($record) => filled($record->cancel_reason)),

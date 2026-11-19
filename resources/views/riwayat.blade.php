@@ -100,7 +100,7 @@
                                 <td class="px-4 py-3 text-neutral-500">{{ $services->firstItem() + $loop->index }}</td>
                                 <td class="whitespace-nowrap px-4 py-3 font-semibold tabular-nums text-neutral-800">{{ $service->booking_code ?? '-' }}</td>
                                 <td class="whitespace-nowrap px-4 py-3 text-neutral-800">
-                                    {{ $service->scheduled_at?->format('d/m/Y H:i') ?? '-' }}
+                                    {{ $service->scheduled_at?->translatedFormat('j M Y, H.i') ?? '-' }}
                                 </td>
                                 <td class="whitespace-nowrap px-4 py-3">
                                     <x-status-badge :status="$service->booking_type" />

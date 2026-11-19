@@ -45,7 +45,7 @@ class TrendChart extends ChartWidget
                     'backgroundColor' => '#22c55e',
                 ],
             ],
-            'labels' => array_map(fn($d) => Carbon::parse($d)->format('d/m'), $trend['dates']),
+            'labels' => array_map(fn($d) => Carbon::parse($d)->translatedFormat('j M'), $trend['dates']),
         ];
     }
 

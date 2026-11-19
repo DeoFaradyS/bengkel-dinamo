@@ -101,7 +101,7 @@
                 </div>
                 <div>
                     <dt class="{{ $dt }}">Tanggal &amp; Jam</dt>
-                    <dd class="{{ $dd }}">{{ $service->scheduled_at?->format('d/m/Y H:i') ?? '-' }}</dd>
+                    <dd class="{{ $dd }}">{{ $service->scheduled_at?->translatedFormat('j M Y, H.i') ?? '-' }}</dd>
                 </div>
                 <div>
                     <dt class="{{ $dt }}">Tipe Layanan</dt>
@@ -124,7 +124,7 @@
                 @if (filled($service->paid_at))
                     <div>
                         <dt class="{{ $dt }}">Dibayar pada</dt>
-                        <dd class="{{ $dd }}">{{ $service->paid_at->format('d/m/Y H:i') }}</dd>
+                        <dd class="{{ $dd }}">{{ $service->paid_at->translatedFormat('j M Y, H.i') }}</dd>
                     </div>
                 @endif
 

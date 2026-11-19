@@ -154,7 +154,7 @@ class ServiceForm
                             ->state(fn(?Service $record) => $record?->customer_phone)
                             ->visible(fn(?Service $record) => self::locked($record)),
                         TextEntry::make('ro_scheduled_at')->label('Tanggal & Jam')
-                            ->state(fn(?Service $record) => $record?->scheduled_at?->format('d/m/Y H:i'))
+                            ->state(fn(?Service $record) => $record?->scheduled_at?->translatedFormat('j M Y, H.i'))
                             ->visible(fn(?Service $record) => self::locked($record)),
                         TextEntry::make('ro_booking_type')->label('Tipe Layanan')
                             ->state(fn(?Service $record) => $record?->booking_type)
@@ -182,7 +182,7 @@ class ServiceForm
                         DateTimePicker::make('scheduled_at')->label('Tanggal & Jam')
                             ->native(false)
                             ->seconds(false)
-                            ->displayFormat('d/m/Y H:i')
+                            ->displayFormat('j M Y, H.i')
                             ->hidden(fn(?Service $record) => self::locked($record))
                             ->default(now())
                             ->live()
