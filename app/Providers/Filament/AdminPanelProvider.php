@@ -34,6 +34,8 @@ class AdminPanelProvider extends PanelProvider
             ->brandName('Dinamo, Bengkel Cak Budi')
             ->brandLogo(fn () => asset('images/logo-dinamo.png'))
             ->brandLogoHeight('2.25rem')
+            // Pencarian global di navbar tidak dipakai, cari lewat tabel tiap menu.
+            ->globalSearch(false)
             ->databaseTransactions()
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->darkMode(false)
