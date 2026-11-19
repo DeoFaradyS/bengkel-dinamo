@@ -1,6 +1,6 @@
 # Peta Tes: SIM Bengkel Cak Budi Dinamo
 
-Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (589 lulus per 20 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
+Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (587 lulus per 20 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
 
 Jalankan: `php artisan test`, atau satu modul: `php artisan test --filter=Riwayat`.
 
@@ -29,7 +29,7 @@ Catatan umum:
 | --- | --- | --- | --- |
 | FRM-001..003 | ServiceFormTest | Field wajib, HP maks 16 karakter | |
 | DTL-001..005 | ServiceDetailTest | Detail: Total Servis, alasan hanya untuk Dibatalkan, alamat dan link peta hanya Home Service | |
-| INV-001..011 | ServiceInvoiceTest, ServiceInvoiceContentTest, ServiceInvoicePartTest | Nomor invoice, PDF jadi, tombol Invoice hanya untuk Selesai, part terhapus tetap bisa dicetak | |
+| INV-001..005, 009..012 (006..008 dihapus 20 Nov, jangan dipakai ulang) | ServiceInvoiceTest, ServiceInvoiceContentTest, ServiceInvoicePartTest | Nomor invoice, PDF jadi, tombol Invoice hanya untuk Selesai, part terhapus tetap bisa dicetak | |
 | TSJ-001..017 (004 dua kali) | ServiceItemTest | Baris jasa: salin nama dan harga, harga boleh diubah, harga negatif atau kosong ditolak, nota lama tidak ikut perubahan katalog, total jasa | aturan 6, 7 |
 | SPF-001..015 | ServicePartTest | Baris part: qty tidak melebihi stok, harga satuan disalin dan terkunci, part ganda ditolak, subtotal dan grand total | aturan 6, 7 |
 | HPU-001..007 | ServicePhoneTest | Satu HP satu servis aktif, +62 dan 08 dianggap sama, HP disimpan `08...` | aturan 4 |

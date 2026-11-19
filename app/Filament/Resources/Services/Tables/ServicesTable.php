@@ -2,11 +2,8 @@
 
 namespace App\Filament\Resources\Services\Tables;
 
-use App\Actions\MarkServicePaid;
 use App\Enums\BookingType;
 use App\Enums\ServiceStatus;
-use Filament\Actions\Action;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -14,7 +11,6 @@ use Illuminate\Support\Facades\DB;
 use App\Filament\Resources\Services\ServiceResource;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Notifications\Notification;
 
 class ServicesTable
 {
@@ -106,30 +102,6 @@ class ServicesTable
                     ->visible(fn($record) => !$record->status->isFinal()),
                 ViewAction::make()
                     ->visible(fn($record) => $record->status->isFinal()),
-                Action::make('tandai_lunas')
-                    ->label('Tandai Lunas')
-                    ->icon(Heroicon::OutlinedBanknotes)
-                    ->color('success')
-                    ->requiresConfirmation()
-                    ->modalHeading('Tandai servis ini lunas?')
-                    ->modalDescription('Pembayaran tunai sudah diterima. Waktu lunas tercatat sekarang.')
-                    ->visible(fn($record) => $record->status === ServiceStatus::Completed && $record->paid_at === null)
-                    ->action(function ($record) {
-                        $ok = app(MarkServicePaid::class)->handle($record);
-
-                        Notification::make()
-                            ->title($ok ? 'Servis ditandai lunas' : 'Servis ini sudah lunas atau belum selesai')
-                            ->{$ok ? 'success' : 'warning'}()
-                            ->send();
-                    }),
-                Action::make('invoice')
-                    ->label('Invoice')
-                    ->icon(Heroicon::OutlinedPrinter)
-                    ->visible(fn($record) => $record->status === ServiceStatus::Completed)
-                    ->action(fn($record) => response()->streamDownload(
-                        fn() => print ($record->invoicePdf()),
-                        $record->invoiceNumber() . '.pdf',
-                    )),
             ]);
     }
 }

@@ -6,7 +6,6 @@ use App\Filament\Resources\Services\Pages\ViewService;
 use App\Models\Service;
 use App\Models\ServicePart;
 use App\Models\ServiceType;
-use Filament\Actions\Testing\TestAction;
 use Livewire\Livewire;
 
 // Servis Selesai lengkap: satu jasa + satu part.
@@ -78,38 +77,26 @@ it('INV-005: halaman Lihat servis non-Selesai, tombol Invoice tersembunyi', func
 /* INV: tombol di tabel                                                */
 /* ------------------------------------------------------------------ */
 
-it('INV-006: tabel servis Selesai, tombol Invoice tampil', function () {
+// Sejak 20 Nov 2026 Invoice dan Tandai Lunas tidak ada lagi di baris tabel, hanya di
+// halaman detail. INV-006..008 (tombol Invoice di tabel) dihapus, jangan dipakai ulang.
+it('INV-012: tabel servis Selesai tidak punya tombol Invoice dan Tandai Lunas per baris', function () {
     $service = completedServiceWithData();
 
     Livewire::test(ListServices::class)
         ->set('activeTab', 'completed')
-        ->assertActionVisible(TestAction::make('invoice')->table($service));
-});
-
-it('INV-007: tabel servis aktif, tombol Invoice tersembunyi', function () {
-    $service = Service::factory()->create();
-
-    Livewire::test(ListServices::class)
-        ->assertActionHidden(TestAction::make('invoice')->table($service));
-});
-
-it('INV-008: tabel servis Dibatalkan, tombol Invoice tersembunyi', function () {
-    $service = Service::factory()->cancelled()->create();
-
-    Livewire::test(ListServices::class)
-        ->set('activeTab', 'cancelled')
-        ->assertActionHidden(TestAction::make('invoice')->table($service));
+        ->assertTableActionDoesNotExist('invoice')
+        ->assertTableActionDoesNotExist('tandai_lunas');
 });
 
 /* ------------------------------------------------------------------ */
 /* INV: unduh                                                          */
 /* ------------------------------------------------------------------ */
 
-it('INV-009: klik Invoice di tabel, file PDF terunduh', function () {
+// Sejak 20 Nov 2026 lewat halaman detail (sebelumnya lewat tombol di tabel).
+it('INV-009: klik Cetak Invoice di halaman detail, file PDF terunduh', function () {
     $service = completedServiceWithData();
 
-    Livewire::test(ListServices::class)
-        ->set('activeTab', 'completed')
-        ->callAction(TestAction::make('invoice')->table($service))
+    Livewire::test(ViewService::class, ['record' => $service->getRouteKey()])
+        ->callAction('invoice')
         ->assertFileDownloaded($service->invoiceNumber() . '.pdf');
 });
