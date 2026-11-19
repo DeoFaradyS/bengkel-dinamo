@@ -56,6 +56,15 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara. Disaring
 
 ## C. Fitur belum dikerjakan
 
+**Antrean berikutnya (disepakati 20 Nov 2026, urut):**
+
+- [x] 1. (Selesai 20 Nov 2026, MTR-001..004) Isian Montir di form servis memakai kolom `services.mechanic_names` yang sudah ada (teks bebas, tanpa tabel montir). Muncul mulai Dikonfirmasi (tidak wajib; awalnya hanya saat Dikerjakan, diubah 20 Nov), tampil di detail admin, **tidak** tampil ke pelanggan (Cek Booking, Riwayat, invoice).
+- [ ] 2. Laporan Pendapatan, menu sendiri di panel. Dasar hitung **uang diterima** (servis Selesai yang sudah lunas, menurut `paid_at`), standar untuk usaha kecil yang bayar tunai. Isi: filter periode dan tipe layanan; ringkasan (total pendapatan, jumlah servis lunas, rata-rata per servis, belum dibayar terpisah); rincian sumber (jasa, spare part, transport, persen); tabel per servis (tanggal lunas, kode, pelanggan, tipe, jasa, part, transport, total, baris jumlah); unduh PDF berkop logo. Tidak memuat pengeluaran, laba/rugi, atau modal part (pengembangan lanjutan). Opsional: unduh CSV. Wajib tes (uang).
+- [ ] 3. Dashboard ditata ulang (dikerjakan bersama nomor 2 karena memakai hitungan yang sama): bagian **Hari ini** tanpa filter (Jadwal hari ini, Menunggu konfirmasi, Stok menipis) di atas; filter periode pindah ke atas bagian **Kinerja periode**; grafik Tren Booking diganti **Grafik pendapatan** batang (per hari, otomatis per minggu/bulan kalau periode panjang); jumlah booking cukup jadi angka KPI. Samakan Pendapatan di KPI dengan dasar uang diterima (sekarang `ServiceMetrics::revenue()` tanpa transport dan menghitung servis belum lunas). Opsional nanti: grafik booking per hari dalam seminggu.
+- [ ] 4. Bersih-bersih tes: daftar calon tes yang dihapus (tampilan saja atau dobel), pemilik memilih, ID dicatat "jangan dipakai ulang".
+- [ ] 5. WA otomatis lewat Fonnte (paket gratis): pesan saat status menjadi Dikonfirmasi, Selesai, Dibatalkan, Ditolak. Pengirim bisa ditukar (log di lokal dan tes), dikirim `afterResponse`, gagal kirim tidak menggagalkan status, catatan terkirim/gagal, tombol manual "Kabari via WA" sebagai cadangan. Pemilik menyiapkan nomor khusus, akun Fonnte, dan token di `.env`.
+- [ ] Ditunda (20 Nov 2026): tombol aksi status (Tahap 2 di bawah) beserta merapikan Tandai Lunas di tabel servis. Rancangan sementara: tombol di kanan atas detail + jendela konfirmasi, alasan wajib untuk Tolak/Batalkan, baris tahap sebagai penanda, jasa dan spare part tetap lewat Ubah (Ubah hanya muncul saat Dikerjakan atau servis buatan admin, simpan kembali ke detail), tabel cukup tombol Lihat.
+
 - [ ] Rekap stok per periode (Iterasi 4). Belum diputuskan dibangun atau ditulis sebagai pengembangan lanjutan skripsi.
 - [ ] Promo dikelola dari panel (sisa US-07). Layanan sudah lewat menu Jasa.
 - [x] Asal servis dan hak ubah admin, tahap 1 (17 Nov 2026, aturan 20): kolom `services.source` lewat migrasi `2026_11_17_120000_add_source_to_services_table` (ERD perlu ditambah kolom ini; keputusan lama "tanpa `source`" dicabut karena perlu membedakan booking online dan servis buatan admin), data pelanggan booking online dikunci termasuk jadwal (awalnya jadwal boleh digeser saat Menunggu/Dikonfirmasi, diputuskan ulang di hari yang sama), Jasa dan Spare Part hanya saat Dikerjakan/Selesai, status awal Tambah servis hanya Dikonfirmasi/Dikerjakan/Selesai, kolom Asal di tabel dan detail. Tes SRC-001..010; FLW-006, STK-006, RSN-005 disesuaikan.
@@ -135,7 +144,7 @@ Daftar dari pemilik. Per 10 Nov 2026 (siang): tahap 1 sampai 3 selesai, 530 tes 
 - [x] Rapikan dan organisasi tes (`tests/README.md` dibuat 10 Nov 2026; sisa: ID kembar dan judul usang, lihat catatan di README): tiap berkas dan ID tes punya penjelasan satu baris "mengetes apa". Usul: tabel `tests/README.md` berisi kode modul (BKG, LOC, TIP, PRC, JSA, ANT, AUTH, SEC, LNS, RWY, PRF, dst), berkas, dan aturan bisnis yang dicek.
 - [x] Perbarui laporan skripsi: banyak perubahan (landing, jasa, ERD, login customer, area customer, antrian, Cek Booking, Tandai Lunas).
 - [ ] Notifikasi WhatsApp ke pelanggan: opsional, dikerjakan belakangan kalau sempat.
-- [ ] Siapkan bahan bimbingan: demo (beranda, `/layanan`, Cek Booking, upload foto jasa, login customer, booking login, Riwayat dan detail, Cetak Invoice, Profil, Tandai Lunas di panel), angka tes (585), daftar migrasi yang berubah, keputusan yang butuh jawaban (D1, D3, D8).
+- [ ] Siapkan bahan bimbingan: demo (beranda, `/layanan`, Cek Booking, upload foto jasa, login customer, booking login, Riwayat dan detail, Cetak Invoice, Profil, Tandai Lunas di panel), angka tes (589), daftar migrasi yang berubah, keputusan yang butuh jawaban (D1, D3, D8).
 
 ## F. Rencana perubahan database dan fitur turunannya (diperbarui 10 Nov 2026, siang)
 

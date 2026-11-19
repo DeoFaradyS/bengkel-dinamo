@@ -51,7 +51,7 @@ it('HPU-004: edit servis sendiri, HP tidak bentrok dengan dirinya', function () 
 
 it('HPU-005: edit HP jadi nomor servis aktif lain ditolak', function () {
     Service::factory()->create(['customer_phone' => '081234500001']);
-    $service = Service::factory()->create(['customer_phone' => '081234500002']);
+    $service = Service::factory()->create(['customer_phone' => '081234500002', 'source' => 'admin']);
 
     Livewire::test(EditService::class, ['record' => $service->getRouteKey()])
         ->fillForm(['customer_phone' => '081234500001'])

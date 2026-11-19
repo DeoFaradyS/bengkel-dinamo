@@ -52,7 +52,7 @@ test('SRC-002: servis dari Tambah servis di panel tercatat admin', function () {
     expect(Service::firstOrFail()->source)->toBe(ServiceSource::Admin);
 });
 
-test('SRC-003: booking online, isian data pelanggan terkunci di form ubah', function () {
+test('SRC-003: booking online, isian data pelanggan diganti teks biasa di form ubah', function () {
     $s = servisOnline([
         'booking_type' => BookingType::HomeService,
         'latitude' => -7.7174465,
@@ -60,15 +60,17 @@ test('SRC-003: booking online, isian data pelanggan terkunci di form ubah', func
     ]);
 
     ubahServis($s)
-        ->assertFormFieldDisabled('customer_name')
-        ->assertFormFieldDisabled('customer_phone')
-        ->assertFormFieldDisabled('complaint')
-        ->assertFormFieldDisabled('booking_type')
-        ->assertFormFieldDisabled('latitude')
-        ->assertFormFieldDisabled('longitude')
-        ->assertFormFieldDisabled('address_note')
-        ->assertFormFieldDisabled('scheduled_at')
-        ->assertFormFieldEnabled('status');
+        ->assertFormFieldHidden('customer_name')
+        ->assertFormFieldHidden('customer_phone')
+        ->assertFormFieldHidden('complaint')
+        ->assertFormFieldHidden('booking_type')
+        ->assertFormFieldHidden('latitude')
+        ->assertFormFieldHidden('longitude')
+        ->assertFormFieldHidden('address_note')
+        ->assertFormFieldHidden('scheduled_at')
+        ->assertFormFieldEnabled('status')
+        ->assertSee($s->customer_name)
+        ->assertSee($s->customer_phone);
 });
 
 test('SRC-004: booking online, data pelanggan yang dipaksa diubah tetap tidak tersimpan', function () {
@@ -100,7 +102,7 @@ test('SRC-005: booking online Dikonfirmasi, jadwal juga terkunci', function () {
     $lama = $s->scheduled_at;
 
     ubahServis($s)
-        ->assertFormFieldDisabled('scheduled_at')
+        ->assertFormFieldHidden('scheduled_at')
         ->set('data.scheduled_at', nextSlot(3, 10)->format('Y-m-d H:i:s'))
         ->call('save');
 
@@ -112,7 +114,7 @@ test('SRC-006: booking online Dikerjakan, jadwal terkunci', function () {
     $lama = $s->scheduled_at;
 
     ubahServis($s)
-        ->assertFormFieldDisabled('scheduled_at')
+        ->assertFormFieldHidden('scheduled_at')
         ->set('data.scheduled_at', nextSlot(3, 10)->format('Y-m-d H:i:s'))
         ->call('save');
 

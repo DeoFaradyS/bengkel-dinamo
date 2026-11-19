@@ -61,3 +61,14 @@
     color: var(--primary-600, #2563eb) !important;
     box-shadow: 0 1px 2px rgb(0 0 0 / 0.08) !important;
 }
+/* Kolom kanan servis (Status + Ringkasan biaya) menempel saat di-scroll, hanya di layar
+   lebar yang cukup tinggi. Di layar pendek (misalnya 768px) isinya lebih tinggi dari layar,
+   jadi dibiarkan ikut scroll biasa supaya Total tidak tersembunyi.
+   Yang menjadi kolom grid adalah .fi-grid-col pembungkusnya, jadi sticky dipasang di situ. */
+@media (min-width: 80rem) and (min-height: 56rem) {
+    .fi-grid-col:has(> .fi-sc-component > .service-summary) {
+        position: sticky;
+        top: 5rem;
+        align-self: start;
+    }
+}

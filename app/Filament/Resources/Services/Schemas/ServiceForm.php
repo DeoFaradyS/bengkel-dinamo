@@ -15,6 +15,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
@@ -22,8 +23,6 @@ use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
 use Filament\Support\RawJs;
 use Illuminate\Validation\Rules\Unique;
-use Filament\Infolists\Components\RepeatableEntry;
-use Filament\Infolists\Components\RepeatableEntry\TableColumn as EntryTableColumn;
 use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\TextSize;
 use Filament\Schemas\Components\Flex;
@@ -32,6 +31,7 @@ use Filament\Support\Enums\Alignment;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use App\Models\Service;
+use App\Support\ServiceSummaryHtml;
 use App\Support\Booking\Slots;
 use Illuminate\Support\Carbon;
 
@@ -81,6 +81,15 @@ class ServiceForm
         return in_array($status, [ServiceStatus::InProgress, ServiceStatus::Completed], true);
     }
 
+    // Montir sudah bisa ditentukan sejak booking dikonfirmasi (siapa yang berangkat atau memegang).
+    private static function mechanicAllowed(Get $get): bool
+    {
+        $status = $get('status');
+        $status = $status instanceof ServiceStatus ? $status : ServiceStatus::tryFrom((string) $status);
+
+        return in_array($status, [ServiceStatus::Confirmed, ServiceStatus::InProgress, ServiceStatus::Completed], true);
+    }
+
     private static function isHome(Get $get): bool
     {
         return self::typeOf($get('booking_type')) === BookingType::HomeService;
@@ -125,37 +134,37 @@ class ServiceForm
         })->values()->all();
     }
 
-    private static function withSubtotal(array $rows, string $label): array
-    {
-        if ($rows === []) {
-            return [];
-        }
-
-        return [
-            ...$rows,
-            [
-                'name' => $label,
-                'detail' => '',
-                'total' => array_sum(array_column($rows, 'total')),
-                'is_subtotal' => true,
-            ],
-        ];
-    }
-
-
     public static function configure(Schema $schema): Schema
     {
+        // Layar lebar: kiri data pelanggan, jasa, part; kanan status, montir, dan ringkasan biaya
+        // yang menempel saat di-scroll. xl (1280px) 2/3 : 1/3 supaya tabel jasa dan part tidak
+        // bertumpuk; 2xl (1536px) 5/8 : 3/8 supaya kolom kanan lebih lega.
         return $schema
-            ->columns(1)
+            ->columns(['default' => 1, 'xl' => 3, '2xl' => 8])
             ->components([
+                Group::make([
                 Section::make('Data Servis')
                     ->columns(['default' => 1, 'md' => 2])
                     ->schema([
+                        // Booking online: data pelanggan tampil sebagai teks biasa (tidak bisa diubah).
+                        TextEntry::make('ro_customer_name')->label('Nama Pelanggan')
+                            ->state(fn(?Service $record) => $record?->customer_name)
+                            ->visible(fn(?Service $record) => self::locked($record)),
+                        TextEntry::make('ro_customer_phone')->label('No. HP')
+                            ->state(fn(?Service $record) => $record?->customer_phone)
+                            ->visible(fn(?Service $record) => self::locked($record)),
+                        TextEntry::make('ro_scheduled_at')->label('Tanggal & Jam')
+                            ->state(fn(?Service $record) => $record?->scheduled_at?->format('d/m/Y H:i'))
+                            ->visible(fn(?Service $record) => self::locked($record)),
+                        TextEntry::make('ro_booking_type')->label('Tipe Layanan')
+                            ->state(fn(?Service $record) => $record?->booking_type)
+                            ->badge()
+                            ->visible(fn(?Service $record) => self::locked($record)),
                         TextInput::make('customer_name')->label('Nama Pelanggan')
-                            ->disabled(fn(?Service $record) => self::locked($record))
+                            ->hidden(fn(?Service $record) => self::locked($record))
                             ->required(),
                         TextInput::make('customer_phone')->label('No. HP')
-                            ->disabled(fn(?Service $record) => self::locked($record))
+                            ->hidden(fn(?Service $record) => self::locked($record))
                             ->tel()
                             ->required()
                             ->maxLength(16)
@@ -174,7 +183,7 @@ class ServiceForm
                             ->native(false)
                             ->seconds(false)
                             ->displayFormat('d/m/Y H:i')
-                            ->disabled(fn(?Service $record) => self::locked($record))
+                            ->hidden(fn(?Service $record) => self::locked($record))
                             ->default(now())
                             ->live()
                             ->hint(function (Get $get, ?Service $record): ?string {
@@ -198,7 +207,7 @@ class ServiceForm
                             ->required(),
 
                         Select::make('booking_type')->label('Tipe Layanan')
-                            ->disabled(fn(?Service $record) => self::locked($record))
+                            ->hidden(fn(?Service $record) => self::locked($record))
                             ->options(BookingType::class)
                             ->default(BookingType::Workshop)
                             ->live()
@@ -211,38 +220,22 @@ class ServiceForm
                             })
                             ->required(),
 
-                        ToggleButtons::make('status')->label('Status')
+                        TextEntry::make('ro_complaint')->label('Keluhan')
                             ->columnSpanFull()
-                            ->options(fn(?Service $record) => self::statusOptions($record))
-                            ->colors(fn() => collect(ServiceStatus::cases())
-                                ->mapWithKeys(fn(ServiceStatus $s) => [$s->value => $s->getColor()])
-                                ->all())
-                            ->icons(fn() => collect(ServiceStatus::cases())
-                                ->mapWithKeys(fn(ServiceStatus $s) => [$s->value => $s->getIcon()])
-                                ->all())
-                            ->default(ServiceStatus::Confirmed)
-                            ->live()
-                            ->inline()
-                            ->required(),
-                        Textarea::make('cancel_reason')->label('Alasan')
+                            ->state(fn(?Service $record) => $record?->complaint)
+                            ->visible(fn(?Service $record) => self::locked($record)),
+                        TextEntry::make('ro_address_note')->label('Alamat atau patokan')
                             ->columnSpanFull()
-                            ->rows(2)
-                            ->maxLength(1000)
-                            ->required(fn(Get $get) => self::needsReason($get))
-                            ->visible(fn(Get $get) => self::needsReason($get))
-                            ->validationMessages([
-                                'required' => 'Isi alasan penolakan atau pembatalan.',
-                            ])
-                            ->helperText('Alasan ini terlihat oleh pelanggan di Cek Booking.')
-                            ->placeholder('Contoh: jadwal montir penuh, kerusakan di luar layanan bengkel'),
+                            ->state(fn(?Service $record) => $record?->address_note)
+                            ->visible(fn(?Service $record) => self::locked($record) && filled($record?->address_note)),
                         Textarea::make('complaint')->label('Keluhan')
-                            ->disabled(fn(?Service $record) => self::locked($record))
+                            ->hidden(fn(?Service $record) => self::locked($record))
                             ->columnSpanFull()
                             ->rows(3)
                             ->required(),
 
                         TextInput::make('latitude')->label('Latitude')
-                            ->disabled(fn(?Service $record) => self::locked($record))
+                            ->hidden(fn(?Service $record) => self::locked($record))
                             ->numeric()
                             ->minValue(-90)
                             ->maxValue(90)
@@ -252,7 +245,7 @@ class ServiceForm
                             ->live(onBlur: true)
                             ->helperText('Contoh: -7.7174465'),
                         TextInput::make('longitude')->label('Longitude')
-                            ->disabled(fn(?Service $record) => self::locked($record))
+                            ->hidden(fn(?Service $record) => self::locked($record))
                             ->numeric()
                             ->minValue(-180)
                             ->maxValue(180)
@@ -265,7 +258,7 @@ class ServiceForm
                             ->columnSpanFull()
                             ->visible(fn(Get $get, ?Service $record) => self::isHome($get) && !self::locked($record)),
                         TextInput::make('address_note')->label('Alamat atau patokan (opsional)')
-                            ->disabled(fn(?Service $record) => self::locked($record))
+                            ->hidden(fn(?Service $record) => self::locked($record))
                             ->columnSpanFull()
                             ->maxLength(255)
                             ->visible(fn(Get $get) => self::isHome($get))
@@ -312,7 +305,7 @@ class ServiceForm
                             ->live()
                             ->table([
                                 TableColumn::make('Jasa'),
-                                TableColumn::make('Harga')->width('16rem'),
+                                TableColumn::make('Harga')->width('11rem'),
                             ])
                             ->schema([
                                 Select::make('service_type_id')
@@ -369,8 +362,8 @@ class ServiceForm
                             ->live()
                             ->table([
                                 TableColumn::make('Part'),
-                                TableColumn::make('Qty')->width('8rem'),
-                                TableColumn::make('Harga')->width('16rem'),
+                                TableColumn::make('Qty')->width('6rem'),
+                                TableColumn::make('Harga')->width('11rem'),
                             ])
                             ->schema([
                                 Select::make('spare_part_id')
@@ -410,91 +403,53 @@ class ServiceForm
                             ]),
                     ]),
 
+                ])->columnSpan(['default' => 1, 'xl' => 2, '2xl' => 5]),
+
+                Group::make([
+                Section::make('Status')
+                    ->schema([
+                        ToggleButtons::make('status')->label('Status')
+                            ->options(fn(?Service $record) => self::statusOptions($record))
+                            ->colors(fn() => collect(ServiceStatus::cases())
+                                ->mapWithKeys(fn(ServiceStatus $s) => [$s->value => $s->getColor()])
+                                ->all())
+                            ->icons(fn() => collect(ServiceStatus::cases())
+                                ->mapWithKeys(fn(ServiceStatus $s) => [$s->value => $s->getIcon()])
+                                ->all())
+                            ->default(ServiceStatus::Confirmed)
+                            ->live()
+                            ->inline()
+                            ->required(),
+                        Textarea::make('cancel_reason')->label('Alasan')
+                            ->rows(2)
+                            ->maxLength(1000)
+                            ->required(fn(Get $get) => self::needsReason($get))
+                            ->visible(fn(Get $get) => self::needsReason($get))
+                            ->validationMessages([
+                                'required' => 'Isi alasan penolakan atau pembatalan.',
+                            ])
+                            ->helperText('Alasan ini terlihat oleh pelanggan di Cek Booking.')
+                            ->placeholder('Contoh: jadwal montir penuh, kerusakan di luar layanan bengkel'),
+                        // Montir: catatan internal bengkel, tidak tampil ke pelanggan.
+                        TextInput::make('mechanic_names')->label('Montir')
+                            ->visible(fn(Get $get) => self::mechanicAllowed($get))
+                            ->maxLength(255)
+                            ->placeholder('Contoh: Budi, Andi'),
+                    ]),
+
                 Section::make('Ringkasan biaya')
                     ->schema([
-                        Text::make(new HtmlString(
-                            '<style>.ringkasan-tabel tr:last-child > *{background:rgba(128,128,128,.06)!important;font-weight:600!important;}</style>'
-                        ))->extraAttributes(['style' => 'display:none;']),
-
-                        // ---- Jasa ----
-                        RepeatableEntry::make('ringkasan_jasa')
+                        TextEntry::make('ringkasan')
                             ->hiddenLabel()
-                            ->extraAttributes(['class' => 'ringkasan-tabel'])
-                            ->state(fn(Get $get) => self::withSubtotal(self::jasaRows($get), 'Subtotal jasa'))
-                            ->visible(fn(Get $get) => count(self::jasaRows($get)) > 0)
-                            ->table([
-                                EntryTableColumn::make('Jasa'),
-                                EntryTableColumn::make('Harga')->width('12rem')->alignment(Alignment::End),
-                            ])
-                            ->schema([
-                                TextEntry::make('name')
-                                    ->weight(fn(Get $get) => $get('is_subtotal') ? FontWeight::SemiBold : null)
-                                    ->color(fn(Get $get) => $get('is_subtotal') ? 'gray' : null),
-                                TextEntry::make('total')
-                                    ->money('IDR', locale: 'id', decimalPlaces: 0)
-                                    ->alignment(Alignment::End)
-                                    ->weight(fn(Get $get) => $get('is_subtotal') ? FontWeight::SemiBold : null),
-                            ]),
-                        Text::make('Belum ada jasa')
-                            ->color('gray')
-                            ->visible(fn(Get $get) => count(self::jasaRows($get)) === 0),
-
-                        // ---- Spare part ----
-                        RepeatableEntry::make('ringkasan_part')
-                            ->hiddenLabel()
-                            ->extraAttributes(['class' => 'ringkasan-tabel', 'style' => 'margin-top:1rem;'])
-                            ->state(fn(Get $get) => self::withSubtotal(self::partRows($get), 'Subtotal spare part'))
-                            ->visible(fn(Get $get) => count(self::partRows($get)) > 0)
-                            ->table([
-                                EntryTableColumn::make('Spare part'),
-                                EntryTableColumn::make('Qty × harga')->width('14rem')->alignment(Alignment::End),
-                                EntryTableColumn::make('Jumlah')->width('12rem')->alignment(Alignment::End),
-                            ])
-                            ->schema([
-                                TextEntry::make('name')
-                                    ->weight(fn(Get $get) => $get('is_subtotal') ? FontWeight::SemiBold : null)
-                                    ->color(fn(Get $get) => $get('is_subtotal') ? 'gray' : null),
-                                TextEntry::make('detail')
-                                    ->color('gray')
-                                    ->alignment(Alignment::End),
-                                TextEntry::make('total')
-                                    ->money('IDR', locale: 'id', decimalPlaces: 0)
-                                    ->alignment(Alignment::End)
-                                    ->weight(fn(Get $get) => $get('is_subtotal') ? FontWeight::SemiBold : null),
-                            ]),
-                        Text::make('Belum ada spare part')
-                            ->color('gray')
-                            ->visible(fn(Get $get) => count(self::partRows($get)) === 0),
-                        Flex::make([
-                            Text::make('Transport (BBM)')->grow(),
-                            TextEntry::make('ringkasan_transport')
-                                ->hiddenLabel()
-                                ->state(fn($record) => (float) ($record?->transport_fee ?? 0))
-                                ->money('IDR', locale: 'id', decimalPlaces: 0)
-                                ->weight(FontWeight::SemiBold)
-                                ->alignment(Alignment::End)
-                                ->grow(false),
-                        ])
-                            ->extraAttributes(['style' => 'margin-top:1rem;'])
-                            ->visible(fn($record) => (float) ($record?->transport_fee ?? 0) > 0),
-
-                        // ---- Total ----
-                        Flex::make([
-                            Text::make('Total Servis')->weight(FontWeight::Bold)->grow(),
-                            TextEntry::make('grand_total')
-                                ->hiddenLabel()
-                                ->state(fn(Get $get, $record) => array_sum(array_column(self::jasaRows($get), 'total'))
-                                    + array_sum(array_column(self::partRows($get), 'total'))
-                                    + (float) ($record?->transport_fee ?? 0))
-                                ->money('IDR', locale: 'id', decimalPlaces: 0)
-                                ->size(TextSize::Large)
-                                ->weight(FontWeight::Bold)
-                                ->alignment(Alignment::End)
-                                ->grow(false),
-                        ])->extraAttributes([
-                                    'style' => 'margin-top:1rem;padding:.875rem 1rem;border-radius:.5rem;background:rgba(128,128,128,.06);',
-                                ]),
+                            ->state(fn(Get $get, ?Service $record) => new HtmlString(ServiceSummaryHtml::render(
+                                self::jasaRows($get),
+                                self::partRows($get),
+                                (float) ($record?->transport_fee ?? 0),
+                            )))
+                            ->html(),
                     ]),
+                ])->columnSpan(['default' => 1, 'xl' => 1, '2xl' => 3])
+                    ->extraAttributes(['class' => 'service-summary']),
             ]);
     }
 }

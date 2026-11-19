@@ -8,9 +8,12 @@ use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\RepeatableEntry\TableColumn as EntryTableColumn;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Flex;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Text;
 use Filament\Schemas\Schema;
+use App\Support\ServiceSummaryHtml;
+use Illuminate\Support\HtmlString;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\TextSize;
@@ -31,9 +34,11 @@ class ServiceInfolist
 
     public static function configure(Schema $schema): Schema
     {
+        // Layar lebar: kiri data, jasa, dan part (2/3), kanan ringkasan biaya (1/3), sama dengan form.
         return $schema
-            ->columns(1)
+            ->columns(['default' => 1, 'xl' => 3, '2xl' => 8])
             ->components([
+                Group::make([
                 Section::make('Data Servis')
                     ->columns(['default' => 1, 'md' => 2])
                     ->schema([
@@ -43,16 +48,6 @@ class ServiceInfolist
                         TextEntry::make('customer_phone')->label('No. HP'),
                         TextEntry::make('scheduled_at')->label('Tanggal & Jam')->dateTime('d/m/Y H:i'),
                         TextEntry::make('booking_type')->label('Tipe Layanan')->badge(),
-                        TextEntry::make('status')->label('Status')->badge(),
-                        TextEntry::make('payment_status')->label('Pembayaran')->badge()
-                            ->state(fn($record) => $record->paid_at ? 'Lunas' : 'Belum Lunas')
-                            ->color(fn($state) => $state === 'Lunas' ? 'success' : 'warning')
-                            ->visible(fn($record) => $record->status === ServiceStatus::Completed),
-                        TextEntry::make('paid_at')->label('Dibayar pada')->dateTime('d/m/Y H:i')
-                            ->visible(fn($record) => $record->status === ServiceStatus::Completed && filled($record->paid_at)),
-                        TextEntry::make('cancel_reason')->label('Alasan')
-                            ->columnSpanFull()
-                            ->visible(fn($record) => filled($record->cancel_reason)),
                         TextEntry::make('complaint')->label('Keluhan')
                             ->columnSpanFull(),
                         TextEntry::make('address_note')->label('Alamat atau patokan')
@@ -109,49 +104,41 @@ class ServiceInfolist
                             ]),
                     ]),
 
+                ])->columnSpan(['default' => 1, 'xl' => 2, '2xl' => 5]),
+
+                Group::make([
+                Section::make('Status')
+                    ->schema([
+                        TextEntry::make('status')->label('Status')->badge(),
+                        TextEntry::make('mechanic_names')->label('Montir')
+                            ->visible(fn($record) => filled($record->mechanic_names)),
+                        TextEntry::make('payment_status')->label('Pembayaran')->badge()
+                            ->state(fn($record) => $record->paid_at ? 'Lunas' : 'Belum Lunas')
+                            ->color(fn($state) => $state === 'Lunas' ? 'success' : 'warning')
+                            ->visible(fn($record) => $record->status === ServiceStatus::Completed),
+                        TextEntry::make('paid_at')->label('Dibayar pada')->dateTime('d/m/Y H:i')
+                            ->visible(fn($record) => $record->status === ServiceStatus::Completed && filled($record->paid_at)),
+                        TextEntry::make('cancel_reason')->label('Alasan')
+                            ->visible(fn($record) => filled($record->cancel_reason)),
+                    ]),
+
                 Section::make('Ringkasan biaya')
                     ->schema([
-                        Flex::make([
-                            Text::make('Subtotal jasa')->color('gray')->grow(),
-                            TextEntry::make('labor_total')
-                                ->hiddenLabel()
-                                ->money('IDR', locale: 'id', decimalPlaces: 0)
-                                ->weight(FontWeight::SemiBold)
-                                ->alignment(Alignment::End)
-                                ->grow(false),
-                        ]),
-                        Flex::make([
-                            Text::make('Subtotal spare part')->color('gray')->grow(),
-                            TextEntry::make('parts_total')
-                                ->hiddenLabel()
-                                ->money('IDR', locale: 'id', decimalPlaces: 0)
-                                ->weight(FontWeight::SemiBold)
-                                ->alignment(Alignment::End)
-                                ->grow(false),
-                        ]),
-                        Flex::make([
-                            Text::make('Transport (BBM)')->color('gray')->grow(),
-                            TextEntry::make('transport_fee')
-                                ->hiddenLabel()
-                                ->money('IDR', locale: 'id', decimalPlaces: 0)
-                                ->weight(FontWeight::SemiBold)
-                                ->alignment(Alignment::End)
-                                ->grow(false),
-                        ])->visible(fn($record) => (float) $record->transport_fee > 0),
-
-                        Flex::make([
-                            Text::make('Total Servis')->weight(FontWeight::Bold)->grow(),
-                            TextEntry::make('grand_total')
-                                ->hiddenLabel()
-                                ->money('IDR', locale: 'id', decimalPlaces: 0)
-                                ->size(TextSize::Large)
-                                ->weight(FontWeight::Bold)
-                                ->alignment(Alignment::End)
-                                ->grow(false),
-                        ])->extraAttributes([
-                            'style' => 'margin-top:1rem;padding:.875rem 1rem;border-radius:.5rem;background:rgba(128,128,128,.06);',
-                        ]),
+                        TextEntry::make('ringkasan')
+                            ->hiddenLabel()
+                            ->state(fn($record) => new HtmlString(ServiceSummaryHtml::render(
+                                $record->items->map(fn($i) => ['name' => $i->name, 'total' => (float) $i->price])->all(),
+                                $record->serviceParts->map(fn($p) => [
+                                    'name' => $p->sparePart?->name ?? '-',
+                                    'detail' => rtrim(rtrim(number_format((float) $p->quantity, 2, ',', '.'), '0'), ',') . ' × ' . ServiceSummaryHtml::rupiah((float) $p->unit_price),
+                                    'total' => (float) $p->subtotal,
+                                ])->all(),
+                                (float) $record->transport_fee,
+                            )))
+                            ->html(),
                     ]),
+                ])->columnSpan(['default' => 1, 'xl' => 1, '2xl' => 3])
+                    ->extraAttributes(['class' => 'service-summary']),
             ]);
     }
 }
