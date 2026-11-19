@@ -368,8 +368,14 @@ class ServiceForm
                             ->schema([
                                 Select::make('spare_part_id')
                                     ->label('Part')
+                                    // Nama part di baris pertama, kode dan stok kecil di baris kedua (lebih mudah dibaca
+                                    // daripada satu teks panjang yang terpotong). Pencarian tetap cocok dengan kode.
                                     ->options(fn() => SparePart::query()->orderBy('name')->get()
-                                        ->mapWithKeys(fn($p) => [$p->id => "{$p->code} - {$p->name} (stok {$p->stock})"]))
+                                        ->mapWithKeys(fn($p) => [$p->id => '<div style="line-height:1.3;">'
+                                            . '<div>' . e($p->name) . '</div>'
+                                            . '<div style="font-size:.75rem;color:#71717a;">' . e($p->code) . ' · stok ' . e($p->stock) . '</div>'
+                                            . '</div>']))
+                                    ->allowHtml()
                                     ->searchable()
                                     ->live()
                                     ->disableOptionsWhenSelectedInSiblingRepeaterItems()
