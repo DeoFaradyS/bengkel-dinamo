@@ -40,14 +40,14 @@
         </tr>
     </table>
 
-    <p class="muted" style="margin: 0 0 10px;">Mutasi persediaan spare part. Satuan: buah. Stok akhir = stok awal + masuk - keluar + penyesuaian.</p>
+    <p class="muted" style="margin: 0 0 10px;">Mutasi persediaan suku cadang. Satuan mengikuti nama barang (contoh set, kg), selain itu per biji. Stok akhir = stok awal + masuk - keluar + penyesuaian.</p>
 
     <table class="cards" style="width: 100%; border-collapse: collapse; margin-bottom: 14px;">
         <tr>
-            <td><div class="muted">Barang masuk</div><div class="big">{{ $totals['in'] }} buah</div></td>
-            <td><div class="muted">Barang keluar</div><div class="big">{{ $totals['out'] }} buah</div></td>
-            <td><div class="muted">Penyesuaian</div><div class="big">{{ $tanda($totals['adjustment']) }} buah</div></td>
-            <td><div class="muted">Hampir habis</div><div class="big">{{ $totals['low'] }} part</div></td>
+            <td><div class="muted">Barang masuk</div><div class="big">{{ $totals['in'] }}</div></td>
+            <td><div class="muted">Barang keluar</div><div class="big">{{ $totals['out'] }}</div></td>
+            <td><div class="muted">Penyesuaian</div><div class="big">{{ $tanda($totals['adjustment']) }}</div></td>
+            <td><div class="muted">Hampir habis</div><div class="big">{{ $totals['low'] }}</div></td>
         </tr>
     </table>
 
@@ -80,7 +80,7 @@
                     <td>@if ($r['low'])<span class="low">Hampir habis</span>@endif</td>
                 </tr>
             @empty
-                <tr><td colspan="9" class="muted" style="text-align: center;">Belum ada spare part</td></tr>
+                <tr><td colspan="9" class="muted" style="text-align: center;">Belum ada suku cadang</td></tr>
             @endforelse
             <tr class="total">
                 <td colspan="4">Jumlah</td>
@@ -92,7 +92,7 @@
         </tbody>
     </table>
 
-    <p class="muted">Nilai persediaan (harga beli) tidak dihitung karena harga beli spare part belum dicatat. Dicetak {{ now()->translatedFormat('j F Y, H.i') }}.</p>
+    <p class="muted">Nilai persediaan (harga beli) tidak dihitung karena harga beli suku cadang belum dicatat. Dicetak {{ now()->translatedFormat('j F Y, H.i') }}.</p>
 </body>
 
 </html>

@@ -16,10 +16,10 @@ use Illuminate\Support\Carbon;
  * - Keluar     = dipakai servis (Usage) di periode, ditulis positif.
  * - Penyesuaian = koreksi (rusak, hilang, salah hitung, lainnya) di periode, bertanda + atau -.
  * - Stok akhir = stok awal + masuk - keluar + penyesuaian.
- * - Hampir habis = stok akhir <= stok minimal (sama dengan penanda merah di menu Spare Part).
+ * - Hampir habis = stok akhir <= stok minimal (sama dengan penanda merah di menu Suku Cadang).
  *
  * Semua part aktif tampil, part yang diarsip hanya tampil kalau ada pergerakan di periode.
- * Satuan seragam (buah); nilai persediaan tidak dihitung karena harga beli tidak dicatat.
+ * Satuan mengikuti nama barang (set, kg), tidak ada kolom satuan; nilai persediaan tidak dihitung karena harga beli tidak dicatat.
  */
 final class StockMutation
 {

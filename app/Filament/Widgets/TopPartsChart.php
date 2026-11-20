@@ -16,7 +16,7 @@ class TopPartsChart extends ChartWidget
 
     public function getHeading(): ?string
     {
-        return 'Spare Part Terlaris';
+        return 'Suku Cadang Terlaris';
     }
 
     protected function getType(): string

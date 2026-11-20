@@ -16,7 +16,7 @@ use UnitEnum;
  * Laporan Stok (aturan 31): laporan mutasi persediaan per periode, pasangan Laporan Pendapatan.
  * Kolom standar: kode, nama barang, stok awal, masuk, keluar, penyesuaian, stok akhir.
  * Hitungan di App\Support\Reports\StockMutation. Riwayat per part (kartu stok) tetap di menu
- * Spare Part; baris tabel membuka halaman itu.
+ * Suku Cadang; baris tabel membuka halaman itu.
  */
 class LaporanStok extends Page
 {

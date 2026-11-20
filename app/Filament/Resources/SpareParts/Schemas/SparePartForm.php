@@ -29,7 +29,7 @@ class SparePartForm
                         Group::make()
                             ->columnSpan(['lg' => 2])
                             ->schema([
-                                Section::make('Informasi Part')
+                                Section::make('Informasi Suku Cadang')
                                     ->columns(2)
                                     ->schema([
                                         TextInput::make('code')->label('Kode')
@@ -99,7 +99,7 @@ class SparePartForm
                             ]),
 
                         // Kolom kanan: lebar 1/3
-                        Section::make('Foto Part')
+                        Section::make('Foto Suku Cadang')
                             ->columnSpan(['lg' => 1])
                             ->schema([
                                 FileUpload::make('photo')

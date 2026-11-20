@@ -17,7 +17,7 @@ class ServiceSummaryHtml
 
         $html = '<div style="display:flex;flex-direction:column;gap:1.25rem;font-size:.875rem;line-height:1.4;color:#18181b;">';
         $html .= self::block('Jasa', $jasa, 'Belum ada jasa');
-        $html .= self::block('Spare part', $parts, 'Belum ada spare part');
+        $html .= self::block('Suku cadang', $parts, 'Belum ada suku cadang');
 
         if ($transport > 0) {
             $html .= '<div>' . self::heading('Transport')

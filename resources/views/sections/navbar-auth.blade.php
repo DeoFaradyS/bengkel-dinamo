@@ -20,7 +20,7 @@
         <a href="/admin/services"
           class="text-sm font-semibold text-neutral-800 transition-colors hover:text-red-600">Servis</a>
         <a href="/admin/spare-parts"
-          class="text-sm font-semibold text-neutral-800 transition-colors hover:text-red-600">Sparepart</a>
+          class="text-sm font-semibold text-neutral-800 transition-colors hover:text-red-600">Suku Cadang</a>
         <a href="/admin/service-types"
           class="text-sm font-semibold text-neutral-800 transition-colors hover:text-red-600">Jasa</a>
         <a href="/admin/categories"
@@ -66,7 +66,7 @@
             @if ($isOwner)
               <a href="/admin" class="{{ $item }}">Dashboard</a>
               <a href="/admin/services" class="{{ $item }}">Servis</a>
-              <a href="/admin/spare-parts" class="{{ $item }}">Sparepart</a>
+              <a href="/admin/spare-parts" class="{{ $item }}">Suku Cadang</a>
               <a href="/admin/service-types" class="{{ $item }}">Jasa</a>
               <a href="/admin/categories" class="{{ $item }}">Kategori</a>
               <a href="/admin/jarak-ongkos" class="{{ $item }}">Jarak Ongkos</a>

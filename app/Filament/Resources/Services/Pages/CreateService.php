@@ -124,7 +124,7 @@ class CreateService extends CreateRecord
         return Action::make('confirmComplete')
             ->requiresConfirmation()
             ->modalHeading('Selesaikan servis?')
-            ->modalDescription('Stok spare part akan dikurangi dan servis tidak bisa diubah lagi.')
+            ->modalDescription('Stok suku cadang akan dikurangi dan servis tidak bisa diubah lagi.')
             ->modalSubmitActionLabel('Ya, selesaikan')
             ->action(function () {
                 $this->completeConfirmed = true;

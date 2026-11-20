@@ -7,7 +7,7 @@ use Filament\Support\RawJs;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 
-/** Donat sumber pendapatan: jasa, spare part, transport, dalam Rupiah (aturan 30). */
+/** Donat sumber pendapatan: jasa, suku cadang, transport, dalam Rupiah (aturan 30). */
 class RevenueSourceChart extends ChartWidget
 {
     use InteractsWithPageFilters;
@@ -37,7 +37,7 @@ class RevenueSourceChart extends ChartWidget
                 'data' => [$s['jobs'], $s['parts'], $s['transport']],
                 'backgroundColor' => ['#3b82f6', '#22c55e', '#f59e0b'],
             ]],
-            'labels' => ['Jasa', 'Spare part', 'Transport'],
+            'labels' => ['Jasa', 'Suku cadang', 'Transport'],
         ];
     }
 

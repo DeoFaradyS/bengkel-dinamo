@@ -345,7 +345,7 @@ class ServiceForm
                             ]),
                     ]),
 
-                Section::make('Spare Part')
+                Section::make('Suku Cadang')
                     ->visible(fn(Get $get) => self::workStarted($get))
                     ->schema([
                         Repeater::make('serviceParts')
@@ -362,16 +362,16 @@ class ServiceForm
                                     $component->state([(string) Str::uuid() => ['quantity' => 1]]);
                                 }
                             })
-                            ->addActionLabel('Tambah spare part')
+                            ->addActionLabel('Tambah suku cadang')
                             ->live()
                             ->table([
-                                TableColumn::make('Part'),
+                                TableColumn::make('Suku cadang'),
                                 TableColumn::make('Qty')->width('6rem'),
                                 TableColumn::make('Harga')->width('11rem'),
                             ])
                             ->schema([
                                 Select::make('spare_part_id')
-                                    ->label('Part')
+                                    ->label('Suku cadang')
                                     // Nama part di baris pertama, kode dan stok kecil di baris kedua (lebih mudah dibaca
                                     // daripada satu teks panjang yang terpotong). Pencarian tetap cocok dengan kode.
                                     ->options(fn() => SparePart::query()->orderBy('name')->get()

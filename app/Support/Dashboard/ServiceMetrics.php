@@ -365,7 +365,7 @@ final class ServiceMetrics
 
         return $rows
             ->mapWithKeys(fn($row) => [
-                ($names[$row->spare_part_id] ?? 'Part #' . $row->spare_part_id) => (int) $row->q,
+                ($names[$row->spare_part_id] ?? 'Suku cadang #' . $row->spare_part_id) => (int) $row->q,
             ])
             ->all();
     }

@@ -148,7 +148,7 @@
         </tbody>
     </table>
 
-    <h3>Spare Part</h3>
+    <h3>Suku Cadang</h3>
     <table class="list">
         <thead>
             <tr>
@@ -168,11 +168,11 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="4" class="center muted">Tidak ada spare part</td>
+                    <td colspan="4" class="center muted">Tidak ada suku cadang</td>
                 </tr>
             @endforelse
             <tr class="total">
-                <td colspan="3" class="right">Total Spare Part</td>
+                <td colspan="3" class="right">Total Suku Cadang</td>
                 <td class="right">Rp {{ number_format($service->parts_total, 0, ',', '.') }}</td>
             </tr>
         </tbody>

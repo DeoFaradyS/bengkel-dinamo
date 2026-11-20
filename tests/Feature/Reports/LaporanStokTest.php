@@ -102,10 +102,10 @@ test('LSK-007: kartu ringkasan menjumlahkan masuk, keluar, penyesuaian, dan hamp
     $kartu = collect(LaporanStokKpi::cards(['range' => '01/11/2026 - 20/11/2026']))->pluck('value', 'label')->all();
 
     expect($kartu)->toBe([
-        'Barang masuk' => '6 buah',
-        'Barang keluar' => '3 buah',
-        'Penyesuaian' => '-1 buah',
-        'Hampir habis' => '1 part',
+        'Barang masuk' => '6',
+        'Barang keluar' => '3',
+        'Penyesuaian' => '-1',
+        'Hampir habis' => '1',
     ]);
 });
 

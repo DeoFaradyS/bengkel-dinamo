@@ -40,7 +40,7 @@
         </tr>
     </table>
 
-    <p class="muted" style="margin: 0 0 10px;">Dihitung dari servis yang sudah lunas, menurut tanggal lunas. Pendapatan belum dikurangi modal spare part.</p>
+    <p class="muted" style="margin: 0 0 10px;">Dihitung dari servis yang sudah lunas, menurut tanggal lunas. Pendapatan belum dikurangi modal suku cadang.</p>
 
     <table class="cards" style="width: 100%; border-collapse: collapse; margin-bottom: 14px;">
         <tr>
@@ -55,7 +55,7 @@
     <table class="list">
         <tbody>
             <tr><td>Jasa</td><td class="right">{{ $rupiah($summary['jobs']) }}</td></tr>
-            <tr><td>Spare part</td><td class="right">{{ $rupiah($summary['parts']) }}</td></tr>
+            <tr><td>Suku cadang</td><td class="right">{{ $rupiah($summary['parts']) }}</td></tr>
             <tr><td>Transport</td><td class="right">{{ $rupiah($summary['transport']) }}</td></tr>
             <tr class="total"><td>Total</td><td class="right">{{ $rupiah($summary['total']) }}</td></tr>
         </tbody>

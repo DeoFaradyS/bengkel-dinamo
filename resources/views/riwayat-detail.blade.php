@@ -189,7 +189,7 @@
         @if ($service->serviceParts->isNotEmpty())
             <section class="rounded-[10px] border border-neutral-200 bg-white">
                 <header class="border-b border-neutral-200 px-6 py-4">
-                    <h2 class="text-base font-semibold text-neutral-800">Spare Part</h2>
+                    <h2 class="text-base font-semibold text-neutral-800">Suku Cadang</h2>
                 </header>
                 <div class="overflow-x-auto">
                     <table class="w-full min-w-[560px] text-left text-sm">
@@ -227,7 +227,7 @@
                     <span class="font-semibold text-neutral-800">{{ $rupiah($service->labor_total) }}</span>
                 </div>
                 <div class="flex items-center justify-between gap-4">
-                    <span class="text-neutral-500">Subtotal spare part</span>
+                    <span class="text-neutral-500">Subtotal suku cadang</span>
                     <span class="font-semibold text-neutral-800">{{ $rupiah($service->parts_total) }}</span>
                 </div>
                 @if ((float) $service->transport_fee > 0)

@@ -78,13 +78,13 @@ class ServiceInfolist
                             ]),
                     ]),
 
-                Section::make('Spare Part')
+                Section::make('Suku Cadang')
                     ->visible(fn($record) => $record->serviceParts()->exists())
                     ->schema([
                         RepeatableEntry::make('serviceParts')
                             ->hiddenLabel()
                             ->table([
-                                EntryTableColumn::make('Part'),
+                                EntryTableColumn::make('Suku cadang'),
                                 EntryTableColumn::make('Qty')->width('6rem')->alignment(Alignment::End),
                                 EntryTableColumn::make('Harga satuan')->width('12rem')->alignment(Alignment::End),
                                 EntryTableColumn::make('Jumlah')->width('12rem')->alignment(Alignment::End),

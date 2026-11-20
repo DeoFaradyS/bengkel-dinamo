@@ -29,10 +29,10 @@ class LaporanStokKpi extends StatsOverviewWidget
         $t = (new StockMutation($m->from(), $m->to()))->totals();
 
         return [
-            ['key' => 'revenue', 'label' => 'Barang masuk', 'value' => $t['in'] . ' buah'],
-            ['key' => 'completed', 'label' => 'Barang keluar', 'value' => $t['out'] . ' buah'],
-            ['key' => 'bookings', 'label' => 'Penyesuaian', 'value' => ($t['adjustment'] > 0 ? '+' : '') . $t['adjustment'] . ' buah'],
-            ['key' => 'low', 'label' => 'Hampir habis', 'value' => $t['low'] . ' part'],
+            ['key' => 'revenue', 'label' => 'Barang masuk', 'value' => (string) $t['in']],
+            ['key' => 'completed', 'label' => 'Barang keluar', 'value' => (string) $t['out']],
+            ['key' => 'bookings', 'label' => 'Penyesuaian', 'value' => ($t['adjustment'] > 0 ? '+' : '') . $t['adjustment']],
+            ['key' => 'low', 'label' => 'Hampir habis', 'value' => (string) $t['low']],
         ];
     }
 

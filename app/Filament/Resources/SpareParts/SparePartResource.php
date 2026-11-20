@@ -22,15 +22,15 @@ class SparePartResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCube;
 
-    protected static ?string $navigationLabel = 'Spare Part'; // BARU
+    protected static ?string $navigationLabel = 'Suku Cadang'; // BARU
 
     protected static string|UnitEnum|null $navigationGroup = 'Katalog'; // UBAH, dulu 'Inventori'
 
     protected static ?int $navigationSort = 2; // UBAH, dulu 1
 
-    protected static ?string $modelLabel = 'Spare Part';
+    protected static ?string $modelLabel = 'Suku Cadang';
 
-    protected static ?string $pluralModelLabel = 'Spare Part';
+    protected static ?string $pluralModelLabel = 'Suku Cadang';
 
     protected static ?string $recordTitleAttribute = 'name';
 

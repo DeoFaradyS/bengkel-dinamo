@@ -45,7 +45,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="8" class="py-6 text-center text-gray-500">Belum ada spare part.</td></tr>
+                        <tr><td colspan="8" class="py-6 text-center text-gray-500">Belum ada suku cadang.</td></tr>
                     @endforelse
                 </tbody>
             </table>

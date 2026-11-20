@@ -46,6 +46,6 @@ it('CMP-004: spare part terlaris menampilkan nama part dari servis selesai', fun
     ]);
 
     Livewire::test(TopPartsChart::class)
-        ->assertSee('Spare Part Terlaris')
+        ->assertSee('Suku Cadang Terlaris')
         ->assertSee('Brush Karbon');
 });

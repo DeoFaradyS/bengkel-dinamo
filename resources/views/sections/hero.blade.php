@@ -16,7 +16,7 @@
       </div>
 
       <ul class="flex flex-wrap gap-x-8 gap-y-3">
-        @foreach (['Sparepart Original', 'Garansi Servis', 'Pelayanan Ramah'] as $item)
+        @foreach (['Suku Cadang Original', 'Garansi Servis', 'Pelayanan Ramah'] as $item)
           <li class="flex items-center gap-3">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"
               aria-hidden="true">
