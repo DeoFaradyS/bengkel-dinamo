@@ -1,6 +1,10 @@
 {{-- Header Laporan Pendapatan: judul di kiri, filter periode sejajar tombol Unduh PDF di kanan (aturan 30). --}}
-<header class="fi-header">
+<header class="fi-header fi-header-has-breadcrumbs">
     <div>
+        @if (filament()->hasBreadcrumbs())
+            <x-filament::breadcrumbs :breadcrumbs="$page->getBreadcrumbs()" />
+        @endif
+
         <h1 class="fi-header-heading">{{ $page->getHeading() }}</h1>
     </div>
 

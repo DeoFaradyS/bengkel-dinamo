@@ -131,6 +131,12 @@ class LaporanPendapatan extends Page implements HasTable
             ->paginated([10, 25, 50]);
     }
 
+    // Breadcrumb grup menu > nama menu, seperti halaman lain (contoh Servis > Daftar).
+    public function getBreadcrumbs(): array
+    {
+        return [static::$navigationGroup, static::$navigationLabel];
+    }
+
     // Header sendiri supaya filter periode sejajar tombol Unduh PDF.
     public function getHeader(): ?\Illuminate\Contracts\View\View
     {
