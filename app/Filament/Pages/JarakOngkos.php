@@ -47,11 +47,11 @@ class JarakOngkos extends Page
     {
         return $schema
             ->components([
-                Grid::make(['default' => 1, 'lg' => 5])
+                Grid::make(['default' => 1, 'lg' => 2])
                     ->extraAttributes(['class' => 'jo-grid'])
                     ->schema([
                         Section::make('Pengaturan Bengkel')
-                            ->columnSpan(['default' => 1, 'lg' => 3])
+                            ->columnSpan(['default' => 1, 'lg' => 1])
                             ->columns(2)
                             ->schema([
                                 TextInput::make('max_distance_km')
@@ -85,7 +85,7 @@ class JarakOngkos extends Page
                         // Lokasi bengkel dari link Google Maps (aturan 25): koordinat dibaca otomatis.
                         Section::make('Lokasi Bengkel')
                             ->extraAttributes(['class' => 'jo-preview'])
-                            ->columnSpan(['default' => 1, 'lg' => 2])
+                            ->columnSpan(['default' => 1, 'lg' => 1])
                             ->schema([
                                 TextInput::make('maps_url')
                                     ->label('Link Google Maps')
