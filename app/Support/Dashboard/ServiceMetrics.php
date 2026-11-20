@@ -178,50 +178,6 @@ final class ServiceMetrics
     }
 
     /**
-     * Jasa yang paling menghasilkan uang di periode (servis lunas), menurut Rupiah, bukan jumlah
-     * pemakaian seperti topServices(). Untuk Laporan Pendapatan (aturan 30).
-     *
-     * @return array<string, float> nama jasa => total Rupiah
-     */
-    public function revenueByService(int $limit = 5): array
-    {
-        return ServiceItem::query()
-            ->whereIn('service_id', $this->paidQuery()->select('id'))
-            ->selectRaw('name, SUM(price) as total')
-            ->groupBy('name')
-            ->orderByDesc('total')
-            ->orderBy('name')
-            ->limit($limit)
-            ->pluck('total', 'name')
-            ->map(fn($t) => (float) $t)
-            ->all();
-    }
-
-    /**
-     * Spare part yang paling menghasilkan uang di periode (servis lunas), menurut Rupiah
-     * (jumlah x harga jual). Part yang sudah diarsip tetap dihitung.
-     *
-     * @return array<string, float> nama part => total Rupiah
-     */
-    public function revenueByPart(int $limit = 5): array
-    {
-        $rows = ServicePart::query()
-            ->whereIn('service_id', $this->paidQuery()->select('id'))
-            ->selectRaw('spare_part_id, SUM(quantity * unit_price) as total')
-            ->groupBy('spare_part_id')
-            ->orderByDesc('total')
-            ->orderBy('spare_part_id')
-            ->limit($limit)
-            ->get();
-
-        $names = SparePart::withTrashed()->whereIn('id', $rows->pluck('spare_part_id'))->pluck('name', 'id');
-
-        return $rows
-            ->mapWithKeys(fn($row) => [($names[$row->spare_part_id] ?? 'Part #' . $row->spare_part_id) => (float) $row->total])
-            ->all();
-    }
-
-    /**
      * Grafik pendapatan: per hari untuk periode sampai 31 hari, per minggu sampai 92 hari,
      * selebihnya per bulan, supaya batangnya tidak terlalu banyak.
      *

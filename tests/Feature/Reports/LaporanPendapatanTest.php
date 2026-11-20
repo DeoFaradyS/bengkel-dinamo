@@ -40,8 +40,7 @@ function lapRentang($dari, $sampai): string
 test('LAP-001: halaman Laporan Pendapatan terbuka untuk owner', function () {
     $this->get('/admin/laporan-pendapatan')
         ->assertOk()
-        ->assertSee('Rincian transaksi')
-        ->assertSee('Piutang (servis selesai, belum dibayar)');
+        ->assertSee('Riwayat transaksi');
 });
 
 test('LAP-002: tabel hanya berisi servis lunas di periode, yang belum lunas atau di luar periode tidak', function () {
@@ -124,20 +123,11 @@ test('LAP-008: jumlah rekap sama dengan uang masuk di ringkasan, untuk semua pil
         ->and(array_sum(array_column($rekap, 'count')))->toBe($page->summary()['count']);
 })->with(['day', 'week', 'month']);
 
-test('LAP-009: piutang hanya servis Selesai yang belum lunas, semua tanggal', function () {
-    $belum = lapServis(now()->subDays(60)->toDateTimeString(), 90000, ['paid_at' => null]);
-    lapServis(now()->subDay()->toDateTimeString(), 50000);
-    lapServis(now()->subDay()->toDateTimeString(), 40000, ['paid_at' => null, 'status' => ServiceStatus::InProgress]);
-
-    $rows = lapBuka(lapRentang(now()->subDays(7), now()))->instance()->unpaidRows();
-
-    expect($rows->pluck('id')->all())->toBe([$belum->id])
-        ->and($rows->first()->grand_total)->toEqualWithDelta(90000, 0.01);
-});
+// LAP-009 (tabel piutang) dihapus 21 Nov 2026 karena tabelnya dihapus, jangan dipakai ulang.
 
 // Kartu dan grafik gaya dasbor (aturan 30).
 
-test('LAP-010: kartu ringkasan berisi uang masuk, servis lunas, rata-rata, dan piutang', function () {
+test('LAP-010: kartu ringkasan berisi pendapatan, servis lunas, rata-rata, dan belum dibayar', function () {
     $this->travelTo('2026-11-20 12:00:00');
     lapServis('2026-11-02 10:00:00', 100000);
     lapServis('2026-11-03 10:00:00', 50000);
@@ -147,32 +137,14 @@ test('LAP-010: kartu ringkasan berisi uang masuk, servis lunas, rata-rata, dan p
     $kartu = collect(\App\Filament\Widgets\Laporan\LaporanKpi::cards(['range' => '01/11/2026 - 20/11/2026']))->pluck('value', 'label');
 
     expect($kartu->all())->toBe([
-        'Uang masuk' => 'Rp 150.000',
+        'Pendapatan' => 'Rp 150.000',
         'Servis lunas' => '2',
         'Rata-rata per servis' => 'Rp 75.000',
-        'Piutang (1 servis)' => 'Rp 70.000',
+        'Belum dibayar (1 servis)' => 'Rp 70.000',
     ]);
 });
 
-test('LAP-011: jasa dan spare part paling menghasilkan diurutkan menurut Rupiah, hanya servis lunas', function () {
-    $this->travelTo('2026-11-20 12:00:00');
-    $type = ServiceType::factory()->create();
-    $a = lapServis('2026-11-02 10:00:00', 20000); // "Servis dinamo"
-    $a->items()->create(['service_type_id' => $type->id, 'name' => 'Ganti bearing', 'price' => 150000]);
-    lapServis('2026-11-03 10:00:00', 30000); // "Servis dinamo" lagi: total 50.000
-    $belum = lapServis('2026-11-04 10:00:00', 0, ['paid_at' => null]);
-    $belum->items()->create(['service_type_id' => $type->id, 'name' => 'Rewinding', 'price' => 500000]);
-
-    $part = \App\Models\SparePart::factory()->create(['name' => 'Bearing 6202', 'stock' => 50]);
-    $murah = \App\Models\SparePart::factory()->create(['name' => 'Sikat arang', 'stock' => 50]);
-    $a->serviceParts()->create(['spare_part_id' => $part->id, 'quantity' => 2, 'unit_price' => 40000]);
-    $a->serviceParts()->create(['spare_part_id' => $murah->id, 'quantity' => 3, 'unit_price' => 10000]);
-
-    $m = lapBuka('01/11/2026 - 20/11/2026')->instance()->metrics();
-
-    expect($m->revenueByService())->toBe(['Ganti bearing' => 150000.0, 'Servis dinamo' => 50000.0])
-        ->and($m->revenueByPart())->toBe(['Bearing 6202' => 80000.0, 'Sikat arang' => 30000.0]);
-});
+// LAP-011 (grafik jasa dan spare part paling menghasilkan) dihapus 21 Nov 2026, jangan dipakai ulang.
 
 test('LAP-012: rekap di PDF otomatis per hari, minggu, atau bulan menurut panjang periode', function () {
     $this->travelTo('2026-11-20 12:00:00');

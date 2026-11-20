@@ -40,28 +40,34 @@
         </tr>
     </table>
 
-    <p class="muted" style="margin: 0 0 10px;">Pendapatan dihitung dari servis yang sudah lunas, menurut tanggal lunas.</p>
+    <p class="muted" style="margin: 0 0 10px;">Dihitung dari servis yang sudah lunas, menurut tanggal lunas. Pendapatan belum dikurangi modal spare part.</p>
 
-    <table class="cards" style="width: 100%; border-collapse: collapse; margin-bottom: 4px;">
+    <table class="cards" style="width: 100%; border-collapse: collapse; margin-bottom: 14px;">
         <tr>
-            <td style="width: 50%;"><div class="muted">Uang masuk</div><div class="big">{{ $rupiah($summary['total']) }}</div>
-                <div class="muted">Jasa {{ $rupiah($summary['jobs']) }} &middot; Part {{ $rupiah($summary['parts']) }} &middot; Transport {{ $rupiah($summary['transport']) }}</div></td>
+            <td><div class="muted">Pendapatan</div><div class="big">{{ $rupiah($summary['total']) }}</div></td>
             <td><div class="muted">Servis lunas</div><div class="big">{{ $summary['count'] }}</div></td>
             <td><div class="muted">Rata-rata per servis</div><div class="big">{{ $rupiah($avg) }}</div></td>
+            <td><div class="muted">Belum dibayar ({{ $unpaid['count'] }} servis)</div><div class="big">{{ $rupiah($unpaid['total']) }}</div></td>
         </tr>
     </table>
-    <p class="muted" style="margin: 0 0 10px; font-size: 10px;">Uang masuk belum dikurangi modal spare part, jadi bukan keuntungan bersih.</p>
 
-    <h3>Rekap per {{ strtolower($recapUnit) }}</h3>
+    <h3>Sumber pendapatan</h3>
+    <table class="list">
+        <tbody>
+            <tr><td>Jasa</td><td class="right">{{ $rupiah($summary['jobs']) }}</td></tr>
+            <tr><td>Spare part</td><td class="right">{{ $rupiah($summary['parts']) }}</td></tr>
+            <tr><td>Transport</td><td class="right">{{ $rupiah($summary['transport']) }}</td></tr>
+            <tr class="total"><td>Total</td><td class="right">{{ $rupiah($summary['total']) }}</td></tr>
+        </tbody>
+    </table>
+
+    <h3>Pendapatan per {{ strtolower($recapUnit) }}</h3>
     <table class="list">
         <thead>
             <tr>
                 <th>{{ $recapUnit === 'Hari' ? 'Tanggal' : $recapUnit }}</th>
-                <th class="right">Servis</th>
-                <th class="right">Jasa</th>
-                <th class="right">Spare part</th>
-                <th class="right">Transport</th>
-                <th class="right">Total</th>
+                <th class="right" width="15%">Servis</th>
+                <th class="right" width="25%">Total</th>
             </tr>
         </thead>
         <tbody>
@@ -69,26 +75,20 @@
                 <tr>
                     <td>{{ $r['label'] }}</td>
                     <td class="right">{{ $r['count'] }}</td>
-                    <td class="right">{{ $rupiah($r['jobs']) }}</td>
-                    <td class="right">{{ $rupiah($r['parts']) }}</td>
-                    <td class="right">{{ $rupiah($r['transport']) }}</td>
                     <td class="right">{{ $rupiah($r['total']) }}</td>
                 </tr>
             @empty
-                <tr><td colspan="6" class="muted" style="text-align: center;">Belum ada uang masuk di periode ini</td></tr>
+                <tr><td colspan="3" class="muted" style="text-align: center;">Belum ada pendapatan di periode ini</td></tr>
             @endforelse
             <tr class="total">
                 <td>Jumlah</td>
                 <td class="right">{{ $summary['count'] }}</td>
-                <td class="right">{{ $rupiah($summary['jobs']) }}</td>
-                <td class="right">{{ $rupiah($summary['parts']) }}</td>
-                <td class="right">{{ $rupiah($summary['transport']) }}</td>
                 <td class="right">{{ $rupiah($summary['total']) }}</td>
             </tr>
         </tbody>
     </table>
 
-    <h3>Rincian transaksi</h3>
+    <h3>Riwayat transaksi</h3>
     <table class="list">
         <thead>
             <tr>
@@ -97,57 +97,26 @@
                 <th>Kode</th>
                 <th>Pelanggan</th>
                 <th>Tipe</th>
-                <th class="right">Jasa</th>
-                <th class="right">Spare part</th>
-                <th class="right">Transport</th>
                 <th class="right">Total</th>
             </tr>
         </thead>
         <tbody>
             @forelse ($rows as $r)
-                @php $total = (float) ($r->items_sum_price ?? 0) + (float) ($r->parts_sum ?? 0) + (float) ($r->transport_fee ?? 0); @endphp
                 <tr>
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ $r->paid_at->translatedFormat('j M Y, H.i') }}</td>
                     <td>{{ $r->booking_code }}</td>
                     <td>{{ $r->customer_name }}</td>
                     <td>{{ $r->booking_type->getLabel() }}</td>
-                    <td class="right">{{ $rupiah($r->items_sum_price ?? 0) }}</td>
-                    <td class="right">{{ $rupiah($r->parts_sum ?? 0) }}</td>
-                    <td class="right">{{ $rupiah($r->transport_fee ?? 0) }}</td>
-                    <td class="right">{{ $rupiah($total) }}</td>
+                    <td class="right">{{ $rupiah((float) ($r->items_sum_price ?? 0) + (float) ($r->parts_sum ?? 0) + (float) ($r->transport_fee ?? 0)) }}</td>
                 </tr>
             @empty
-                <tr><td colspan="9" class="muted" style="text-align: center;">Belum ada pendapatan di periode ini</td></tr>
+                <tr><td colspan="6" class="muted" style="text-align: center;">Belum ada pendapatan di periode ini</td></tr>
             @endforelse
             <tr class="total">
                 <td colspan="5">Jumlah</td>
-                <td class="right">{{ $rupiah($summary['jobs']) }}</td>
-                <td class="right">{{ $rupiah($summary['parts']) }}</td>
-                <td class="right">{{ $rupiah($summary['transport']) }}</td>
                 <td class="right">{{ $rupiah($summary['total']) }}</td>
             </tr>
-        </tbody>
-    </table>
-
-    <h3>Piutang (servis selesai, belum dibayar), semua tanggal</h3>
-    <table class="list">
-        <thead>
-            <tr><th width="5%">No</th><th>Tanggal servis</th><th>Kode</th><th>Pelanggan</th><th class="right">Total</th></tr>
-        </thead>
-        <tbody>
-            @forelse ($unpaidRows as $p)
-                <tr>
-                    <td>{{ $loop->iteration }}</td>
-                    <td>{{ $p->scheduled_at?->translatedFormat('j M Y') }}</td>
-                    <td>{{ $p->booking_code }}</td>
-                    <td>{{ $p->customer_name }}</td>
-                    <td class="right">{{ $rupiah($p->grand_total) }}</td>
-                </tr>
-            @empty
-                <tr><td colspan="5" class="muted" style="text-align: center;">Tidak ada piutang</td></tr>
-            @endforelse
-            <tr class="total"><td colspan="4">Jumlah</td><td class="right">{{ $rupiah($unpaid['total']) }}</td></tr>
         </tbody>
     </table>
 

@@ -7,7 +7,7 @@ use Filament\Support\RawJs;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 
-/** Donat sumber uang masuk: jasa, spare part, transport, dalam Rupiah (aturan 30). */
+/** Donat sumber pendapatan: jasa, spare part, transport, dalam Rupiah (aturan 30). */
 class RevenueSourceChart extends ChartWidget
 {
     use InteractsWithPageFilters;
@@ -20,7 +20,7 @@ class RevenueSourceChart extends ChartWidget
 
     public function getHeading(): ?string
     {
-        return 'Sumber uang masuk';
+        return 'Sumber pendapatan';
     }
 
     protected function getType(): string

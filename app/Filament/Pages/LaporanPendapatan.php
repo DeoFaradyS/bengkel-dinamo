@@ -23,9 +23,10 @@ use UnitEnum;
 /**
  * Laporan Pendapatan (aturan 23 dan 30). Dasar hitung: uang diterima, yaitu servis Selesai yang
  * sudah lunas, menurut tanggal lunas (paid_at). Uang masuk = jasa + spare part + ongkos transport.
- * Halaman: kartu ringkasan dan grafik gaya dasbor (widget di App\Filament\Widgets\Laporan), rincian
- * transaksi, piutang. PDF: ringkasan, rekap per hari/minggu/bulan (otomatis dari panjang periode),
- * rincian transaksi, piutang. Filter hanya periode, sama dengan dasbor.
+ * Halaman: kartu ringkasan dan donat sumber pendapatan gaya dasbor (widget di
+ * App\Filament\Widgets\Laporan), lalu riwayat transaksi (hanya total per servis). PDF: ringkasan,
+ * rekap per hari/minggu/bulan (otomatis dari panjang periode), riwayat transaksi. Filter hanya
+ * periode, sama dengan dasbor. Istilah awam: "Pendapatan" dan "Belum dibayar", bukan omzet/piutang.
  * Tidak memuat pengeluaran, laba/rugi, atau modal spare part (pengembangan lanjutan).
  */
 class LaporanPendapatan extends Page implements HasTable
@@ -99,20 +100,13 @@ class LaporanPendapatan extends Page implements HasTable
         return $this->metrics()->recap($this->metrics()->autoUnit());
     }
 
-    /** Daftar piutang: servis Selesai belum lunas, semua tanggal. */
-    public function unpaidRows()
-    {
-        return ServiceMetrics::unpaidQuery()->with(['items', 'serviceParts'])->get();
-    }
-
     public function table(Table $table): Table
     {
         return $table
             ->query(fn() => $this->metrics()->paidQuery()
                 ->withSum('items', 'price')
                 ->withSum('serviceParts as parts_sum', DB::raw('quantity * unit_price')))
-            ->heading('Rincian transaksi')
-            ->description('Setiap servis lunas di periode ini. Klik baris untuk membuka detail servis.')
+            ->heading('Riwayat transaksi')
             ->defaultSort('paid_at')
             ->columns([
                 TextColumn::make('paid_at')->label('Tanggal lunas')
@@ -123,18 +117,6 @@ class LaporanPendapatan extends Page implements HasTable
                 TextColumn::make('booking_type')->label('Tipe')
                     ->badge()
                     ->icon(false),
-                TextColumn::make('items_sum_price')->label('Jasa')
-                    ->money('IDR', locale: 'id', decimalPlaces: 0)
-                    ->default(0)
-                    ->alignEnd(),
-                TextColumn::make('parts_sum')->label('Spare part')
-                    ->money('IDR', locale: 'id', decimalPlaces: 0)
-                    ->default(0)
-                    ->alignEnd(),
-                TextColumn::make('transport_fee')->label('Transport')
-                    ->money('IDR', locale: 'id', decimalPlaces: 0)
-                    ->default(0)
-                    ->alignEnd(),
                 TextColumn::make('total')->label('Total')
                     ->state(fn($record) => (float) ($record->items_sum_price ?? 0)
                         + (float) ($record->parts_sum ?? 0)
@@ -174,7 +156,6 @@ class LaporanPendapatan extends Page implements HasTable
             'period' => $this->periodLabel(),
             'summary' => $this->summary(),
             'unpaid' => $this->unpaid(),
-            'unpaidRows' => $this->unpaidRows(),
             'recap' => $this->recap(),
             'recapUnit' => self::RECAP_UNITS[$this->metrics()->autoUnit()],
             'rows' => $rows,
