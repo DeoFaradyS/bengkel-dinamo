@@ -149,32 +149,6 @@ test('AUTH-018: halaman /daftar tampil untuk tamu dengan semua kolom', function 
         ->assertDontSee('name="phone"', false);
 });
 
-test('AUTH-019: navbar tamu memuat tautan Masuk dan Daftar, tanpa Keluar', function () {
-    $this->get('/')
-        ->assertOk()
-        ->assertSee(route('login'), false)
-        ->assertSee(route('register'), false)
-        ->assertDontSee('action="/keluar"', false);
-});
-
-test('AUTH-020: navbar customer memuat nama dan tombol Keluar, tanpa tautan Panel', function () {
-    $user = User::factory()->create(['name' => 'Siti Pelanggan']);
-
-    $this->actingAs($user)->get('/')
-        ->assertOk()
-        ->assertSee('Siti Pelanggan')
-        ->assertSee('action="/keluar"', false)
-        ->assertDontSee('href="/admin"', false);
-});
-
-test('AUTH-021: halaman /masuk dan /daftar tanpa navbar, dengan tombol kembali ke beranda', function (string $url) {
-    $this->get($url)
-        ->assertOk()
-        ->assertDontSee('id="menuBtn"', false)
-        ->assertSee('aria-label="Kembali ke beranda"', false)
-        ->assertSee('href="/"', false);
-})->with(['masuk' => '/masuk', 'daftar' => '/daftar']);
-
 // ---------- Login satu pintu ----------
 
 test('AUTH-022: tamu yang membuka /admin diarahkan ke /masuk', function () {

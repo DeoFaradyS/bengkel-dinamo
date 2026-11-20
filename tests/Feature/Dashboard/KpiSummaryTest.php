@@ -147,9 +147,3 @@ it('KPI-010: widget menampilkan keempat kartu', function () {
         ->assertDontSee('Rata-rata nilai servis')
         ->assertDontSee('Tingkat pembatalan');
 });
-
-it('KPI-011: dashboard memuat widget KPI', function () {
-    $this->actingAs(User::factory()->create());
-
-    Livewire::test(Dashboard::class)->assertSeeLivewire(KpiOverview::class);
-});

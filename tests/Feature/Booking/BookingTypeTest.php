@@ -40,8 +40,3 @@ it('BKT-003: workshop boleh tanpa koordinat', function () {
     expect($service->latitude)->toBeNull()
         ->and($service->longitude)->toBeNull();
 });
-
-it('BKT-004: label BookingType', function () {
-    expect(BookingType::Workshop->getLabel())->toBe('Ke Bengkel')
-        ->and(BookingType::HomeService->getLabel())->toBe('Panggil Montir');
-});

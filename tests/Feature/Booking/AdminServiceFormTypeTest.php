@@ -23,11 +23,6 @@ function formTipeData(array $override = []): array
     ], $override);
 }
 
-it('FRM-001: form punya pilihan tipe layanan', function () {
-    Livewire::test(CreateService::class)
-        ->assertFormFieldExists('booking_type');
-});
-
 it('FRM-002: Ke Bengkel, isian koordinat tersembunyi', function () {
     Livewire::test(CreateService::class)
         ->assertFormFieldHidden('latitude')

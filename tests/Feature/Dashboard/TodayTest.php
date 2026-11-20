@@ -25,9 +25,3 @@ test('HRI-001: jadwal hari ini hanya servis hari ini yang tidak batal', function
 });
 
 // HRI-002 (kartu Menunggu, Servis hari ini, Stok menipis) dihapus 20 Nov: kartunya dicabut. Jangan dipakai ulang.
-
-test('HRI-003: dasbor memuat bagian Hari ini', function () {
-    Livewire::test(Dashboard::class)
-        ->assertSeeLivewire(TodaySchedule::class)
-        ->assertSee('Kinerja periode');
-});

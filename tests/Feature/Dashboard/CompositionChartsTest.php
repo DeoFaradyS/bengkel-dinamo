@@ -26,21 +26,6 @@ function cmpCompleted(): Service
     ]);
 }
 
-it('CMP-001: donat status tampil dengan semua label status', function () {
-    Livewire::test(StatusChart::class)
-        ->assertSee('Komposisi Status Servis')
-        ->assertSee(ServiceStatus::Pending->getLabel())
-        ->assertSee('Selesai')
-        ->assertSee('Ditolak');
-});
-
-it('CMP-002: donat tipe layanan tampil dengan kedua label', function () {
-    Livewire::test(TypeChart::class)
-        ->assertSee('Panggil Montir vs Ke Bengkel')
-        ->assertSee(BookingType::HomeService->getLabel())
-        ->assertSee(BookingType::Workshop->getLabel());
-});
-
 it('CMP-003: jasa terlaris menampilkan nama jasa dari servis selesai', function () {
     cmpCompleted()->items()->create([
         'service_type_id' => ServiceType::factory()->create()->id,
@@ -63,12 +48,4 @@ it('CMP-004: spare part terlaris menampilkan nama part dari servis selesai', fun
     Livewire::test(TopPartsChart::class)
         ->assertSee('Spare Part Terlaris')
         ->assertSee('Brush Karbon');
-});
-
-it('CMP-005: dashboard memuat keempat grafik komposisi', function () {
-    Livewire::test(Dashboard::class)
-        ->assertSeeLivewire(StatusChart::class)
-        ->assertSeeLivewire(TypeChart::class)
-        ->assertSeeLivewire(TopServicesChart::class)
-        ->assertSeeLivewire(TopPartsChart::class);
 });

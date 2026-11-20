@@ -107,15 +107,6 @@ test('RWY-008: customer tanpa booking melihat pesan kosong', function () {
         ->assertSee('Belum ada booking');
 });
 
-test('RWY-009: navbar customer memuat tautan Riwayat Saya, tamu tidak', function () {
-    $this->actingAs(User::factory()->create())->get('/')
-        ->assertSee('href="/riwayat"', false);
-
-    jadiTamu();
-
-    $this->get('/')->assertDontSee('href="/riwayat"', false);
-});
-
 test('RWY-010: filter status hanya memuat status itu', function () {
     $user = User::factory()->create();
     servisRiwayat($user, ['status' => ServiceStatus::Pending]);

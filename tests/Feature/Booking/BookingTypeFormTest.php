@@ -21,12 +21,6 @@ it('TIP-002: default workshop, kotak lokasi tersembunyi', function () {
         ->assertDontSee('Lokasi montir datang');
 });
 
-it('TIP-003: pilih home service, kotak lokasi muncul', function () {
-    Livewire::test(BookingForm::class)
-        ->set('booking_type', BookingType::HomeService->value)
-        ->assertSee('Lokasi montir datang');
-});
-
 it('TIP-004: balik ke workshop, kotak lokasi hilang lagi', function () {
     Livewire::test(BookingForm::class)
         ->set('booking_type', BookingType::HomeService->value)

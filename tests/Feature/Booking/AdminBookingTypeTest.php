@@ -9,22 +9,6 @@ use Livewire\Livewire;
 
 beforeEach(fn() => $this->actingAs(User::factory()->create()));
 
-it('ADM-001: tabel punya kolom tipe layanan', function () {
-    Livewire::test(ListServices::class)
-        ->assertTableColumnExists('booking_type');
-});
-
-it('ADM-002: badge menampilkan label tipe', function () {
-    Service::factory()->create([
-        'booking_type' => BookingType::HomeService,
-        'latitude' => -7.7174465,
-        'longitude' => 113.0755426,
-    ]);
-
-    Livewire::test(ListServices::class)
-        ->assertSee('Panggil Montir');
-});
-
 it('ADM-003: filter tipe memisahkan home service dan workshop', function () {
     $home = Service::factory()->create([
         'booking_type' => BookingType::HomeService,

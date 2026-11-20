@@ -1,6 +1,6 @@
 # Peta Tes: SIM Bengkel Cak Budi Dinamo
 
-Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (628 lulus per 20 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
+Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (599 lulus per 20 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
 
 Jalankan: `php artisan test`, atau satu modul: `php artisan test --filter=Riwayat`.
 
@@ -147,3 +147,7 @@ Catatan umum:
 - Opsional: `/layanan/{id}` 404, `/booking` 404.
 
 **Sengaja tidak dites, cek manual (aturan "Kapan wajib tes", `PROJECT_RULES.md` bagian 10).** Isi beranda dan `/layanan`, tombol arah di peta, tabel Jasa, isi tampilan detail Riwayat, dropdown navbar, logo, kolom yang tampil per tab di tabel Servis. ID yang pernah dipakai untuk tes tampilan lalu dihapus: LNS-011..013, LGO-001..002 (jangan dipakai ulang).
+
+## Tes yang dihapus 20 Nov 2026 (bersih-bersih, tes tampilan saja)
+
+Dihapus karena hanya mengecek tampilan (aturan "kapan wajib tes" di PROJECT_RULES bagian 10). ID ini **jangan dipakai ulang**: ADM-001, ADM-002, ADR-011, BKT-004, FRM-001, FRM-009, DSH-012, KPI-011, TRD-001, TRD-002, CMP-001, CMP-002, CMP-005, HRI-003, MAP-001, MAP-002, MAP-004, LOC-001 dan LOC-002 di BookingLocateTest (LOC-001/002 di BookingLocationTest tetap), TIP-003, AUTH-019, AUTH-020, AUTH-021, RWY-009, WAF-001, WAF-002. Berkas BookingLocateTest, TrendChartTest, dan WhatsAppFloatTest ikut terhapus karena kosong.

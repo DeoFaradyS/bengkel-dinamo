@@ -73,12 +73,6 @@ it('DSH-011: periode pembanding menempel di depan dengan panjang sama', function
         ->and($prev->to()->toDateString())->toBe('2026-10-11');
 });
 
-it('DSH-012: halaman dashboard tampil dengan date picker periode', function () {
-    $this->actingAs(User::factory()->create());
-
-    Livewire::test(Dashboard::class)->assertOk()->assertSeeLivewire(KpiOverview::class);
-});
-
 it('DSH-013: label periode untuk pilihan bawaan dan preset', function () {
     expect(DashboardPeriod::label(null))->toBe('Bulan ini')
         ->and(DashboardPeriod::label(['preset' => 'today']))->toBe('Hari ini')
