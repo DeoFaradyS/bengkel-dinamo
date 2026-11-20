@@ -21,9 +21,18 @@ Route::get('/layanan', function () {
     ]);
 });
 
-// Detail pakai id. Slug butuh kolom baru lewat migrasi, tanya dulu kalau mau.
-Route::get('/layanan/{serviceType}', function (ServiceType $serviceType) {
-    return view('layanan.show', ['service' => $serviceType]);
+// Detail jasa pakai slug (D4), contoh /layanan/ganti-bearing. URL lama berbasis id
+// (/layanan/3) dialihkan permanen ke slug. Jasa terarsip atau tidak ada: 404.
+Route::get('/layanan/{slug}', function (string $slug) {
+    $service = ServiceType::where('slug', $slug)->first();
+
+    if ($service === null && ctype_digit($slug) && ($lama = ServiceType::find($slug))) {
+        return redirect('/layanan/' . $lama->slug, 301);
+    }
+
+    abort_if($service === null, 404);
+
+    return view('layanan.show', ['service' => $service]);
 });
 
 Route::middleware('guest')->group(function () {

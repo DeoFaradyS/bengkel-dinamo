@@ -1,6 +1,6 @@
 # Peta Tes: SIM Bengkel Cak Budi Dinamo
 
-Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (622 lulus per 20 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
+Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (628 lulus per 20 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
 
 Jalankan: `php artisan test`, atau satu modul: `php artisan test --filter=Riwayat`.
 
@@ -39,6 +39,7 @@ Catatan umum:
 | MTR-001..004 | Services/ServiceMechanicTest | Isian Montir tersembunyi saat Menunggu, muncul mulai Dikonfirmasi, tersimpan, maksimal 255 karakter, tidak tampil di Cek Booking dan Riwayat | `mechanic_names` |
 | TGL-001..006 | Services/ServiceDateFilterTest | Filter Tanggal (kalender rentang) tabel Servis: default hari ini, rentang besok, tanggal lebih dari 14 hari lalu, filter dihapus = semua, tab Menunggu tidak difilter, angka tab ikut filter kecuali Menunggu | aturan 22 |
 | GMP-001..004 | Settings/WorkshopSettingTest | Baca koordinat dari link Google Maps (q=, @, !3d!4d, koordinat langsung, link pendek), link tanpa lokasi ditolak, nomor bengkel dipakai di footer dan tombol WA. TPG-009..012 sejak 20 Nov menguji link Maps dan nomor HP (bukan koordinat) | aturan 25 |
+| SLG-001..006 | ServiceTypes/ServiceTypeSlugTest | Slug jasa otomatis dari nama, unik termasuk arsip, ikut berubah saat nama diubah, URL id lama dialihkan 301, kartu menaut ke slug, halaman 404 bergaya landing | aturan 26 |
 | SRC-001..010 | ServiceSourceTest | Asal servis: booking beranda online, Tambah servis admin, data pelanggan booking online terkunci dan tidak bisa dipaksa, jadwal terkunci (SRC-005 dibalik di hari yang sama) termasuk saat Dikerjakan, servis admin bebas diubah, Jasa dan Spare Part hanya saat Dikerjakan/Selesai, jasa lama tidak terhapus | aturan 20 |
 | ANT-001..019 | ServiceQueueTest | Antrian: satu `in_progress` (penghalang), jadwal lebih awal hanya konfirmasi lewati (ANT-009 diubah 20 Nov, ANT-013..014), nomor antrean hari ini: urut jam, Selesai tetap dihitung, batal/menunggu tidak, sedang dikerjakan dan sisa, bukan hari ini null (ANT-015..019) | aturan 11, 22 |
 | STK-001..008, 012..013 | ServiceStockTest | Stok berkurang saat Selesai, sekali saja, stok kurang membatalkan, modal konfirmasi | aturan 2 |

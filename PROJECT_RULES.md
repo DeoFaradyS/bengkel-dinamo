@@ -2,7 +2,7 @@
 
 Konteks proyek skripsi untuk AI. Baca seluruh file sebelum menjawab. Bagian "Aturan wajib untuk AI" mengikat. Jika file ini bertentangan dengan kode di konteks, kode yang benar: sebutkan pertentangannya, jangan diam-diam memilih.
 
-Daftar pekerjaan yang belum selesai, bug yang diketahui, dan keputusan terbuka ada di `PLANNING.md`. Baca juga file itu kalau tugasnya menyangkut pekerjaan lanjutan. Terakhir disinkronkan: 17 November 2026 (622 tes lulus).
+Daftar pekerjaan yang belum selesai, bug yang diketahui, dan keputusan terbuka ada di `PLANNING.md`. Baca juga file itu kalau tugasnya menyangkut pekerjaan lanjutan. Terakhir disinkronkan: 17 November 2026 (628 tes lulus).
 
 ## 1. Tujuan sistem
 
@@ -184,6 +184,7 @@ Tidak dibuat (pengembangan lanjutan): tabel `statuses`, tabel `customers`, OTP, 
 23. **Laporan Pendapatan** (20 Nov 2026, `App\Filament\Pages\LaporanPendapatan`, menu grup Laporan). Dasar hitung **uang diterima**: servis Selesai yang sudah lunas, menurut tanggal lunas (`paid_at`), standar untuk usaha kecil yang bayar tunai. Pendapatan = jasa + spare part + ongkos transport (sama dengan total servis, aturan 7). Servis Selesai yang belum lunas tidak dihitung, tapi ditampilkan terpisah sebagai **Belum dibayar** (semua tanggal). Isi: filter Periode (kalender, default bulan ini) dan Tipe layanan; ringkasan (total, servis lunas, rata-rata, belum dibayar); rincian sumber (jasa, spare part, transport, persen); tabel per servis lunas; tombol **Unduh PDF** (`resources/views/reports/pendapatan.blade.php`, berkop logo, ada kolom No). Hitungan di `ServiceMetrics::revenueBreakdown()`, `paidQuery()`, `unpaidNow()`. Tidak memuat pengeluaran, laba/rugi, atau modal spare part (pengembangan lanjutan). Tes: LAP-001..005, MET-013..017.
 24. **Dasbor** (ditata ulang 20 Nov 2026). Bagian **Hari ini** di atas, tidak ikut filter: tabel Jadwal hari ini (kartu angka Menunggu, Servis hari ini, Stok menipis sempat ada lalu dicabut 20 Nov; HRI-002 dihapus) dengan nomor antrean (`TodaySchedule`). Bagian **Kinerja periode** di bawahnya dengan filter tanggal di judulnya: KPI Pendapatan (dasar uang diterima, aturan 23), Servis selesai, Booking masuk, Belum dibayar (pengganti kartu Menunggu); **Grafik pendapatan** batang per hari/minggu/bulan sesuai panjang periode (`RevenueChart`, `ServiceMetrics::revenueSeries()`, menggantikan grafik tren booking); lalu grafik komposisi dan terlaris. Tes: HRI-001 dan HRI-003, KPI-001..011, TRD-001..002.
 25. **Pengaturan bengkel** (menu Jarak & Ongkos, 20 Nov 2026). Kiri: Jarak Maksimal, Harga BBM, dan **Nomor HP / WhatsApp bengkel** (`workshop_settings.phone`, dinormalkan ke 08...). Kanan: **Link Google Maps** lokasi bengkel (`workshop_settings.maps_url`) dengan pratinjau peta; Latitude/Longitude tidak diketik lagi, dibaca dari link oleh `App\Support\GoogleMapsLink` (format `?q=`, `@lat,lng`, `!3d!4d`, koordinat langsung, dan link pendek `maps.app.goo.gl` yang diikuti ke link panjang lewat HTTP). Nomor bengkel diambil lewat `App\Support\WorkshopContact` dan dipakai di footer, tombol WA melayang, link konfirmasi booking, Cek Booking, dan nanti notifikasi WA; kalau kosong memakai `config('booking.whatsapp')`. Migrasi `2026_11_20_100000_add_phone_and_maps_url_to_workshop_settings_table` (ERD perlu ditambah dua kolom ini). Tes: TPG-009..012 (diubah dari koordinat), GMP-001..004.
+26. **Slug jasa dan halaman 404** (20 Nov 2026, D4). Kolom `service_types.slug` (unik, termasuk jasa terarsip) dibuat otomatis dari nama di `ServiceType::booted()`; nama berubah, slug ikut berubah; nama kembar diberi akhiran `-2`, `-3`. Migrasi `2026_11_20_110000_add_slug_to_service_types_table` (ERD perlu ditambah). Halaman yang tidak ada memakai `resources/views/errors/404.blade.php` bergaya landing (navbar, footer, tombol Kembali ke Beranda dan Lihat Layanan). Tes: SLG-001..006.
 
 ## 6. UX dan tampilan
 
@@ -254,7 +255,7 @@ Tujuan: setiap perubahan langsung ketahuan kalau merusak fitur lain, tanpa menge
 - Gunakan factory yang sudah ada. Kalau factory belum ada, buat dulu, jangan mengisi kolom manual berulang. `UserFactory` punya state `owner()`.
 - Fitur baru: minimal satu tes jalur normal, satu tes jalur gagal (validasi atau aturan bisnis ditolak), dan satu tes batas (stok 0, status final, nomor HP ganda, dan sejenisnya).
 - Perbaikan bug: tulis tes yang gagal karena bug itu lebih dulu, lalu perbaiki kodenya.
-- Sebelum dianggap selesai, seluruh tes harus lulus: `php artisan test` (atau `./vendor/bin/pest`). Laporkan hasilnya, contoh "530 lulus". **Hasil terakhir yang diketahui: 622 lulus, 0 gagal (20 Nov 2026).**
+- Sebelum dianggap selesai, seluruh tes harus lulus: `php artisan test` (atau `./vendor/bin/pest`). Laporkan hasilnya, contoh "530 lulus". **Hasil terakhir yang diketahui: 628 lulus, 0 gagal (20 Nov 2026).**
 - Perubahan di `Service::syncStock()`, `SparePart::addStock()`, `ServiceStatus::allowedNext()`, `Service::startBlockerMessage()`, atau hitungan total wajib punya tes regresi, karena area ini menyentuh banyak fitur.
 - Label yang tampil di tabel ikut jadi teks yang dicari tes. Kalau label atau kolom pindah halaman (contoh: keluhan pindah dari tabel Riwayat ke detail), pindahkan assertion ke halaman barunya dan catat alasannya. Label status juga muncul di dropdown filter, jadi untuk memeriksa isi tabel gunakan `assertViewHas` atau data, bukan teks label.
 
@@ -279,7 +280,7 @@ Beranda `/`: `resources/views/welcome.blade.php` extends `layouts.booking` dan m
 - `cek-booking`: Livewire `BookingStatusCheck` (aturan 12).
 - `map`: iframe Google Maps dengan koordinat bengkel dan tombol "Buka di Google Maps". Tanpa judul, alamat, atau jam buka.
 - Menu navbar: Layanan (`/#layanan`), Lokasi (`/#lokasi`), Cek Booking (`/#cek-booking`). Tombol "Buat Janji" dan menu Galeri sudah tidak ada.
-- Halaman lain: `/layanan` (daftar jasa, 9 per halaman, `resources/views/layanan/index.blade.php`) dan `/layanan/{id}` (detail jasa, `resources/views/layanan/show.blade.php`). Halaman detail tidak punya tombol booking.
+- Halaman lain: `/layanan` (daftar jasa, 9 per halaman, `resources/views/layanan/index.blade.php`) dan `/layanan/{slug}` (detail jasa, contoh `/layanan/ganti-bearing`; URL lama `/layanan/{id}` dialihkan 301 ke slug; `resources/views/layanan/show.blade.php`). Halaman detail tidak punya tombol booking.
 
 Area customer: view `riwayat.blade.php`, `riwayat-detail.blade.php`, `profil.blade.php`, komponen `components/status-badge.blade.php` (props `status`, atau `label` dan `color`), paginasi `pagination/filament.blade.php`. Perilaku dan aturannya di bagian 5 aturan 16 dan bagian 6.
 

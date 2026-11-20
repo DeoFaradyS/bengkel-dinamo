@@ -18,7 +18,7 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara. Disaring
 - [x] [manual] Beranda memuat jasa dari DB, pesan kosong tanpa jasa, tombol "Lihat semua layanan" hanya kalau jasa lebih dari 6.
 - [x] [manual] `/layanan`: kosong, dan paginasi 9 per halaman.
 - [x] [manual] Section peta memuat tombol arah.
-- [ ] Opsional (perilaku rute, tidak mendesak): `/layanan/{id}` 404 kalau id tidak ada, `/booking` 404.
+- [x] Halaman 404 bergaya landing untuk semua halaman yang tidak ada (20 Nov 2026, SLG-006).
 
 **Cek Booking (aturan 12).** Selesai 17 Nov 2026: CEK-001..013 di `tests/Feature/Booking/BookingStatusCheckTest.php`. Sejak 17 Nov cek pakai kode booking + nomor HP (masukan dospem: nama + HP kurang aman). Kolom baru `services.booking_code` lewat migrasi `2026_11_17_110000_add_booking_code_to_services_table` (servis lama ikut diberi kode; ERD perlu ditambah kolom ini).
 - [x] Kode dan nomor cocok: servis tampil, `+62` sama dengan `08` (CEK-001).
@@ -65,19 +65,19 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara. Disaring
 - [ ] 5. WA otomatis lewat Fonnte (paket gratis): pesan saat status menjadi Dikonfirmasi, Selesai, Dibatalkan, Ditolak. Pengirim bisa ditukar (log di lokal dan tes), dikirim `afterResponse`, gagal kirim tidak menggagalkan status, catatan terkirim/gagal, tombol manual "Kabari via WA" sebagai cadangan. Pemilik menyiapkan nomor khusus, akun Fonnte, dan token di `.env`.
 - [x] Tandai Lunas dan Invoice dipindah dari baris tabel servis ke halaman detail saja (20 Nov 2026, INV-012; INV-006..008 dihapus, INV-009 lewat detail). Aksi massal Tandai Lunas di tabel: tidak dibuat (opsional).
 - [x] Antrean (20 Nov 2026, aturan 11 dan 22): jadwal lebih awal tidak mengunci lagi (konfirmasi lewati), satu servis Dikerjakan tetap penghalang, tombol cepat alasan "Pelanggan tidak datang", nomor antrean hari ini di tabel Servis (ganti kolom No) dan Cek Booking, kolom No dihapus di Jasa/Kategori/Riwayat, seeder dibetulkan jadi satu servis Dikerjakan, filter Tanggal (kalender rentang, default Hari ini) di tabel Servis dan angka tab ikut filter kecuali Menunggu (TGL-001..006). Belum: batas tunggu otomatis dan status khusus "Tidak datang" (pengembangan lanjutan, lihat D6).
-- [ ] Ditunda (20 Nov 2026): tombol aksi status (Tahap 2 di bawah). Rancangan sementara: tombol di kanan atas detail + jendela konfirmasi, alasan wajib untuk Tolak/Batalkan, baris tahap sebagai penanda, jasa dan spare part tetap lewat Ubah (Ubah hanya muncul saat Dikerjakan atau servis buatan admin, simpan kembali ke detail), tabel cukup tombol Lihat.
+- [-] Dibatalkan pemilik (20 Nov 2026): tombol aksi status. Ubah status tetap lewat form Ubah, supaya pemilik mengecek data dulu. Rancangan sementara: tombol di kanan atas detail + jendela konfirmasi, alasan wajib untuk Tolak/Batalkan, baris tahap sebagai penanda, jasa dan spare part tetap lewat Ubah (Ubah hanya muncul saat Dikerjakan atau servis buatan admin, simpan kembali ke detail), tabel cukup tombol Lihat.
 
-- [ ] Rekap stok per periode (Iterasi 4). Belum diputuskan dibangun atau ditulis sebagai pengembangan lanjutan skripsi.
-- [ ] Promo dikelola dari panel (sisa US-07). Layanan sudah lewat menu Jasa.
+- [ ] Ditunda (20 Nov 2026): rekap stok per periode (Iterasi 4). Belum diputuskan dibangun atau ditulis sebagai pengembangan lanjutan skripsi.
+- [-] Dibatalkan (20 Nov 2026): promo dikelola dari panel (sisa US-07).
 - [x] Asal servis dan hak ubah admin, tahap 1 (17 Nov 2026, aturan 20): kolom `services.source` lewat migrasi `2026_11_17_120000_add_source_to_services_table` (ERD perlu ditambah kolom ini; keputusan lama "tanpa `source`" dicabut karena perlu membedakan booking online dan servis buatan admin), data pelanggan booking online dikunci termasuk jadwal (awalnya jadwal boleh digeser saat Menunggu/Dikonfirmasi, diputuskan ulang di hari yang sama), Jasa dan Spare Part hanya saat Dikerjakan/Selesai, status awal Tambah servis hanya Dikonfirmasi/Dikerjakan/Selesai, kolom Asal di tabel dan detail. Tes SRC-001..010; FLW-006, STK-006, RSN-005 disesuaikan.
 - [x] Pelanggan membatalkan booking sendiri selama Menunggu, di Cek Booking dan detail Riwayat, alasan opsional, notifikasi ke owner (17 Nov 2026, aturan 21, BTL-001..010). Ganti jadwal = batalkan lalu booking ulang; ubah jadwal mandiri jadi pengembangan lanjutan.
-- [ ] Tahap 2: tombol aksi status di halaman detail servis (Konfirmasi, Tolak + alasan, Mulai kerjakan, Selesaikan, Batalkan + alasan), pilihan status dicabut dari form ubah, klik baris tabel membuka detail. Menggantikan butir tombol cepat di bawah.
-- [ ] Tombol cepat konfirmasi/tolak booking di tabel servis (opsional). Wajib memanggil `startBlockerMessage()` kalau mengubah status ke `in_progress`.
+- [-] Dibatalkan (20 Nov 2026): Tahap 2 tombol aksi status di halaman detail servis (Konfirmasi, Tolak + alasan, Mulai kerjakan, Selesaikan, Batalkan + alasan), pilihan status dicabut dari form ubah, klik baris tabel membuka detail. Menggantikan butir tombol cepat di bawah.
+- [-] Dibatalkan (20 Nov 2026): tombol cepat konfirmasi/tolak di tabel servis; pemilik ingin mengecek dulu sebelum menerima. Wajib memanggil `startBlockerMessage()` kalau mengubah status ke `in_progress`.
 - [x] Cek Booking: tampilkan alasan batal (D3, 17 Nov 2026).
-- [ ] Booking yang terisi jasa pilihan dari halaman detail (D5).
-- [ ] Slug untuk URL jasa (D4).
+- [-] Dibatalkan (20 Nov 2026): booking dari halaman detail jasa (D5).
+- [x] Slug untuk URL jasa (D4), selesai 20 Nov 2026 (aturan 26, SLG-001..006).
 - [x] Invoice PDF memuat status Lunas atau Belum Lunas (20 Nov 2026, INV-013).
-- [ ] Profil: ganti password (opsional, belum diminta).
+- [-] Dibatalkan (20 Nov 2026): ganti password di Profil.
 - [ ] Sinkronkan `PROJECT_RULES.md` setiap ada perubahan beranda atau aturan.
 - [x] Tabel Servis: kolom Total dan Status bersyarat per tab (D9). Selesai 17 Nov 2026. Tampil atau sembunyi kolom dicek manual (aturan tes bagian 10).
 
@@ -146,7 +146,7 @@ Daftar dari pemilik. Per 10 Nov 2026 (siang): tahap 1 sampai 3 selesai, 530 tes 
 - [x] Rapikan dan organisasi tes (`tests/README.md` dibuat 10 Nov 2026; sisa: ID kembar dan judul usang, lihat catatan di README): tiap berkas dan ID tes punya penjelasan satu baris "mengetes apa". Usul: tabel `tests/README.md` berisi kode modul (BKG, LOC, TIP, PRC, JSA, ANT, AUTH, SEC, LNS, RWY, PRF, dst), berkas, dan aturan bisnis yang dicek.
 - [x] Perbarui laporan skripsi: banyak perubahan (landing, jasa, ERD, login customer, area customer, antrian, Cek Booking, Tandai Lunas).
 - [ ] Notifikasi WhatsApp ke pelanggan: opsional, dikerjakan belakangan kalau sempat.
-- [ ] Siapkan bahan bimbingan: demo (beranda, `/layanan`, Cek Booking, upload foto jasa, login customer, booking login, Riwayat dan detail, Cetak Invoice, Profil, Tandai Lunas di panel), angka tes (615), daftar migrasi yang berubah, keputusan yang butuh jawaban (D1, D3, D8).
+- [ ] Siapkan bahan bimbingan: demo (beranda, `/layanan`, Cek Booking, upload foto jasa, login customer, booking login, Riwayat dan detail, Cetak Invoice, Profil, Tandai Lunas di panel), angka tes (628), daftar migrasi yang berubah, keputusan yang butuh jawaban (D1, D3, D8).
 
 ## F. Rencana perubahan database dan fitur turunannya (diperbarui 10 Nov 2026, siang)
 

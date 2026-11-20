@@ -15,7 +15,7 @@
   @else
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 w-full">
       @foreach ($services as $service)
-        <a href="{{ url('/layanan/'.$service->id) }}" class="block focus:outline-none focus:ring-2 focus:ring-red-500 rounded-[10px]">
+        <a href="{{ url('/layanan/'.$service->slug) }}" class="block focus:outline-none focus:ring-2 focus:ring-red-500 rounded-[10px]">
           <x-service-card
             :name="$service->name"
             :description="$service->description"
