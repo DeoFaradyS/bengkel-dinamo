@@ -9,6 +9,9 @@ beforeEach(function () {
     $this->actingAs(User::factory()->create());
 
     WorkshopSetting::create([
+        // Sejak 20 Nov 2026 nomor HP dan link Google Maps wajib di form Jarak & Ongkos.
+        'phone' => '08882509745',
+        'maps_url' => 'https://www.google.com/maps?q=-7.2575,112.7521',
         'latitude' => -7.2575,
         'longitude' => 112.7521,
         'max_distance_km' => 7,

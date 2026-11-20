@@ -22,7 +22,7 @@
     <div>
       <p class="text-neutral-500 text-sm mb-3">Kontak</p>
       <ul class="space-y-2 text-sm">
-        <li><a href="tel:+628882509745" class="hover:text-neutral-300">+62 888-2509-745</a></li>
+        <li><a href="tel:{{ \App\Support\WorkshopContact::tel() }}" class="hover:text-neutral-300">{{ \App\Support\WorkshopContact::display() }}</a></li>
         {{-- TODO: ganti dengan email asli bengkel, atau hapus baris ini --}}
         <li><a href="mailto:info@budidinamo.com" class="hover:text-neutral-300">info@budidinamo.com</a></li>
         <li>Nguling, Pasuruan, Jawa Timur</li>

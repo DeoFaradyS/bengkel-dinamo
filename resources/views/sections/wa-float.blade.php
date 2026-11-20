@@ -1,5 +1,5 @@
 @php
-  $waLink = \App\Support\WhatsAppLink::make(config('booking.whatsapp'), 'Halo Budi Dinamo, saya mau tanya soal servis.');
+  $waLink = \App\Support\WhatsAppLink::make(\App\Support\WorkshopContact::phone(), 'Halo Budi Dinamo, saya mau tanya soal servis.');
 @endphp
 
 {{-- Tombol WA melayang. z-40: di bawah header (z-50) dan modal peta (z-60). --}}

@@ -4,6 +4,8 @@ namespace App\Filament\Pages;
 
 use App\Enums\BookingType;
 use App\Models\WorkshopSetting;
+use App\Support\GoogleMapsLink;
+use App\Support\PhoneNumber;
 use BackedEnum;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -36,8 +38,8 @@ class JarakOngkos extends Page
         $this->form->fill([
             'max_distance_km' => (float) $setting->max_distance_km,
             'fuel_price' => (int) $setting->fuel_price,
-            'latitude' => $setting->latitude,
-            'longitude' => $setting->longitude,
+            'phone' => $setting->phone,
+            'maps_url' => $setting->maps_url,
         ]);
     }
 
@@ -48,7 +50,7 @@ class JarakOngkos extends Page
                 Grid::make(['default' => 1, 'lg' => 5])
                     ->extraAttributes(['class' => 'jo-grid'])
                     ->schema([
-                        Section::make('Pengaturan ' . BookingType::HomeService->getLabel())
+                        Section::make('Pengaturan Bengkel')
                             ->columnSpan(['default' => 1, 'lg' => 3])
                             ->columns(2)
                             ->schema([
@@ -69,30 +71,40 @@ class JarakOngkos extends Page
                                     ->maxValue(99999)
                                     ->prefix('Rp')
                                     ->live(onBlur: true),
-                                TextInput::make('latitude')
-                                    ->label('Latitude')
+                                // Nomor bengkel (aturan 25): dipakai di landing (footer, tombol WA) dan notifikasi WA.
+                                TextInput::make('phone')
+                                    ->label('Nomor HP / WhatsApp bengkel')
+                                    ->tel()
                                     ->required()
-                                    ->numeric()
-                                    ->minValue(-90)
-                                    ->maxValue(90)
-                                    ->live(onBlur: true),
-                                TextInput::make('longitude')
-                                    ->label('Longitude')
-                                    ->required()
-                                    ->numeric()
-                                    ->minValue(-180)
-                                    ->maxValue(180)
-                                    ->live(onBlur: true),
+                                    ->maxLength(20)
+                                    ->placeholder('Contoh: 081234567890')
+                                    ->helperText('Tampil di halaman depan dan dipakai untuk tombol WhatsApp.')
+                                    ->columnSpanFull(),
                             ]),
 
-                        Section::make('Pratinjau')
+                        // Lokasi bengkel dari link Google Maps (aturan 25): koordinat dibaca otomatis.
+                        Section::make('Lokasi Bengkel')
                             ->extraAttributes(['class' => 'jo-preview'])
                             ->columnSpan(['default' => 1, 'lg' => 2])
                             ->schema([
+                                TextInput::make('maps_url')
+                                    ->label('Link Google Maps')
+                                    ->required()
+                                    ->maxLength(500)
+                                    ->placeholder('https://maps.app.goo.gl/...')
+                                    ->helperText('Buka Google Maps, cari lokasi bengkel, tekan Bagikan, lalu salin link ke sini.')
+                                    ->live(onBlur: true)
+                                    ->rules([
+                                        fn() => function (string $attribute, $value, \Closure $fail) {
+                                            if (! GoogleMapsLink::coordinates($value)) {
+                                                $fail('Lokasi tidak terbaca dari link ini. Pakai link dari tombol Bagikan di Google Maps.');
+                                            }
+                                        },
+                                    ]),
                                 View::make('filament.components.maps-preview')
                                     ->viewData(fn(Get $get) => [
-                                        'lat' => $get('latitude'),
-                                        'lng' => $get('longitude'),
+                                        'lat' => GoogleMapsLink::coordinates($get('maps_url'))['lat'] ?? null,
+                                        'lng' => GoogleMapsLink::coordinates($get('maps_url'))['lng'] ?? null,
                                     ]),
                             ]),
                     ]),
@@ -102,7 +114,17 @@ class JarakOngkos extends Page
 
     public function save(): void
     {
-        WorkshopSetting::firstOrFail()->update($this->form->getState());
+        $state = $this->form->getState();
+        $coords = GoogleMapsLink::coordinates($state['maps_url']);
+
+        WorkshopSetting::firstOrFail()->update([
+            'max_distance_km' => $state['max_distance_km'],
+            'fuel_price' => $state['fuel_price'],
+            'phone' => PhoneNumber::normalize($state['phone']) ?? $state['phone'],
+            'maps_url' => $state['maps_url'],
+            'latitude' => $coords['lat'],
+            'longitude' => $coords['lng'],
+        ]);
 
         Notification::make()->title('Tersimpan')->success()->send();
     }

@@ -144,7 +144,7 @@ class BookingForm extends Component
         $this->rememberPhone();
 
         $this->bookingCode = $service->booking_code;
-        $this->waLink = WhatsAppLink::make(config('booking.whatsapp'), implode("\n", [
+        $this->waLink = WhatsAppLink::make(\App\Support\WorkshopContact::phone(), implode("\n", [
             'Halo Budi Dinamo, saya sudah booking.',
             'Kode booking: ' . $service->booking_code,
             'Nama: ' . $service->customer_name,

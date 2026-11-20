@@ -38,7 +38,7 @@
 
         <p class="text-sm text-neutral-500 text-center">
             Lupa kode? Cari di chat WhatsApp dengan bengkel, atau
-            <a href="{{ \App\Support\WhatsAppLink::make(config('booking.whatsapp'), 'Halo Budi Dinamo, saya lupa kode booking saya.') }}"
+            <a href="{{ \App\Support\WhatsAppLink::make(\App\Support\WorkshopContact::phone(), 'Halo Budi Dinamo, saya lupa kode booking saya.') }}"
                 target="_blank" rel="noopener" class="font-semibold text-red-600 underline underline-offset-2">tanya lewat WhatsApp</a>.
         </p>
     </form>
@@ -191,7 +191,7 @@
                         @elseif ($r['status'] === 'confirmed')
                             <p class="pt-6 border-t border-neutral-100 text-lg text-neutral-700">
                                 Tidak jadi datang?
-                                <a href="{{ \App\Support\WhatsAppLink::make(config('booking.whatsapp'), 'Halo Budi Dinamo, saya mau membatalkan booking dengan kode ' . $r['booking_code'] . '.') }}"
+                                <a href="{{ \App\Support\WhatsAppLink::make(\App\Support\WorkshopContact::phone(), 'Halo Budi Dinamo, saya mau membatalkan booking dengan kode ' . $r['booking_code'] . '.') }}"
                                     target="_blank" rel="noopener" class="font-semibold text-red-600 underline underline-offset-2">Hubungi bengkel lewat WhatsApp</a>.
                             </p>
                         @elseif (in_array($r['status'], ['cancelled', 'rejected', 'expired'], true))
