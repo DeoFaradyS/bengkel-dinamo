@@ -29,7 +29,7 @@ class SparePartSeeder extends Seeder
             ['SP-005', 'Arminture / Anker Starter 12V', 'Kumparan', 3, 2, 'Rak A3', 350000],
             ['SP-006', 'Arminture / Anker Starter 24V', 'Kumparan', 1, 2, 'Rak A3', 520000],
             ['SP-007', 'Spul / Field Coil Starter', 'Kumparan', 5, 2, 'Rak A4', 180000],
-            ['SP-008', 'Kohlen / Carbon Brush Starter (set)', 'Sikat Arang', 15, 5, 'Laci B1', 25000],
+            ['SP-008', 'Kohlen / Carbon Brush Starter', 'Sikat Arang', 15, 5, 'Laci B1', 25000, 'set'],
             ['SP-009', 'Brush Holder Starter', 'Sikat Arang', 6, 3, 'Laci B1', 45000],
             ['SP-010', 'Gear Reduksi Starter', 'Starter', 2, 2, 'Rak A5', 210000],
 
@@ -37,7 +37,7 @@ class SparePartSeeder extends Seeder
             ['SP-011', 'Regulator / IC Alternator 12V', 'Alternator', 10, 4, 'Rak C1', 75000],
             ['SP-012', 'Regulator / IC Alternator 24V', 'Alternator', 1, 3, 'Rak C1', 110000],
             ['SP-013', 'Dioda Plat / Rectifier', 'Alternator', 7, 3, 'Rak C2', 120000],
-            ['SP-014', 'Kohlen / Carbon Brush Alternator (set)', 'Sikat Arang', 12, 5, 'Laci B2', 20000],
+            ['SP-014', 'Kohlen / Carbon Brush Alternator', 'Sikat Arang', 12, 5, 'Laci B2', 20000, 'set'],
             ['SP-015', 'Rotor Alternator', 'Kumparan', 2, 1, 'Rak C3', 390000],
             ['SP-016', 'Stator / Spul Alternator', 'Kumparan', 3, 2, 'Rak C3', 310000],
             ['SP-017', 'Pulley Alternator', 'Alternator', 4, 2, 'Rak C4', 65000],
@@ -46,23 +46,27 @@ class SparePartSeeder extends Seeder
             ['SP-018', 'Kapasitor Motor 8uF', 'Lainnya', 12, 5, 'Laci D1', 22000],
             ['SP-019', 'Kapasitor Motor 12uF', 'Lainnya', 9, 5, 'Laci D1', 28000],
             ['SP-020', 'Seal Mekanik Pompa Air', 'Lainnya', 3, 5, 'Laci D2', 35000],
-            ['SP-021', 'Kabel Email / Tembaga Gulung (kg)', 'Kumparan', 6, 2, 'Rak E1', 130000],
+            ['SP-021', 'Kabel Email / Tembaga Gulung', 'Kumparan', 6.5, 2, 'Rak E1', 130000, 'kg'],
 
             // Umum
             ['SP-022', 'Bearing 6203', 'Bearing', 20, 8, 'Laci F1', 25000],
             ['SP-023', 'Bearing 6204', 'Bearing', 14, 8, 'Laci F1', 30000],
             ['SP-024', 'Bosh / Bushing Starter', 'Bearing', 18, 6, 'Laci F2', 12000],
-            ['SP-025', 'Terminal Kabel & Baut Set', 'Lainnya', 30, 10, 'Laci F3', 8000],
+            ['SP-025', 'Terminal Kabel & Baut', 'Lainnya', 30, 10, 'Laci F3', 8000, 'set'],
         ];
 
         $imageDir = database_path('seeders/images/spare-parts');
 
-        foreach ($parts as [$code, $name, $category, $stock, $minStock, $location, $price]) {
+        // Kolom ke-8 = satuan (aturan 33), kosong berarti pcs. Kabel email ditimbang (kg, boleh pecahan).
+        foreach ($parts as $row) {
+            [$code, $name, $category, $stock, $minStock, $location, $price] = $row;
+            $unit = $row[7] ?? 'pcs';
             $part = SparePart::firstOrNew(['code' => $code]);
             $isNew = !$part->exists;
 
             $part->fill([
                 'name' => $name,
+                'unit' => $unit,
                 'category_id' => $categoryIds[$category],
                 'min_stock' => $minStock,
                 'storage_location' => $location,

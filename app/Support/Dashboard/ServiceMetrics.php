@@ -347,7 +347,7 @@ final class ServiceMetrics
             ->all();
     }
 
-    /** @return array<string, int> nama spare part => jumlah terpakai */
+    /** @return array<string, int|float> nama suku cadang => jumlah terpakai (dalam satuannya) */
     public function topParts(int $limit = 5): array
     {
         $rows = ServicePart::query()
@@ -365,7 +365,7 @@ final class ServiceMetrics
 
         return $rows
             ->mapWithKeys(fn($row) => [
-                ($names[$row->spare_part_id] ?? 'Suku cadang #' . $row->spare_part_id) => (int) $row->q,
+                ($names[$row->spare_part_id] ?? 'Suku cadang #' . $row->spare_part_id) => \App\Support\Qty::number($row->q),
             ])
             ->all();
     }

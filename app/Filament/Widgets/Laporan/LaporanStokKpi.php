@@ -9,8 +9,8 @@ use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
 /**
- * Kartu ringkasan Laporan Stok (aturan 31), gaya kartu KPI dasbor. Dibaca seperti rumus:
- * masuk, keluar, penyesuaian, stok akhir. Semua angka = jumlah barang, bukan jumlah transaksi.
+ * Kartu ringkasan Laporan Stok (aturan 31 dan 33), gaya kartu KPI dasbor. Menghitung JENIS barang,
+ * karena jumlah barang beda satuan (kg, pcs) tidak boleh dijumlahkan.
  */
 class LaporanStokKpi extends StatsOverviewWidget
 {
@@ -32,10 +32,10 @@ class LaporanStokKpi extends StatsOverviewWidget
         $t = (new StockMutation($m->from(), $m->to()))->totals();
 
         return [
-            ['key' => 'revenue', 'label' => 'Barang masuk', 'value' => (string) $t['in']],
-            ['key' => 'completed', 'label' => 'Barang keluar', 'value' => (string) $t['out']],
-            ['key' => 'bookings', 'label' => 'Penyesuaian', 'value' => ($t['adjustment'] > 0 ? '+' : '') . $t['adjustment']],
-            ['key' => 'unpaid', 'label' => 'Stok akhir', 'value' => (string) $t['closing']],
+            ['key' => 'revenue', 'label' => 'Jenis barang masuk', 'value' => (string) $t['in']],
+            ['key' => 'completed', 'label' => 'Jenis barang keluar', 'value' => (string) $t['out']],
+            ['key' => 'bookings', 'label' => 'Jenis disesuaikan', 'value' => (string) $t['adjustment']],
+            ['key' => 'unpaid', 'label' => 'Jumlah jenis barang', 'value' => (string) $t['total']],
         ];
     }
 

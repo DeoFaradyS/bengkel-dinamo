@@ -14,7 +14,7 @@ class ServicePart extends Model
 
     protected $fillable = ['service_id', 'spare_part_id', 'quantity', 'unit_price'];
 
-    protected $casts = ['unit_price' => 'decimal:2'];
+    protected $casts = ['unit_price' => 'decimal:2', 'quantity' => \App\Casts\Quantity::class];
 
     protected static function booted(): void
     {

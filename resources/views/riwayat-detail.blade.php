@@ -205,7 +205,7 @@
                             @foreach ($service->serviceParts as $part)
                                 <tr>
                                     <td class="px-4 py-3 text-neutral-800">{{ $part->sparePart?->name ?? '-' }}</td>
-                                    <td class="px-4 py-3 text-right text-neutral-800">{{ number_format((float) $part->quantity, 0, ',', '.') }}</td>
+                                    <td class="px-4 py-3 text-right text-neutral-800">{{ \App\Support\Qty::format($part->quantity, $part->sparePart?->unit) }}</td>
                                     <td class="whitespace-nowrap px-4 py-3 text-right text-neutral-800">{{ $rupiah($part->unit_price) }}</td>
                                     <td class="whitespace-nowrap px-4 py-3 text-right text-neutral-800">{{ $rupiah($part->subtotal) }}</td>
                                 </tr>

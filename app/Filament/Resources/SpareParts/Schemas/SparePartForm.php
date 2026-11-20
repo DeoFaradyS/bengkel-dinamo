@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\SpareParts\Schemas;
 
+use App\Enums\StockUnit;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -9,6 +10,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Support\RawJs;
@@ -78,9 +80,21 @@ class SparePartForm
                                             ->minValue(0)
                                             ->maxValue(9999999999)
                                             ->prefix('Rp'),
+                                        // Satuan (aturan 33): kg/meter/liter boleh desimal, pcs/set/pasang bulat.
+                                        Select::make('unit')->label('Satuan')
+                                            ->columnSpanFull()
+                                            ->options(StockUnit::options())
+                                            ->default(StockUnit::Pcs->value)
+                                            ->required()
+                                            ->native(false)
+                                            ->live()
+                                            ->helperText('kg, meter, liter boleh pecahan (contoh 0,5). pcs, set, pasang harus bulat.'),
                                         TextInput::make('stock')->label('Stok')
                                             ->required()
-                                            ->integer()
+                                            ->numeric()
+                                            ->step(fn(Get $get) => self::decimal($get) ? 0.01 : 1)
+                                            ->integer(fn(Get $get) => ! self::decimal($get))
+                                            ->suffix(fn(Get $get) => $get('unit'))
                                             ->minValue(0)
                                             ->maxValue(999999)
                                             ->default(0)
@@ -91,7 +105,10 @@ class SparePartForm
                                                 : 'Stok awal. Setelah disimpan, ubah lewat tombol Ubah Stok.'),
                                         TextInput::make('min_stock')->label('Stok Minimal')
                                             ->required()
-                                            ->integer()
+                                            ->numeric()
+                                            ->step(fn(Get $get) => self::decimal($get) ? 0.01 : 1)
+                                            ->integer(fn(Get $get) => ! self::decimal($get))
+                                            ->suffix(fn(Get $get) => $get('unit'))
                                             ->minValue(0)
                                             ->maxValue(999999)
                                             ->default(1),
@@ -116,5 +133,10 @@ class SparePartForm
                             ]),
                     ]),
             ]);
+    }
+
+    private static function decimal(Get $get): bool
+    {
+        return StockUnit::tryFrom((string) $get('unit'))?->allowsDecimal() ?? false;
     }
 }

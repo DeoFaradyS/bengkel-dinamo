@@ -41,10 +41,14 @@ class StockActions
                     ->required()
                     ->live()
                     ->afterStateUpdated(fn(Set $set) => $set('reason', null)),
+                // Satuan kg/meter/liter boleh pecahan (aturan 33), selain itu bulat.
                 TextInput::make('quantity')->label('Jumlah')
                     ->required()
-                    ->integer()
-                    ->minValue(1)
+                    ->numeric()
+                    ->step(fn(SparePart $record) => $record->unit->allowsDecimal() ? 0.01 : 1)
+                    ->integer(fn(SparePart $record) => ! $record->unit->allowsDecimal())
+                    ->minValue(fn(SparePart $record) => $record->unit->allowsDecimal() ? 0.01 : 1)
+                    ->suffix(fn(SparePart $record) => $record->unit->label())
                     ->maxValue(999999),
                 Select::make('reason')->label('Alasan')
                     ->options(fn(Get $get) => StockReason::options($get('direction') ?? 'in'))
@@ -59,7 +63,7 @@ class StockActions
             ])
             ->action(function (SparePart $record, array $data, Action $action) {
                 $reason = StockReason::from($data['reason']);
-                $quantity = $reason->isOut() ? -(int) $data['quantity'] : (int) $data['quantity'];
+                $quantity = $reason->isOut() ? -(float) $data['quantity'] : (float) $data['quantity'];
 
                 try {
                     $record->addStock($quantity, $reason->type(), $data['note'] ?? null, null, $reason);

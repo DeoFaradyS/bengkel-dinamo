@@ -38,7 +38,7 @@ class SparePartsTable
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('stock')->label('Stok')
-                    ->numeric()
+                    ->formatStateUsing(fn($state, $record) => \App\Support\Qty::format($state, $record->unit))
                     ->sortable(),
                 TextColumn::make('storage_location')->label('Lokasi')
                     ->searchable(),

@@ -1,6 +1,6 @@
 # Peta Tes: SIM Bengkel Cak Budi Dinamo
 
-Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (629 lulus per 21 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
+Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (635 lulus per 21 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
 
 Jalankan: `php artisan test`, atau satu modul: `php artisan test --filter=Riwayat`.
 
@@ -22,6 +22,7 @@ Catatan umum:
 | USP-001..004 | SparePartTest | Ubah Stok: tambah, kurangi, tolak melebihi sisa, alasan Lainnya wajib keterangan | aturan 1 |
 | PRC-002 | SparePartPriceFormTest | Harga part tampil bulat saat edit (bukan kali 100) | |
 | STK-001..005 | StockMovementTest | Catatan stok awal, barang masuk, koreksi negatif, koreksi di bawah nol ditolak | aturan 1 |
+| UNT-001..006 | StockUnitTest | Satuan dan jumlah desimal: kg berkurang pecahan dan tercatat di riwayat, pcs menolak pecahan, batas stok kg tidak di bawah 0, servis 0,35 kg (subtotal dan potong stok), form servis menolak pecahan untuk pcs, format angka Indonesia dengan satuan | aturan 33 |
 
 ## Servis (`tests/Feature/Services/`)
 
@@ -98,7 +99,7 @@ Catatan umum:
 | TRD-001..002 | TrendChartTest | Grafik pendapatan (sejak 20 Nov menggantikan grafik tren booking) | US-08, aturan 24 |
 | HRI-001, 003 (002 dihapus 20 Nov) | Dashboard/TodayTest | Dasbor Hari ini: jadwal hari ini tanpa yang batal atau hari lain, dasbor memuat bagian Hari ini | aturan 24 |
 | LAP-001..002, 004..008, 010, 012 (LAP-003 filter tipe, LAP-009 tabel piutang, LAP-011 grafik jasa/part paling menghasilkan dihapus 20-21 Nov, jangan dipakai ulang) | Reports/LaporanPendapatanTest | Laporan Pendapatan: halaman terbuka, hanya servis lunas di periode, ringkasan jasa+part+transport dan belum dibayar, unduh PDF, rekap per hari, minggu, dan bulan, jumlah rekap sama dengan ringkasan, kartu gaya dasbor, satuan rekap PDF otomatis | aturan 23, 30 |
-| LSK-001..004, 006..009 (LSK-005 penanda hampir habis dihapus 21 Nov, jangan dipakai ulang) | Reports/LaporanStokTest | Laporan Stok (mutasi persediaan): halaman terbuka, stok awal dari riwayat sebelum periode dan masuk/keluar/penyesuaian hanya di periode, part baru di tengah periode, stok akhir sama dengan stok sebenarnya, part diarsip, kartu ringkasan (jumlah barang), unduh PDF, cari dan urut tabel | aturan 31 |
+| LSK-001..004, 006..009 (LSK-005 penanda hampir habis dihapus 21 Nov, jangan dipakai ulang) | Reports/LaporanStokTest | Laporan Stok (mutasi persediaan): halaman terbuka, stok awal dari riwayat sebelum periode dan masuk/keluar/penyesuaian hanya di periode, part baru di tengah periode, stok akhir sama dengan stok sebenarnya, part diarsip, kartu ringkasan (jumlah jenis barang), unduh PDF, cari dan urut tabel | aturan 31, 33 |
 | CMP-001..005 | CompositionChartsTest | Donat status dan tipe, jasa dan part terlaris | US-08 |
 
 ## Jasa dan kategori

@@ -185,7 +185,7 @@ class Service extends Model
                 }
 
                 $sparePart->addStock(
-                    -(int) $servicePart->quantity,
+                    -$servicePart->quantity,
                     StockMovementType::Usage,
                     "Servis #{$this->id}",
                     $this->id,

@@ -162,7 +162,7 @@
             @forelse ($service->serviceParts as $part)
                 <tr>
                     <td>{{ $part->sparePart->name }}</td>
-                    <td class="center">{{ $part->quantity }}</td>
+                    <td class="center">{{ \App\Support\Qty::format($part->quantity, $part->sparePart->unit) }}</td>
                     <td class="right">Rp {{ number_format($part->unit_price, 0, ',', '.') }}</td>
                     <td class="right">Rp {{ number_format($part->subtotal, 0, ',', '.') }}</td>
                 </tr>

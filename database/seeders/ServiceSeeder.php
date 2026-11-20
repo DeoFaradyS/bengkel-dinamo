@@ -62,7 +62,7 @@ class ServiceSeeder extends Seeder
                 'days' => -4,
                 'complaint' => 'Alternator mobil di garasi tidak ngecas',
                 'jasa' => [['Servis dinamo', null]],
-                'parts' => [['Kohlen / Carbon Brush Alternator (set)', 1]],
+                'parts' => [['Kohlen / Carbon Brush Alternator', 1]],
                 'home' => ['km' => 3.0, 'lat' => -7.7165, 'lng' => 113.0830, 'address' => 'Jl. Kenanga 12, sebelah bengkel las, gerbang biru'],
                 'paid' => true,
                 'mechanic' => 'Cak Budi',
@@ -74,7 +74,7 @@ class ServiceSeeder extends Seeder
                 'days' => -7,
                 'complaint' => 'Dinamo genset pabrik tahu bunyi kasar, panas berlebih',
                 'jasa' => [['Servis dinamo', null], ['Ganti bearing', null], ['Ganti brush karbon', null]],
-                'parts' => [['Bearing 6203', 2], ['Kohlen / Carbon Brush Starter (set)', 1]],
+                'parts' => [['Bearing 6203', 2], ['Kohlen / Carbon Brush Starter', 1]],
                 'home' => ['km' => 12.0, 'lat' => -7.6890, 'lng' => 113.1250, 'address' => 'Pabrik tahu Barokah, Jl. Raya Kraksaan km 4'],
                 'mechanic' => 'Cak Budi, Mas Andi',
             ],
@@ -120,7 +120,7 @@ class ServiceSeeder extends Seeder
                 'days' => -10,
                 'complaint' => 'Dinamo starter Avanza ngik-ngik, tidak mau engkol',
                 'jasa' => [['Servis dinamo', null], ['Ganti brush karbon', null]],
-                'parts' => [['Bendix Starter 12V', 1], ['Kohlen / Carbon Brush Starter (set)', 1]],
+                'parts' => [['Bendix Starter 12V', 1], ['Kohlen / Carbon Brush Starter', 1]],
                 'paid' => true,
             ],
             [ // harga jasa diubah admin + tiga part
@@ -167,7 +167,7 @@ class ServiceSeeder extends Seeder
                 'days' => -6,
                 'complaint' => 'Aki sering tekor, lampu indikator cas menyala',
                 'jasa' => [['Servis dinamo', null], ['Ganti brush karbon', null]],
-                'parts' => [['Regulator / IC Alternator 12V', 1], ['Kohlen / Carbon Brush Alternator (set)', 1]],
+                'parts' => [['Regulator / IC Alternator 12V', 1], ['Kohlen / Carbon Brush Alternator', 1]],
             ],
             [
                 // Aturan 11: hanya satu servis Dikerjakan sekaligus (Bu Yuli). Yang lain Selesai/Dikonfirmasi.
@@ -225,7 +225,7 @@ class ServiceSeeder extends Seeder
                 'days' => 1,
                 'complaint' => 'Beli brush karbon, dipasang sendiri',
                 'jasa' => [],
-                'parts' => [['Kohlen / Carbon Brush Starter (set)', 2]],
+                'parts' => [['Kohlen / Carbon Brush Starter', 2]],
             ],
             [ // baru masuk, kosong semua
                 'name' => 'Mas Dimas',

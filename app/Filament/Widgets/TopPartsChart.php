@@ -31,7 +31,7 @@ class TopPartsChart extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => 'Terpakai (buah)',
+                    'label' => 'Terpakai',
                     'data' => array_values($top),
                     'backgroundColor' => '#22c55e',
                 ]

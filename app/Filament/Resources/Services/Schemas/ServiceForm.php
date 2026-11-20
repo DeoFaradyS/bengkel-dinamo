@@ -120,15 +120,16 @@ class ServiceForm
         $rows = collect($get('serviceParts') ?? [])
             ->filter(fn($r) => filled($r['spare_part_id'] ?? null));
 
-        $names = SparePart::whereIn('id', $rows->pluck('spare_part_id'))->pluck('name', 'id');
+        $parts = SparePart::whereIn('id', $rows->pluck('spare_part_id'))->get(['id', 'name', 'unit'])->keyBy('id');
 
-        return $rows->map(function ($r) use ($names) {
+        return $rows->map(function ($r) use ($parts) {
             $qty = (float) ($r['quantity'] ?? 0);
             $price = self::num($r['unit_price'] ?? 0);
+            $part = $parts[$r['spare_part_id']] ?? null;
 
             return [
-                'name' => $names[$r['spare_part_id']] ?? '-',
-                'detail' => rtrim(rtrim(number_format($qty, 2, ',', '.'), '0'), ',') . ' × ' . self::rupiah($price),
+                'name' => $part?->name ?? '-',
+                'detail' => \App\Support\Qty::format($qty, $part?->unit) . ' × ' . self::rupiah($price),
                 'total' => $qty * $price,
             ];
         })->values()->all();
@@ -366,7 +367,7 @@ class ServiceForm
                             ->live()
                             ->table([
                                 TableColumn::make('Suku cadang'),
-                                TableColumn::make('Qty')->width('6rem'),
+                                TableColumn::make('Qty')->width('8rem'),
                                 TableColumn::make('Harga')->width('11rem'),
                             ])
                             ->schema([
@@ -377,7 +378,7 @@ class ServiceForm
                                     ->options(fn() => SparePart::query()->orderBy('name')->get()
                                         ->mapWithKeys(fn($p) => [$p->id => '<div style="line-height:1.3;">'
                                             . '<div>' . e($p->name) . '</div>'
-                                            . '<div style="font-size:.75rem;color:#71717a;">' . e($p->code) . ' · stok ' . e($p->stock) . '</div>'
+                                            . '<div style="font-size:.75rem;color:#71717a;">' . e($p->code) . ' · stok ' . e(\App\Support\Qty::format($p->stock, $p->unit)) . '</div>'
                                             . '</div>']))
                                     ->allowHtml()
                                     ->searchable()
@@ -390,14 +391,21 @@ class ServiceForm
                                     ->label('Qty')
                                     ->required(fn(Get $get) => filled($get('spare_part_id')))
                                     ->numeric()
+                                    // Satuan kg/meter/liter boleh pecahan (aturan 33), pcs/set/pasang bulat.
+                                    ->step(fn(Get $get) => SparePart::find($get('spare_part_id'))?->unit->allowsDecimal() ? 0.01 : 1)
+                                    ->suffix(fn(Get $get) => SparePart::find($get('spare_part_id'))?->unit->label())
                                     ->rules([
                                         fn(Get $get) => function (string $attribute, $value, \Closure $fail) use ($get) {
-                                            $stock = SparePart::find($get('spare_part_id'))?->stock;
+                                            $part = SparePart::find($get('spare_part_id'));
+                                            $decimal = $part?->unit->allowsDecimal() ?? false;
+                                            $value = (float) $value;
 
-                                            if ($value < 1) {
-                                                $fail('Min 1.');
-                                            } elseif ($stock !== null && $value > $stock) {
-                                                $fail("Maks {$stock}.");
+                                            if ($value <= 0 || (! $decimal && $value < 1)) {
+                                                $fail($decimal ? 'Harus lebih dari 0.' : 'Min 1.');
+                                            } elseif (! $decimal && floor($value) != $value) {
+                                                $fail('Harus bulat.');
+                                            } elseif ($part !== null && $value > $part->stock) {
+                                                $fail('Maks ' . \App\Support\Qty::format($part->stock) . '.');
                                             }
                                         },
                                     ])

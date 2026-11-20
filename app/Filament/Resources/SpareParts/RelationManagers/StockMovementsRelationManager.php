@@ -27,9 +27,10 @@ class StockMovementsRelationManager extends RelationManager
                     ->formatStateUsing(fn($state) => $state instanceof \App\Enums\StockReason ? $state->label() : '-'),
                 TextColumn::make('quantity_change')->label('Jumlah')
                     ->alignEnd()
-                    ->formatStateUsing(fn($state) => ($state > 0 ? '+' : '') . $state)
+                    ->formatStateUsing(fn($state) => ($state > 0 ? '+' : '') . \App\Support\Qty::format($state, $this->getOwnerRecord()->unit))
                     ->color(fn($state) => $state < 0 ? 'danger' : 'success'),
                 TextColumn::make('stock_after')->label('Stok setelah')
+                    ->formatStateUsing(fn($state) => \App\Support\Qty::format($state, $this->getOwnerRecord()->unit))
                     ->alignEnd(),
                 TextColumn::make('note')->label('Catatan')
                     ->placeholder('-')

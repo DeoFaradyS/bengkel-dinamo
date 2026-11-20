@@ -13,6 +13,7 @@ class SparePartFactory extends Factory
             'name' => $this->faker->words(2, true),
             'stock' => 10,
             'min_stock' => 1,
+            'unit' => 'pcs',
             'price' => 100000,
         ];
     }

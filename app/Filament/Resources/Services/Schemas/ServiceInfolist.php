@@ -85,14 +85,14 @@ class ServiceInfolist
                             ->hiddenLabel()
                             ->table([
                                 EntryTableColumn::make('Suku cadang'),
-                                EntryTableColumn::make('Qty')->width('6rem')->alignment(Alignment::End),
+                                EntryTableColumn::make('Qty')->width('8rem')->alignment(Alignment::End),
                                 EntryTableColumn::make('Harga satuan')->width('12rem')->alignment(Alignment::End),
                                 EntryTableColumn::make('Jumlah')->width('12rem')->alignment(Alignment::End),
                             ])
                             ->schema([
                                 TextEntry::make('sparePart.name'),
                                 TextEntry::make('quantity')
-                                    ->numeric()
+                                    ->formatStateUsing(fn($state, $record) => \App\Support\Qty::format($state, $record->sparePart?->unit))
                                     ->alignment(Alignment::End),
                                 TextEntry::make('unit_price')
                                     ->money('IDR', locale: 'id', decimalPlaces: 0)
@@ -145,7 +145,7 @@ class ServiceInfolist
                                 $record->items->map(fn($i) => ['name' => $i->name, 'total' => (float) $i->price])->all(),
                                 $record->serviceParts->map(fn($p) => [
                                     'name' => $p->sparePart?->name ?? '-',
-                                    'detail' => rtrim(rtrim(number_format((float) $p->quantity, 2, ',', '.'), '0'), ',') . ' × ' . ServiceSummaryHtml::rupiah((float) $p->unit_price),
+                                    'detail' => \App\Support\Qty::format($p->quantity, $p->sparePart?->unit) . ' × ' . ServiceSummaryHtml::rupiah((float) $p->unit_price),
                                     'total' => (float) $p->subtotal,
                                 ])->all(),
                                 (float) $record->transport_fee,

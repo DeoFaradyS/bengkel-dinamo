@@ -24,7 +24,8 @@
 <body>
     @php
         $logo = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path('images/logo-dinamo.png')));
-        $tanda = fn (int $n) => $n > 0 ? '+' . $n : (string) $n;
+        $q = fn ($n) => \App\Support\Qty::format($n);
+        $tanda = fn ($n) => ($n > 0 ? '+' : '') . \App\Support\Qty::format($n);
     @endphp
 
     <table class="header">
@@ -40,14 +41,14 @@
         </tr>
     </table>
 
-    <p class="muted" style="margin: 0 0 10px;">Mutasi persediaan suku cadang. Satuan mengikuti nama barang (contoh set, kg), selain itu per biji. Stok akhir = stok awal + masuk - keluar + penyesuaian.</p>
+    <p class="muted" style="margin: 0 0 10px;">Mutasi persediaan suku cadang. Setiap angka memakai satuan di kolom Satuan. Stok akhir = stok awal + masuk - keluar + penyesuaian. Ringkasan menghitung jenis barang, karena jumlah barang beda satuan tidak dijumlahkan.</p>
 
     <table class="cards" style="width: 100%; border-collapse: collapse; margin-bottom: 14px;">
         <tr>
-            <td><div class="muted">Barang masuk</div><div class="big">{{ $totals['in'] }}</div></td>
-            <td><div class="muted">Barang keluar</div><div class="big">{{ $totals['out'] }}</div></td>
-            <td><div class="muted">Penyesuaian</div><div class="big">{{ $tanda($totals['adjustment']) }}</div></td>
-            <td><div class="muted">Stok akhir</div><div class="big">{{ $totals['closing'] }}</div></td>
+            <td><div class="muted">Jenis barang masuk</div><div class="big">{{ $totals['in'] }}</div></td>
+            <td><div class="muted">Jenis barang keluar</div><div class="big">{{ $totals['out'] }}</div></td>
+            <td><div class="muted">Jenis disesuaikan</div><div class="big">{{ $totals['adjustment'] }}</div></td>
+            <td><div class="muted">Jumlah jenis barang</div><div class="big">{{ $totals['total'] }}</div></td>
         </tr>
     </table>
 
@@ -63,6 +64,7 @@
                 <th class="right">Keluar</th>
                 <th class="right">Penyesuaian</th>
                 <th class="right">Stok akhir</th>
+                <th>Satuan</th>
             </tr>
         </thead>
         <tbody>
@@ -71,23 +73,16 @@
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ $r['code'] }}</td>
                     <td>{{ $r['name'] }}{{ $r['archived'] ? ' (diarsip)' : '' }}</td>
-                    <td class="right">{{ $r['opening'] }}</td>
-                    <td class="right">{{ $r['in'] }}</td>
-                    <td class="right">{{ $r['out'] }}</td>
+                    <td class="right">{{ $q($r['opening']) }}</td>
+                    <td class="right">{{ $q($r['in']) }}</td>
+                    <td class="right">{{ $q($r['out']) }}</td>
                     <td class="right {{ $r['adjustment'] < 0 ? 'minus' : '' }}">{{ $tanda($r['adjustment']) }}</td>
-                    <td class="right"><strong>{{ $r['closing'] }}</strong></td>
+                    <td class="right"><strong>{{ $q($r['closing']) }}</strong></td>
+                    <td>{{ $r['unit'] }}</td>
                 </tr>
             @empty
-                <tr><td colspan="8" class="muted" style="text-align: center;">Belum ada suku cadang</td></tr>
+                <tr><td colspan="9" class="muted" style="text-align: center;">Belum ada suku cadang</td></tr>
             @endforelse
-            <tr class="total">
-                <td colspan="3">Jumlah</td>
-                <td class="right">{{ $totals['opening'] }}</td>
-                <td class="right">{{ $totals['in'] }}</td>
-                <td class="right">{{ $totals['out'] }}</td>
-                <td class="right">{{ $tanda($totals['adjustment']) }}</td>
-                <td class="right">{{ $totals['closing'] }}</td>
-            </tr>
         </tbody>
     </table>
 

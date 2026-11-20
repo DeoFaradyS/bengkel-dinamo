@@ -48,7 +48,7 @@ class LaporanStok extends Page implements HasTable
     public function table(Table $table): Table
     {
         $angka = fn(string $name, string $label) => TextColumn::make($name)->label($label)
-            ->numeric()
+            ->formatStateUsing(fn($state) => \App\Support\Qty::format($state))
             ->alignEnd()
             ->sortable();
 
@@ -80,9 +80,10 @@ class LaporanStok extends Page implements HasTable
                 $angka('in', 'Masuk'),
                 $angka('out', 'Keluar'),
                 $angka('adjustment', 'Penyesuaian')
-                    ->formatStateUsing(fn(int $state) => $state > 0 ? '+' . $state : (string) $state)
-                    ->color(fn(int $state) => $state < 0 ? 'danger' : null),
+                    ->formatStateUsing(fn($state) => ($state > 0 ? '+' : '') . \App\Support\Qty::format($state))
+                    ->color(fn($state) => $state < 0 ? 'danger' : null),
                 $angka('closing', 'Stok akhir')->weight('semibold'),
+                TextColumn::make('unit')->label('Satuan')->color('gray'),
             ])
             ->searchable()
             ->defaultSort('code')

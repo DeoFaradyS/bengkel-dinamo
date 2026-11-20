@@ -84,7 +84,7 @@ test('LSK-006: part diarsip hanya tampil kalau ada pergerakan di periode, kodeny
         ->and($baris)->toMatchArray(['code' => 'SP-91', 'archived' => true, 'out' => 2]);
 });
 
-test('LSK-007: kartu ringkasan menjumlahkan masuk, keluar, penyesuaian, dan stok akhir (jumlah barang)', function () {
+test('LSK-007: kartu ringkasan menghitung jenis barang (masuk, keluar, disesuaikan, total), bukan jumlah barang beda satuan', function () {
     $a = lskPart('2026-09-01 09:00:00', 10);
     lskPart('2026-11-02 09:00:00', 1);                                       // part baru: masuk 1
     lskGerak($a, '2026-11-03 09:00:00', 5, StockMovementType::Purchase, StockReason::Supplier);
@@ -95,10 +95,10 @@ test('LSK-007: kartu ringkasan menjumlahkan masuk, keluar, penyesuaian, dan stok
     $kartu = collect(LaporanStokKpi::cards(['range' => '01/11/2026 - 20/11/2026']))->pluck('value', 'label')->all();
 
     expect($kartu)->toBe([
-        'Barang masuk' => '6',
-        'Barang keluar' => '3',
-        'Penyesuaian' => '-1',
-        'Stok akhir' => '12',
+        'Jenis barang masuk' => '2',
+        'Jenis barang keluar' => '1',
+        'Jenis disesuaikan' => '1',
+        'Jumlah jenis barang' => '2',
     ]);
 });
 

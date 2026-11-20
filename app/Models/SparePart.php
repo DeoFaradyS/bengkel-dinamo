@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Casts\Quantity;
 use App\Enums\StockMovementType;
+use App\Enums\StockUnit;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -18,6 +20,7 @@ class SparePart extends Model
     protected $fillable = [
         'code',
         'name',
+        'unit',
         'photo',
         'category_id',
         'stock',
@@ -27,8 +30,9 @@ class SparePart extends Model
     ];
 
     protected $casts = [
-        'stock' => 'integer',
-        'min_stock' => 'integer',
+        'unit' => StockUnit::class,
+        'stock' => Quantity::class,
+        'min_stock' => Quantity::class,
         'price' => 'decimal:2',
     ];
 
@@ -66,11 +70,21 @@ class SparePart extends Model
         return $this->hasMany(StockMovement::class);
     }
 
-    public function addStock(int $quantity, StockMovementType $type, ?string $note = null, ?int $serviceId = null, ?StockReason $reason = null): StockMovement
+    /**
+     * Satu-satunya jalan mengubah stok (aturan 1). Jumlah boleh desimal hanya untuk satuan kg,
+     * meter, liter (aturan 33); satuan hitungan (pcs, set, pasang) harus bulat.
+     */
+    public function addStock(int|float $quantity, StockMovementType $type, ?string $note = null, ?int $serviceId = null, ?StockReason $reason = null): StockMovement
     {
         return DB::transaction(function () use ($quantity, $type, $note, $serviceId, $reason) {
             $part = static::lockForUpdate()->findOrFail($this->id);
-            $after = $part->stock + $quantity;
+            $quantity = round($quantity, 2);
+
+            if (! ($part->unit ?? StockUnit::Pcs)->allowsDecimal() && floor($quantity) != $quantity) {
+                throw new \RuntimeException("Jumlah {$part->name} harus bilangan bulat (satuan {$part->unit->label()}).");
+            }
+
+            $after = round($part->stock + $quantity, 2);
 
             if ($after < 0) {
                 throw new \RuntimeException("Stok {$part->name} tidak boleh di bawah 0. Sisa {$part->stock}.");
