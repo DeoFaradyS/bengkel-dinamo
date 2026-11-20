@@ -14,6 +14,10 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        // Pengirim WA (aturan 27): Fonnte kalau token diisi, selain itu mode log.
+        $this->app->bind(\App\Support\WhatsApp\WhatsAppSender::class, fn() => filled(config('services.fonnte.token'))
+            ? new \App\Support\WhatsApp\FonnteSender(config('services.fonnte.token'))
+            : new \App\Support\WhatsApp\LogSender());
         //
     }
 

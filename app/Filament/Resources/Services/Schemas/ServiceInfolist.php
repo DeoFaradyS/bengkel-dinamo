@@ -121,6 +121,22 @@ class ServiceInfolist
                             ->visible(fn($record) => filled($record->cancel_reason)),
                     ]),
 
+                // Catatan WhatsApp otomatis ke pelanggan (aturan 27), terbaru di atas.
+                Section::make('WhatsApp ke pelanggan')
+                    ->visible(fn($record) => $record->whatsappMessages()->exists())
+                    ->schema([
+                        TextEntry::make('wa_log')
+                            ->hiddenLabel()
+                            ->state(fn($record) => new HtmlString($record->whatsappMessages()->limit(10)->get()
+                                ->map(fn($m) => '<div style="display:flex;justify-content:space-between;gap:1rem;padding:.375rem 0;border-bottom:1px solid #f4f4f5;font-size:.875rem;">'
+                                    . '<span>' . e($m->event->getLabel()) . ' <span style="color:#a1a1aa;">' . e($m->created_at->translatedFormat('j M, H.i')) . '</span></span>'
+                                    . '<span style="font-weight:600;color:' . ($m->success ? ($m->sender === 'log' ? '#71717a' : '#15803d') : '#b91c1c') . ';" title="' . e((string) $m->detail) . '">'
+                                    . ($m->success ? ($m->sender === 'log' ? 'Mode log' : 'Terkirim') : 'Gagal') . '</span>'
+                                    . '</div>')
+                                ->implode('')))
+                            ->html(),
+                    ]),
+
                 Section::make('Ringkasan biaya')
                     ->schema([
                         TextEntry::make('ringkasan')

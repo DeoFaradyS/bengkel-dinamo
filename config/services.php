@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    // WhatsApp otomatis ke pelanggan (aturan 27). Kosong = mode log, pesan tidak dikirim.
+    'fonnte' => [
+        'token' => env('FONNTE_TOKEN'),
+    ],
+
 ];

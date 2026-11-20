@@ -64,6 +64,11 @@ class Service extends Model
         return $this->hasMany(ServiceItem::class);
     }
 
+    public function whatsappMessages(): HasMany
+    {
+        return $this->hasMany(WhatsappMessage::class)->latest();
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -74,6 +79,18 @@ class Service extends Model
         // Setiap servis dapat kode booking 6 angka yang unik (termasuk yang sudah diarsip).
         static::creating(function (Service $service) {
             $service->booking_code ??= self::newBookingCode();
+        });
+
+        // WA otomatis ke pelanggan saat status berubah (aturan 27). Dikirim setelah halaman selesai
+        // dimuat (jasa dan part sudah tersimpan, admin tidak menunggu). Di console dan tes langsung.
+        static::updated(function (Service $service) {
+            if (! $service->wasChanged('status') || ! in_array($service->status, \App\Actions\NotifyCustomerWhatsApp::EVENTS, true)) {
+                return;
+            }
+
+            $kirim = fn() => app(\App\Actions\NotifyCustomerWhatsApp::class)->handle($service);
+
+            app()->runningInConsole() ? $kirim() : app()->terminating($kirim);
         });
 
         static::saving(function (Service $service) {
