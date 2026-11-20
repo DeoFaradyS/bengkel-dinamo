@@ -131,6 +131,12 @@ class LaporanPendapatan extends Page implements HasTable
             ->paginated([10, 25, 50]);
     }
 
+    // Header sendiri supaya filter periode sejajar tombol Unduh PDF.
+    public function getHeader(): ?\Illuminate\Contracts\View\View
+    {
+        return view('filament.pages.laporan-pendapatan-header', ['page' => $this]);
+    }
+
     protected function getHeaderActions(): array
     {
         return [
