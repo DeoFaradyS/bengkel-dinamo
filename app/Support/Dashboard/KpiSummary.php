@@ -33,11 +33,13 @@ final class KpiSummary
                 self::percentChange($current->bookingsCount(), $previous->bookingsCount()),
                 'persen', true,
             ),
+            // Sejak 20 Nov 2026 "Menunggu konfirmasi" pindah ke bagian Hari ini (TodayStats).
+            // Penggantinya piutang saat ini: servis Selesai yang belum lunas, tidak terikat periode.
             [
-                'key' => 'pending',
-                'label' => 'Menunggu konfirmasi',
-                'value' => (string) ServiceMetrics::pendingNow(),
-                'description' => null,
+                'key' => 'unpaid',
+                'label' => 'Belum dibayar',
+                'value' => self::rupiah(($u = ServiceMetrics::unpaidNow())['total']),
+                'description' => $u['count'] . ' servis selesai belum lunas',
                 'trend' => null,
                 'positive' => null,
             ],

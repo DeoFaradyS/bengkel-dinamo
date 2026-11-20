@@ -37,3 +37,13 @@ it('INV-011: invoice memuat pelanggan, jasa, part, dan total', function () {
         ->toContain('Bearing 6203')
         ->toContain('Rp 250.000');
 });
+it('INV-013: invoice memuat status pembayaran Lunas beserta tanggalnya, atau Belum Lunas', function () {
+    $belum = Service::factory()->completed()->create();
+    $lunas = Service::factory()->completed()->create(['paid_at' => '2026-11-10 13:00:00']);
+
+    $render = fn (Service $s) => view('invoices.service', ['service' => $s->load(['items', 'serviceParts.sparePart']), 'invoiceNumber' => $s->invoiceNumber()])->render();
+
+    expect($render($belum))->toContain('Belum Lunas')
+        ->and($render($lunas))->toContain('Lunas, 10 November 2026, 13.00')
+        ->and($render($lunas))->not->toContain('Belum Lunas');
+});

@@ -16,11 +16,14 @@ function metRange(): ServiceMetrics
 
 function metSvc(ServiceStatus $status, string $scheduled = '2026-10-12 10:00:00', ?string $created = null, array $extra = []): Service
 {
+    // Sejak 20 Nov 2026 pendapatan memakai tanggal lunas: servis Selesai di sini dianggap lunas
+    // di tanggal jadwalnya, supaya tes lama tetap menguji hal yang sama.
     return Service::factory()->create(array_merge([
         'status' => $status,
         'scheduled_at' => $scheduled,
         'created_at' => $created ?? $scheduled,
         'booking_type' => BookingType::Workshop,
+        'paid_at' => $status === ServiceStatus::Completed ? $scheduled : null,
     ], $extra));
 }
 
@@ -178,4 +181,64 @@ it('MET-012: servis yang dihapus tidak ikut dihitung', function () {
         ->and($m->completedCount())->toBe(0)
         ->and($m->revenue())->toBe(0.0)
         ->and($m->topServices())->toBe([]);
+});
+
+/* ------------------------------------------------------------------ */
+/* MET: pendapatan dasar uang diterima (20 Nov 2026)                   */
+/* ------------------------------------------------------------------ */
+
+it('MET-013: servis Selesai yang belum lunas tidak dihitung sebagai pendapatan', function () {
+    metJob(metSvc(ServiceStatus::Completed, '2026-10-12 10:00:00', extra: ['paid_at' => null]), 'Belum bayar', 300000);
+    metJob(metSvc(ServiceStatus::Completed, '2026-10-13 10:00:00'), 'Sudah bayar', 100000);
+
+    expect(metRange()->revenue())->toEqualWithDelta(100000, 0.01)
+        ->and(metRange()->paidCount())->toBe(1);
+});
+
+it('MET-014: pendapatan ikut tanggal lunas, bukan tanggal jadwal', function () {
+    // Jadwal sebelum periode, tapi baru dibayar di dalam periode: masuk.
+    metJob(metSvc(ServiceStatus::Completed, '2026-10-05 10:00:00', extra: ['paid_at' => '2026-10-11 09:00:00']), 'A', 200000);
+    // Jadwal di periode, tapi dibayar sesudah periode: tidak masuk.
+    metJob(metSvc(ServiceStatus::Completed, '2026-10-14 10:00:00', extra: ['paid_at' => '2026-10-20 09:00:00']), 'B', 500000);
+
+    expect(metRange()->revenue())->toEqualWithDelta(200000, 0.01);
+});
+
+it('MET-015: rincian pendapatan memuat jasa, spare part, dan ongkos transport', function () {
+    $s = metSvc(ServiceStatus::Completed, '2026-10-12 10:00:00');
+    metJob($s, 'Servis dinamo', 150000);
+    $s->serviceParts()->create(['spare_part_id' => SparePart::factory()->create()->id, 'quantity' => 2, 'unit_price' => 50000]);
+    $s->forceFill(['transport_fee' => 20000])->saveQuietly();
+
+    expect(metRange()->revenueBreakdown())->toBe([
+        'jobs' => 150000.0,
+        'parts' => 100000.0,
+        'transport' => 20000.0,
+        'total' => 270000.0,
+        'count' => 1,
+    ]);
+});
+
+it('MET-016: belum dibayar = servis Selesai belum lunas, semua tanggal', function () {
+    metJob(metSvc(ServiceStatus::Completed, '2026-09-01 10:00:00', extra: ['paid_at' => null]), 'Lama', 100000);
+    metJob(metSvc(ServiceStatus::Completed, '2026-10-12 10:00:00', extra: ['paid_at' => null]), 'Baru', 50000);
+    metJob(metSvc(ServiceStatus::Completed, '2026-10-12 10:00:00'), 'Lunas', 999999);
+
+    $u = ServiceMetrics::unpaidNow();
+
+    expect($u['total'])->toEqualWithDelta(150000, 0.01)
+        ->and($u['count'])->toBe(2);
+});
+
+it('MET-017: grafik pendapatan per hari untuk periode pendek, per bulan untuk periode panjang', function () {
+    metJob(metSvc(ServiceStatus::Completed, '2026-10-12 10:00:00'), 'A', 100000);
+
+    $harian = metRange()->revenueSeries();
+    $tahunan = (new ServiceMetrics(Carbon::parse('2026-01-01'), Carbon::parse('2026-12-31')))->revenueSeries();
+
+    expect($harian['unit'])->toBe('day')
+        ->and($harian['values'])->toHaveCount(7)
+        ->and(array_sum($harian['values']))->toEqualWithDelta(100000, 0.01)
+        ->and($tahunan['unit'])->toBe('month')
+        ->and($tahunan['values'])->toHaveCount(12);
 });

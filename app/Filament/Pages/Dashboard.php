@@ -6,7 +6,10 @@ use App\Filament\Widgets\KpiOverview;
 use App\Filament\Widgets\StatusChart;
 use App\Filament\Widgets\TopPartsChart;
 use App\Filament\Widgets\TopServicesChart;
-use App\Filament\Widgets\TrendChart;
+use App\Filament\Widgets\RevenueChart;
+use App\Filament\Widgets\TodaySchedule;
+use App\Filament\Widgets\TodayStats;
+use Filament\Schemas\Components\Livewire;
 use App\Filament\Widgets\TypeChart;
 use App\Support\Dashboard\DashboardPeriod;
 use Filament\Pages\Dashboard as BaseDashboard;
@@ -22,8 +25,13 @@ class Dashboard extends BaseDashboard
 
     public function content(Schema $schema): Schema
     {
+        // Aturan 24: bagian "Hari ini" (kondisi saat ini, tanpa filter) di atas, lalu bagian
+        // "Kinerja periode" dengan filter tanggal tepat di atasnya.
         return $schema->components([
             View::make('filament.pages.dashboard-top')->columnSpanFull(),
+            Livewire::make(TodayStats::class)->key('today-stats')->columnSpanFull(),
+            Livewire::make(TodaySchedule::class)->key('today-schedule')->columnSpanFull(),
+            View::make('filament.pages.dashboard-period')->columnSpanFull(),
             $this->getWidgetsContentComponent(),
         ]);
     }
@@ -61,7 +69,7 @@ class Dashboard extends BaseDashboard
     {
         return [
             KpiOverview::class,
-            TrendChart::class,
+            RevenueChart::class,
             StatusChart::class,
             TypeChart::class,
             TopServicesChart::class,

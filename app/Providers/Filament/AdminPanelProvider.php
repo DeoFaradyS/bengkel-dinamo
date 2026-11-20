@@ -52,6 +52,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->navigationGroups([
                 'Operasional',
+                'Laporan',
                 'Katalog',
                 'Pengaturan',
             ])

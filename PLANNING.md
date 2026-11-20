@@ -59,8 +59,8 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara. Disaring
 **Antrean berikutnya (disepakati 20 Nov 2026, urut):**
 
 - [x] 1. (Selesai 20 Nov 2026, MTR-001..004) Isian Montir di form servis memakai kolom `services.mechanic_names` yang sudah ada (teks bebas, tanpa tabel montir). Muncul mulai Dikonfirmasi (tidak wajib; awalnya hanya saat Dikerjakan, diubah 20 Nov), tampil di detail admin, **tidak** tampil ke pelanggan (Cek Booking, Riwayat, invoice).
-- [ ] 2. Laporan Pendapatan, menu sendiri di panel. Dasar hitung **uang diterima** (servis Selesai yang sudah lunas, menurut `paid_at`), standar untuk usaha kecil yang bayar tunai. Isi: filter periode dan tipe layanan; ringkasan (total pendapatan, jumlah servis lunas, rata-rata per servis, belum dibayar terpisah); rincian sumber (jasa, spare part, transport, persen); tabel per servis (tanggal lunas, kode, pelanggan, tipe, jasa, part, transport, total, baris jumlah); unduh PDF berkop logo. Tidak memuat pengeluaran, laba/rugi, atau modal part (pengembangan lanjutan). Opsional: unduh CSV. Wajib tes (uang).
-- [ ] 3. Dashboard ditata ulang (dikerjakan bersama nomor 2 karena memakai hitungan yang sama): bagian **Hari ini** tanpa filter (Jadwal hari ini, Menunggu konfirmasi, Stok menipis) di atas; filter periode pindah ke atas bagian **Kinerja periode**; grafik Tren Booking diganti **Grafik pendapatan** batang (per hari, otomatis per minggu/bulan kalau periode panjang); jumlah booking cukup jadi angka KPI. Samakan Pendapatan di KPI dengan dasar uang diterima (sekarang `ServiceMetrics::revenue()` tanpa transport dan menghitung servis belum lunas). Opsional nanti: grafik booking per hari dalam seminggu.
+- [x] 2. (Selesai 20 Nov 2026, aturan 23, LAP-001..005) Laporan Pendapatan, menu sendiri di panel. Dasar hitung **uang diterima** (servis Selesai yang sudah lunas, menurut `paid_at`), standar untuk usaha kecil yang bayar tunai. Isi: filter periode dan tipe layanan; ringkasan (total pendapatan, jumlah servis lunas, rata-rata per servis, belum dibayar terpisah); rincian sumber (jasa, spare part, transport, persen); tabel per servis (tanggal lunas, kode, pelanggan, tipe, jasa, part, transport, total, baris jumlah); unduh PDF berkop logo. Tidak memuat pengeluaran, laba/rugi, atau modal part (pengembangan lanjutan). Opsional: unduh CSV. Wajib tes (uang).
+- [x] 3. (Selesai 20 Nov 2026, aturan 24, HRI-001..003) Dashboard ditata ulang (dikerjakan bersama nomor 2 karena memakai hitungan yang sama): bagian **Hari ini** tanpa filter (Jadwal hari ini, Menunggu konfirmasi, Stok menipis) di atas; filter periode pindah ke atas bagian **Kinerja periode**; grafik Tren Booking diganti **Grafik pendapatan** batang (per hari, otomatis per minggu/bulan kalau periode panjang); jumlah booking cukup jadi angka KPI. Samakan Pendapatan di KPI dengan dasar uang diterima (sekarang `ServiceMetrics::revenue()` tanpa transport dan menghitung servis belum lunas). Opsional nanti: grafik booking per hari dalam seminggu.
 - [ ] 4. Bersih-bersih tes: daftar calon tes yang dihapus (tampilan saja atau dobel), pemilik memilih, ID dicatat "jangan dipakai ulang".
 - [ ] 5. WA otomatis lewat Fonnte (paket gratis): pesan saat status menjadi Dikonfirmasi, Selesai, Dibatalkan, Ditolak. Pengirim bisa ditukar (log di lokal dan tes), dikirim `afterResponse`, gagal kirim tidak menggagalkan status, catatan terkirim/gagal, tombol manual "Kabari via WA" sebagai cadangan. Pemilik menyiapkan nomor khusus, akun Fonnte, dan token di `.env`.
 - [x] Tandai Lunas dan Invoice dipindah dari baris tabel servis ke halaman detail saja (20 Nov 2026, INV-012; INV-006..008 dihapus, INV-009 lewat detail). Aksi massal Tandai Lunas di tabel: tidak dibuat (opsional).
@@ -76,7 +76,7 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara. Disaring
 - [x] Cek Booking: tampilkan alasan batal (D3, 17 Nov 2026).
 - [ ] Booking yang terisi jasa pilihan dari halaman detail (D5).
 - [ ] Slug untuk URL jasa (D4).
-- [ ] Invoice PDF memuat status Lunas atau Belum Lunas (opsional).
+- [x] Invoice PDF memuat status Lunas atau Belum Lunas (20 Nov 2026, INV-013).
 - [ ] Profil: ganti password (opsional, belum diminta).
 - [ ] Sinkronkan `PROJECT_RULES.md` setiap ada perubahan beranda atau aturan.
 - [x] Tabel Servis: kolom Total dan Status bersyarat per tab (D9). Selesai 17 Nov 2026. Tampil atau sembunyi kolom dicek manual (aturan tes bagian 10).
@@ -146,7 +146,7 @@ Daftar dari pemilik. Per 10 Nov 2026 (siang): tahap 1 sampai 3 selesai, 530 tes 
 - [x] Rapikan dan organisasi tes (`tests/README.md` dibuat 10 Nov 2026; sisa: ID kembar dan judul usang, lihat catatan di README): tiap berkas dan ID tes punya penjelasan satu baris "mengetes apa". Usul: tabel `tests/README.md` berisi kode modul (BKG, LOC, TIP, PRC, JSA, ANT, AUTH, SEC, LNS, RWY, PRF, dst), berkas, dan aturan bisnis yang dicek.
 - [x] Perbarui laporan skripsi: banyak perubahan (landing, jasa, ERD, login customer, area customer, antrian, Cek Booking, Tandai Lunas).
 - [ ] Notifikasi WhatsApp ke pelanggan: opsional, dikerjakan belakangan kalau sempat.
-- [ ] Siapkan bahan bimbingan: demo (beranda, `/layanan`, Cek Booking, upload foto jasa, login customer, booking login, Riwayat dan detail, Cetak Invoice, Profil, Tandai Lunas di panel), angka tes (602), daftar migrasi yang berubah, keputusan yang butuh jawaban (D1, D3, D8).
+- [ ] Siapkan bahan bimbingan: demo (beranda, `/layanan`, Cek Booking, upload foto jasa, login customer, booking login, Riwayat dan detail, Cetak Invoice, Profil, Tandai Lunas di panel), angka tes (615), daftar migrasi yang berubah, keputusan yang butuh jawaban (D1, D3, D8).
 
 ## F. Rencana perubahan database dan fitur turunannya (diperbarui 10 Nov 2026, siang)
 

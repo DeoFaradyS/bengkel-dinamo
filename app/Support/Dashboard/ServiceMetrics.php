@@ -18,9 +18,11 @@ use Illuminate\Support\Facades\DB;
  *
  * Aturan hitung:
  * - Booking masuk: tanggal dibuat (created_at).
- * - Servis selesai dan pendapatan: status Selesai, menurut tanggal jadwal
- *   (sistem belum menyimpan tanggal selesai).
- * - Pendapatan: harga jasa + (jumlah x harga) spare part.
+ * - Servis selesai: status Selesai, menurut tanggal jadwal (sistem belum menyimpan tanggal selesai).
+ * - Pendapatan (sejak 20 Nov 2026): dasar uang diterima, yaitu servis Selesai yang sudah lunas,
+ *   menurut tanggal lunas (paid_at). Nilainya jasa + (jumlah x harga) spare part + ongkos transport,
+ *   sama dengan total servis (aturan 7). Servis Selesai yang belum lunas tidak dihitung sebagai
+ *   pendapatan, tapi ditampilkan terpisah sebagai "belum dibayar".
  */
 final class ServiceMetrics
 {
@@ -69,19 +71,122 @@ final class ServiceMetrics
 
     public function revenue(): float
     {
-        $ids = $this->completedQuery()->select('id');
+        return $this->revenueBreakdown()['total'];
+    }
+
+    public function paidCount(): int
+    {
+        return $this->paidQuery()->count();
+    }
+
+    /**
+     * Rincian pendapatan periode ini (servis lunas menurut tanggal lunas).
+     *
+     * @return array{jobs: float, parts: float, transport: float, total: float, count: int}
+     */
+    public function revenueBreakdown(?string $bookingType = null): array
+    {
+        $paid = $this->paidQuery()->when($bookingType, fn(Builder $q) => $q->where('booking_type', $bookingType));
+
+        return self::sumServices($paid);
+    }
+
+    /** Rata-rata nilai per servis lunas di periode, nol kalau belum ada. */
+    public function averageValue(): float
+    {
+        $count = $this->paidCount();
+
+        return $count === 0 ? 0.0 : $this->revenue() / $count;
+    }
+
+    /**
+     * Servis Selesai yang belum lunas saat ini (piutang), tidak terikat periode.
+     *
+     * @return array{jobs: float, parts: float, transport: float, total: float, count: int}
+     */
+    public static function unpaidNow(?string $bookingType = null): array
+    {
+        return self::sumServices(Service::query()
+            ->where('status', ServiceStatus::Completed->value)
+            ->whereNull('paid_at')
+            ->when($bookingType, fn(Builder $q) => $q->where('booking_type', $bookingType)));
+    }
+
+    /**
+     * Grafik pendapatan: per hari untuk periode sampai 31 hari, per minggu sampai 92 hari,
+     * selebihnya per bulan, supaya batangnya tidak terlalu banyak.
+     *
+     * @return array{unit: string, labels: list<string>, values: list<float>}
+     */
+    public function revenueSeries(): array
+    {
+        $unit = $this->days() <= 31 ? 'day' : ($this->days() <= 92 ? 'week' : 'month');
+
+        $rows = $this->paidQuery()->get(['id', 'paid_at', 'transport_fee'])->load(['items', 'serviceParts']);
+
+        $bucketOf = fn(CarbonImmutable $d) => match ($unit) {
+            'day' => $d->toDateString(),
+            'week' => $d->startOfWeek()->toDateString(),
+            default => $d->format('Y-m'),
+        };
+
+        $sums = [];
+        foreach ($rows as $s) {
+            $key = $bucketOf(CarbonImmutable::instance($s->paid_at));
+            $sums[$key] = ($sums[$key] ?? 0) + $s->grand_total;
+        }
+
+        $labels = [];
+        $values = [];
+        $cursor = match ($unit) {
+            'day' => $this->from,
+            'week' => $this->from->startOfWeek(),
+            default => $this->from->startOfMonth(),
+        };
+
+        while ($cursor <= $this->to) {
+            $key = $bucketOf($cursor);
+            $labels[] = match ($unit) {
+                'day' => $cursor->translatedFormat('j M'),
+                'week' => $cursor->translatedFormat('j M'),
+                default => $cursor->translatedFormat('M Y'),
+            };
+            $values[] = (float) ($sums[$key] ?? 0);
+            $cursor = match ($unit) {
+                'day' => $cursor->addDay(),
+                'week' => $cursor->addWeek(),
+                default => $cursor->addMonth(),
+            };
+        }
+
+        return ['unit' => $unit, 'labels' => $labels, 'values' => $values];
+    }
+
+    /** @return array{jobs: float, parts: float, transport: float, total: float, count: int} */
+    private static function sumServices(Builder $services): array
+    {
+        $ids = (clone $services)->select('id');
 
         $jobs = (float) ServiceItem::query()->whereIn('service_id', $ids)->sum('price');
         $parts = (float) ServicePart::query()->whereIn('service_id', $ids)->sum(DB::raw('quantity * unit_price'));
+        $transport = (float) (clone $services)->sum('transport_fee');
 
-        return $jobs + $parts;
+        return [
+            'jobs' => $jobs,
+            'parts' => $parts,
+            'transport' => $transport,
+            'total' => $jobs + $parts + $transport,
+            'count' => (clone $services)->count(),
+        ];
     }
 
-    public function averageValue(): float
+    /** Servis lunas dengan tanggal lunas di periode ini (dasar pendapatan). */
+    public function paidQuery(): Builder
     {
-        $count = $this->completedCount();
-
-        return $count === 0 ? 0.0 : $this->revenue() / $count;
+        return Service::query()
+            ->where('status', ServiceStatus::Completed->value)
+            ->whereNotNull('paid_at')
+            ->whereBetween('paid_at', [$this->from, $this->to]);
     }
 
     /** Persen: (dibatalkan + ditolak) dibagi booking masuk. */

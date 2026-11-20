@@ -1,6 +1,6 @@
 # Peta Tes: SIM Bengkel Cak Budi Dinamo
 
-Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (602 lulus per 20 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
+Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (615 lulus per 20 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
 
 Jalankan: `php artisan test`, atau satu modul: `php artisan test --filter=Riwayat`.
 
@@ -29,7 +29,7 @@ Catatan umum:
 | --- | --- | --- | --- |
 | FRM-001..003 | ServiceFormTest | Field wajib, HP maks 16 karakter | |
 | DTL-001..005 | ServiceDetailTest | Detail: Total Servis, alasan hanya untuk Dibatalkan, alamat dan link peta hanya Home Service | |
-| INV-001..005, 009..012 (006..008 dihapus 20 Nov, jangan dipakai ulang) | ServiceInvoiceTest, ServiceInvoiceContentTest, ServiceInvoicePartTest | Nomor invoice, PDF jadi, tombol Invoice hanya untuk Selesai, part terhapus tetap bisa dicetak | |
+| INV-001..005, 009..013 (006..008 dihapus 20 Nov, jangan dipakai ulang; INV-013 status pembayaran) | ServiceInvoiceTest, ServiceInvoiceContentTest, ServiceInvoicePartTest | Nomor invoice, PDF jadi, tombol Invoice hanya untuk Selesai, part terhapus tetap bisa dicetak | |
 | TSJ-001..017 (004 dua kali) | ServiceItemTest | Baris jasa: salin nama dan harga, harga boleh diubah, harga negatif atau kosong ditolak, nota lama tidak ikut perubahan katalog, total jasa | aturan 6, 7 |
 | SPF-001..015 | ServicePartTest | Baris part: qty tidak melebihi stok, harga satuan disalin dan terkunci, part ganda ditolak, subtotal dan grand total | aturan 6, 7 |
 | HPU-001..007 | ServicePhoneTest | Satu HP satu servis aktif, +62 dan 08 dianggap sama, HP disimpan `08...` | aturan 4 |
@@ -90,9 +90,11 @@ Catatan umum:
 | Kode | Berkas | Yang dicek | Aturan |
 | --- | --- | --- | --- |
 | DSH-001..019 | DashboardPeriodTest | Filter periode, preset, rentang sendiri, pembanding | US-08 |
-| KPI-001..008, 010..011 | KpiSummaryTest | Empat kartu KPI dan tren dibanding periode lalu | US-08 |
-| MET-001..012 | ServiceMetricsTest | Hitungan booking, selesai, pendapatan, pembatalan, tren, komposisi, terlaris | US-08 |
-| TRD-001..002 | TrendChartTest | Grafik tren | US-08 |
+| KPI-001..008, 010..011 | KpiSummaryTest | Empat kartu KPI dan tren dibanding periode lalu; sejak 20 Nov kartu keempat Belum dibayar (KPI-008), Menunggu dihitung lewat pendingNow (KPI-007) | US-08, aturan 24 |
+| MET-001..017 | ServiceMetricsTest | Hitungan booking, selesai, pendapatan (sejak 20 Nov dasar uang diterima: lunas menurut tanggal lunas, termasuk transport, belum dibayar terpisah, grafik per hari/bulan: MET-013..017), pembatalan, tren, komposisi, terlaris | US-08 |
+| TRD-001..002 | TrendChartTest | Grafik pendapatan (sejak 20 Nov menggantikan grafik tren booking) | US-08, aturan 24 |
+| HRI-001..003 | Dashboard/TodayTest | Dasbor Hari ini: jadwal hari ini tanpa yang batal atau hari lain, angka menunggu/servis hari ini/stok menipis, dasbor memuat bagian Hari ini | aturan 24 |
+| LAP-001..005 | Reports/LaporanPendapatanTest | Laporan Pendapatan: halaman terbuka, hanya servis lunas di periode, filter tipe, ringkasan jasa+part+transport dan belum dibayar, unduh PDF | aturan 23 |
 | CMP-001..005 | CompositionChartsTest | Donat status dan tipe, jasa dan part terlaris | US-08 |
 
 ## Jasa dan kategori

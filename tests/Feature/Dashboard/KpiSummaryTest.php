@@ -23,11 +23,13 @@ function kpiCards(): array
 
 function kpiSvc(ServiceStatus $status, string $date): Service
 {
+    // Servis Selesai dianggap lunas di tanggal jadwalnya (pendapatan memakai tanggal lunas).
     return Service::factory()->create([
         'status' => $status,
         'scheduled_at' => $date.' 10:00:00',
         'created_at' => $date.' 10:00:00',
         'booking_type' => BookingType::Workshop,
+        'paid_at' => $status === ServiceStatus::Completed ? $date.' 13:00:00' : null,
     ]);
 }
 
@@ -40,8 +42,9 @@ function kpiJob(Service $service, float $price): void
     ]);
 }
 
+// Sejak 20 Nov 2026 kartu keempat "Belum dibayar" (unpaid), Menunggu pindah ke bagian Hari ini.
 it('KPI-001: empat kartu dengan urutan tetap', function () {
-    expect(array_keys(kpiCards()))->toBe(['revenue', 'completed', 'bookings', 'pending']);
+    expect(array_keys(kpiCards()))->toBe(['revenue', 'completed', 'bookings', 'unpaid']);
 });
 
 it('KPI-002: booking naik dibanding periode lalu', function () {
@@ -110,21 +113,27 @@ it('KPI-006: pendapatan dalam rupiah, jasa + spare part, dibanding periode lalu'
         ->and($c['description'])->toBe('Naik 100% dari periode lalu');
 });
 
+// Sejak 20 Nov 2026 angka ini tampil di bagian Hari ini (TodayStats), dihitung lewat pendingNow().
 it('KPI-007: menunggu konfirmasi dihitung saat ini, tidak ikut periode', function () {
     kpiSvc(ServiceStatus::Pending, '2026-09-01');   // di luar periode, tetap dihitung
     kpiSvc(ServiceStatus::Pending, '2026-10-12');
     kpiSvc(ServiceStatus::Pending, '2026-10-20');   // di luar periode, tetap dihitung
     kpiSvc(ServiceStatus::Confirmed, '2026-10-12'); // bukan Pending, tidak dihitung
 
-    expect(kpiCards()['pending']['value'])->toBe('3');
+    expect(ServiceMetrics::pendingNow())->toBe(3);
 });
 
-it('KPI-008: kartu menunggu konfirmasi tanpa tren dan tanpa keterangan', function () {
-    $c = kpiCards()['pending'];
+// Sejak 20 Nov 2026 menguji kartu Belum dibayar (pengganti kartu Menunggu konfirmasi).
+it('KPI-008: kartu belum dibayar menghitung piutang saat ini, tanpa tren', function () {
+    $belum = kpiSvc(ServiceStatus::Completed, '2026-09-01');
+    $belum->forceFill(['paid_at' => null])->saveQuietly();
+    kpiJob($belum, 75000);
 
-    expect($c['description'])->toBeNull()
-        ->and($c['trend'])->toBeNull()
-        ->and($c['positive'])->toBeNull();
+    $c = kpiCards()['unpaid'];
+
+    expect($c['value'])->toBe('Rp 75.000')
+        ->and($c['description'])->toBe('1 servis selesai belum lunas')
+        ->and($c['trend'])->toBeNull();
 });
 
 it('KPI-010: widget menampilkan keempat kartu', function () {
@@ -134,7 +143,7 @@ it('KPI-010: widget menampilkan keempat kartu', function () {
         ->assertSee('Pendapatan')
         ->assertSee('Servis selesai')
         ->assertSee('Booking masuk')
-        ->assertSee('Menunggu konfirmasi')
+        ->assertSee('Belum dibayar')
         ->assertDontSee('Rata-rata nilai servis')
         ->assertDontSee('Tingkat pembatalan');
 });

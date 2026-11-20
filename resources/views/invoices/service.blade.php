@@ -111,6 +111,12 @@
             <td>: Selesai</td>
         </tr>
         <tr>
+            <td></td>
+            <td></td>
+            <td>Pembayaran</td>
+            <td>: {{ $service->paid_at ? 'Lunas, ' . $service->paid_at->translatedFormat('j F Y, H.i') : 'Belum Lunas' }}</td>
+        </tr>
+        <tr>
             <td>Keluhan</td>
             <td colspan="3">: {{ $service->complaint }}</td>
         </tr>
