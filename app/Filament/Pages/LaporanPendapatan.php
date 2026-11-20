@@ -2,22 +2,20 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Pages\Concerns\LaporanPeriode;
 use App\Filament\Resources\Services\ServiceResource;
-use App\Support\Dashboard\DashboardPeriod;
 use App\Support\Dashboard\ServiceMetrics;
 use Barryvdh\DomPDF\Facade\Pdf;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Pages\Dashboard\Concerns\HasFiltersForm;
 use Filament\Pages\Page;
-use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\DB;
-use Malzariey\FilamentDaterangepickerFilter\Fields\DateRangePicker;
 use UnitEnum;
 
 /**
@@ -31,8 +29,9 @@ use UnitEnum;
  */
 class LaporanPendapatan extends Page implements HasTable
 {
-    use HasFiltersForm, InteractsWithTable {
+    use HasFiltersForm, InteractsWithTable, LaporanPeriode {
         InteractsWithTable::normalizeTableFilterValuesFromQueryString insteadof HasFiltersForm;
+        LaporanPeriode::filtersForm insteadof HasFiltersForm;
     }
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBanknotes;
@@ -44,43 +43,6 @@ class LaporanPendapatan extends Page implements HasTable
     protected string $view = 'filament.pages.laporan-pendapatan';
 
     public const RECAP_UNITS = ['day' => 'Hari', 'week' => 'Minggu', 'month' => 'Bulan'];
-
-    // Sama dengan filter dasbor: satu date picker ringkas tanpa label.
-    public function filtersForm(Schema $schema): Schema
-    {
-        return $schema
-            ->columns(['default' => 1, 'sm' => 1, 'md' => 1, 'lg' => 1, 'xl' => 1, '2xl' => 1])
-            ->components([
-                DateRangePicker::make('range')
-                    ->hiddenLabel()
-                    ->extraAttributes(['style' => 'width:fit-content;max-width:100%;'], merge: true)
-                    ->extraInputAttributes(['style' => 'field-sizing:content;min-width:8rem;'], merge: true)
-                    ->prefixIcon('heroicon-m-calendar-days')
-                    ->format('d/m/Y')
-                    ->ranges(DashboardPeriod::ranges())
-                    ->useRangeLabels()
-                    ->startDate(now()->startOfMonth())
-                    ->endDate(now())
-                    ->maxDate(now())
-                    ->firstDayOfWeek(1)
-                    ->autoApply()
-                    ->live(),
-            ]);
-    }
-
-    public function metrics(): ServiceMetrics
-    {
-        return DashboardPeriod::metrics(['range' => $this->filters['range'] ?? null]);
-    }
-
-    public function periodLabel(): string
-    {
-        $m = $this->metrics();
-
-        return $m->from()->isSameDay($m->to())
-            ? $m->from()->translatedFormat('j F Y')
-            : $m->from()->translatedFormat('j F Y') . ' - ' . $m->to()->translatedFormat('j F Y');
-    }
 
     /** @return array{jobs: float, parts: float, transport: float, total: float, count: int} */
     public function summary(): array
@@ -129,18 +91,6 @@ class LaporanPendapatan extends Page implements HasTable
             ->emptyStateHeading('Belum ada pendapatan di periode ini')
             ->emptyStateDescription('Pendapatan dihitung dari servis yang sudah ditandai lunas.')
             ->paginated([10, 25, 50]);
-    }
-
-    // Breadcrumb grup menu > nama menu, seperti halaman lain (contoh Servis > Daftar).
-    public function getBreadcrumbs(): array
-    {
-        return [static::$navigationGroup, static::$navigationLabel];
-    }
-
-    // Header sendiri supaya filter periode sejajar tombol Unduh PDF.
-    public function getHeader(): ?\Illuminate\Contracts\View\View
-    {
-        return view('filament.pages.laporan-pendapatan-header', ['page' => $this]);
     }
 
     protected function getHeaderActions(): array

@@ -2,7 +2,7 @@
 
 Konteks proyek skripsi untuk AI. Baca seluruh file sebelum menjawab. Bagian "Aturan wajib untuk AI" mengikat. Jika file ini bertentangan dengan kode di konteks, kode yang benar: sebutkan pertentangannya, jangan diam-diam memilih.
 
-Daftar pekerjaan yang belum selesai, bug yang diketahui, dan keputusan terbuka ada di `PLANNING.md`. Baca juga file itu kalau tugasnya menyangkut pekerjaan lanjutan. Terakhir disinkronkan: 17 November 2026 (621 tes lulus).
+Daftar pekerjaan yang belum selesai, bug yang diketahui, dan keputusan terbuka ada di `PLANNING.md`. Baca juga file itu kalau tugasnya menyangkut pekerjaan lanjutan. Terakhir disinkronkan: 17 November 2026 (629 tes lulus).
 
 ## 1. Tujuan sistem
 
@@ -50,7 +50,7 @@ Metode: prototype, 4 iterasi. Pengujian: Black Box.
 
 **Iterasi 4: Laporan**
 - [x] US-08 Dashboard: KPI, tren, top part, top layanan, tipe, status (`app/Support/Dashboard/*`, `app/Filament/Widgets/*`)
-- [ ] Rekap stok per periode: belum ada. Yang ada baru riwayat per sparepart (`StockMovementsRelationManager`), bukan rekap seluruh stok per periode.
+- [x] Rekap stok per periode: Laporan Stok / mutasi persediaan (21 Nov 2026, aturan 31). Riwayat per sparepart (`StockMovementsRelationManager`) tetap sebagai kartu stok.
 
 **Akun customer (tambahan di luar PRD awal, selesai 9 sampai 10 Nov 2026)**
 - [x] Daftar dan login (`RegisterController`, `LoginController`, throttle daftar 10 per menit, masuk 5 per menit). Tes AUTH-001..020.
@@ -189,6 +189,7 @@ Tidak dibuat (pengembangan lanjutan): tabel `statuses`, tabel `customers`, OTP, 
 28. **Link invoice di WA Selesai** (20 Nov 2026). Pesan Selesai memuat link invoice PDF (`NotifyCustomerWhatsApp::invoiceLink`, rute `invoice.public` = `/invoice/{id}`), karena paket gratis Fonnte tidak bisa melampirkan file. Link bertanda tangan (`URL::temporarySignedRoute`, middleware `signed`) dan berlaku 30 hari: tanpa tanda tangan, diubah ke servis lain, atau kedaluwarsa ditolak 403; bisa dibuka tanpa login; servis yang bukan Selesai 404; dibatasi `throttle:30,1`. Alamat link mengikuti alamat yang dipakai admin saat mengubah status (APP_URL kalau dari console), jadi baru bisa dibuka dari HP pelanggan kalau aplikasi online atau HP di jaringan yang sama. Tes: INV-014..016, WAO-010.
 29. **Template pesan WhatsApp** (20 Nov 2026). Semua pesan memakai sapaan **Bapak/Ibu**, label tebal (`*teks*`), dan baris terpisah. Pesan konfirmasi pelanggan ke bengkel (tombol "Konfirmasi ke WhatsApp", `BookingForm`): kode, nama, jadwal, jenis, alamat (hanya Panggil Montir), keluhan. Pesan otomatis (aturan 27): **Dikonfirmasi** = kode, jadwal, jenis, lalu link Google Maps bengkel (Ke Bengkel, kalau `maps_url` diisi) atau alamat pelanggan (Panggil Montir), link Cek Booking, ajakan membalas untuk ganti jadwal atau batal; **Selesai** = kode, total, status pembayaran (Lunas / Belum lunas), link invoice (aturan 28); **Ditolak / Dibatalkan** = kode, alasan, link booking ulang. Tidak ada pesan untuk Dikerjakan (hemat kuota). Rincian jasa dan part tidak ditulis di pesan, cukup di invoice. Tes: WAO-011..012, CEK (link konfirmasi).
 30. **Susunan Laporan Pendapatan** (20-21 Nov 2026, melengkapi aturan 23). Istilah awam karena pemilik bukan orang keuangan: **Pendapatan** (bukan omzet/uang masuk) dan **Belum dibayar** (bukan piutang), dengan catatan "belum dikurangi modal spare part". Pembagian peran: dasbor = operasional, Laporan Pendapatan = uang. **Filter** hanya periode, bentuknya sama dengan dasbor, letaknya di header sejajar tombol Unduh PDF (`getHeader()`, view `laporan-pendapatan-header`), dengan breadcrumb Laporan > Pendapatan seperti halaman lain; tanpa teks keterangan periode di halaman. **Halaman**: (1) 4 kartu gaya KPI dasbor (`App\Filament\Widgets\Laporan\LaporanKpi`): Pendapatan, Servis lunas, Rata-rata per servis (ikut periode), Belum dibayar (semua tanggal, jumlah servisnya di label); (2) tabel **Servis lunas** (kiri, 2/3 lebar; nama sama dengan kartu supaya istilahnya satu): tanggal bayar, kode, pelanggan, tipe, total saja (tanpa kolom jasa/part/transport, tanpa kolom pembayaran karena isinya pasti lunas), sejajar donat **Sumber pendapatan** (kanan, 1/3; jasa, spare part, transport dalam Rupiah), di layar sempit atas-bawah. Tidak ada tabel piutang, grafik jasa/part paling menghasilkan, atau tabel rekap di halaman (dicoba lalu dihapus 21 Nov). **PDF**: kartu yang sama, tabel sumber pendapatan, pendapatan per hari/minggu/bulan (kolom servis dan total, satuan otomatis dari panjang periode seperti grafik dasbor, `ServiceMetrics::autoUnit()`: sampai 31 hari per hari, sampai 92 hari per minggu, selebihnya per bulan; minggu Senin-Minggu, label dipotong ke batas periode), tabel servis lunas. Transport tetap dihitung di pendapatan. Tes: LAP-006..008, 010, 012 (LAP-003, 009, 011 dihapus).
+31. **Laporan Stok** (21 Nov 2026, `App\Filament\Pages\LaporanStok`, menu Laporan > Stok). Bentuk standar **laporan mutasi persediaan**, pasangan Laporan Pendapatan. Kolom: Kode, Nama barang, Stok awal, Masuk, Keluar, Penyesuaian, Stok akhir, Keterangan. Hitungan dari `stock_movements` (`App\Support\Reports\StockMutation`): stok awal = jumlah perubahan sebelum periode; Masuk = stok awal part baru (Opening) + beli/retur (Purchase); Keluar = dipakai servis (Usage); Penyesuaian = koreksi (rusak, hilang, salah hitung, lainnya) bertanda +/-; stok akhir = awal + masuk - keluar + penyesuaian. Keterangan "Hampir habis" kalau stok akhir <= stok minimal (sama dengan penanda merah di menu Spare Part). Semua part aktif tampil; part diarsip hanya kalau ada pergerakan di periode, kodenya tanpa akhiran -DEL. Baris membuka halaman part (riwayat stok = kartu stok). 4 kartu gaya dasbor: Barang masuk, Barang keluar, Penyesuaian, Hampir habis. Tanpa grafik (Spare Part Terlaris sudah ada di dasbor). Header, filter periode, dan breadcrumb sama dengan Laporan Pendapatan lewat trait `App\Filament\Pages\Concerns\LaporanPeriode` dan view `laporan-header`. PDF berisi kartu dan tabel yang sama. Batasan: satuan seragam (buah), nilai persediaan tidak dihitung karena harga beli tidak dicatat; stok opname sekaligus satu halaman = pengembangan lanjutan (koreksi per part dengan alasan sudah ada). Tes: LSK-001..008.
 
 ## 6. UX dan tampilan
 
@@ -221,7 +222,7 @@ Rincian dan usulan ada di `PLANNING.md`. Ringkasan:
 - Servis selesai tapi barang tidak diambil (`picked_up_at`) dan konfirmasi pelanggan akan datang: ditunda, maksudnya belum jelas.
 - Grace period no-show: sementara pemilik membatalkan manual.
 - Kedaluwarsa sparepart (`expired_at`): opsional.
-- Rekap stok per periode: belum diputuskan dibangun atau ditulis sebagai pengembangan lanjutan.
+- Rekap stok per periode: sudah dibangun (aturan 31). Pengembangan lanjutan: nilai persediaan (harga beli) dan stok opname sekaligus satu halaman.
 
 Sudah diputuskan (jangan dibuka lagi tanpa alasan baru): login customer dibangun dengan email + password, tanpa OTP dan tanpa tabel `customers`, satu pintu login `/masuk` (lihat aturan 14). Tamu tetap melihat status lewat Cek Booking (aturan 12). Pembayaran cuma tunai, dicatat lewat `paid_at` (aturan 13). Tanpa tabel `statuses`. Testimoni dicabut. Alamat dan jam buka tidak ditampilkan di section peta.
 
@@ -259,7 +260,7 @@ Tujuan: setiap perubahan langsung ketahuan kalau merusak fitur lain, tanpa menge
 - Gunakan factory yang sudah ada. Kalau factory belum ada, buat dulu, jangan mengisi kolom manual berulang. `UserFactory` punya state `owner()`.
 - Fitur baru: minimal satu tes jalur normal, satu tes jalur gagal (validasi atau aturan bisnis ditolak), dan satu tes batas (stok 0, status final, nomor HP ganda, dan sejenisnya).
 - Perbaikan bug: tulis tes yang gagal karena bug itu lebih dulu, lalu perbaiki kodenya.
-- Sebelum dianggap selesai, seluruh tes harus lulus: `php artisan test` (atau `./vendor/bin/pest`). Laporkan hasilnya, contoh "530 lulus". **Hasil terakhir yang diketahui: 621 lulus, 0 gagal (21 Nov 2026).**
+- Sebelum dianggap selesai, seluruh tes harus lulus: `php artisan test` (atau `./vendor/bin/pest`). Laporkan hasilnya, contoh "530 lulus". **Hasil terakhir yang diketahui: 629 lulus, 0 gagal (21 Nov 2026).**
 - Perubahan di `Service::syncStock()`, `SparePart::addStock()`, `ServiceStatus::allowedNext()`, `Service::startBlockerMessage()`, atau hitungan total wajib punya tes regresi, karena area ini menyentuh banyak fitur.
 - Label yang tampil di tabel ikut jadi teks yang dicari tes. Kalau label atau kolom pindah halaman (contoh: keluhan pindah dari tabel Riwayat ke detail), pindahkan assertion ke halaman barunya dan catat alasannya. Label status juga muncul di dropdown filter, jadi untuk memeriksa isi tabel gunakan `assertViewHas` atau data, bukan teks label.
 

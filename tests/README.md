@@ -1,6 +1,6 @@
 # Peta Tes: SIM Bengkel Cak Budi Dinamo
 
-Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (621 lulus per 21 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
+Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (629 lulus per 21 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
 
 Jalankan: `php artisan test`, atau satu modul: `php artisan test --filter=Riwayat`.
 
@@ -98,6 +98,7 @@ Catatan umum:
 | TRD-001..002 | TrendChartTest | Grafik pendapatan (sejak 20 Nov menggantikan grafik tren booking) | US-08, aturan 24 |
 | HRI-001, 003 (002 dihapus 20 Nov) | Dashboard/TodayTest | Dasbor Hari ini: jadwal hari ini tanpa yang batal atau hari lain, dasbor memuat bagian Hari ini | aturan 24 |
 | LAP-001..002, 004..008, 010, 012 (LAP-003 filter tipe, LAP-009 tabel piutang, LAP-011 grafik jasa/part paling menghasilkan dihapus 20-21 Nov, jangan dipakai ulang) | Reports/LaporanPendapatanTest | Laporan Pendapatan: halaman terbuka, hanya servis lunas di periode, ringkasan jasa+part+transport dan belum dibayar, unduh PDF, rekap per hari, minggu, dan bulan, jumlah rekap sama dengan ringkasan, kartu gaya dasbor, satuan rekap PDF otomatis | aturan 23, 30 |
+| LSK-001..008 | Reports/LaporanStokTest | Laporan Stok (mutasi persediaan): halaman terbuka, stok awal dari riwayat sebelum periode dan masuk/keluar/penyesuaian hanya di periode, part baru di tengah periode, stok akhir sama dengan stok sebenarnya, batas hampir habis (sama dengan minimal ikut), part diarsip, kartu ringkasan, unduh PDF | aturan 31 |
 | CMP-001..005 | CompositionChartsTest | Donat status dan tipe, jasa dan part terlaris | US-08 |
 
 ## Jasa dan kategori
