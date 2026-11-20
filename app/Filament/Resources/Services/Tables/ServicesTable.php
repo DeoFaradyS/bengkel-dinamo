@@ -6,10 +6,7 @@ use App\Enums\BookingType;
 use App\Enums\ServiceStatus;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\Filter;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\DatePicker;
-use Filament\Schemas\Components\Utilities\Get;
+use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\DB;
@@ -88,48 +85,41 @@ class ServicesTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                // Filter Tanggal, default Hari ini (aturan 22): daftar servis hari ini dulu, jadi kolom
-                // Antrean terisi. Bisa Besok, tanggal tertentu (tanpa batas 14 hari, karena juga dipakai
-                // melihat riwayat), atau semua tanggal. Tab Menunggu tidak ikut difilter supaya booking
-                // yang belum dijawab tidak terlewat.
-                Filter::make('tanggal')
-                    ->schema([
-                        Select::make('rentang')->label('Tanggal')
-                            ->options([
-                                'today' => 'Hari ini',
-                                'tomorrow' => 'Besok',
-                                'date' => 'Pilih tanggal',
-                                'all' => 'Semua tanggal',
-                            ])
-                            ->default('today')
-                            ->selectablePlaceholder(false)
-                            ->live(),
-                        DatePicker::make('tanggal')->label('Pilih tanggal')
-                            ->native(false)
-                            ->displayFormat('j M Y')
-                            ->visible(fn(Get $get) => $get('rentang') === 'date'),
-                    ])
-                    ->query(function (Builder $query, array $data, $livewire) {
-                        $tanggal = self::filterDate($data);
-
-                        if ($tanggal === null || ($livewire->activeTab ?? null) === ServiceStatus::Pending->value) {
+                // Filter Tanggal (aturan 22): kalender rentang seperti filter dasbor, default Hari ini,
+                // dengan pilihan cepat. Tanpa batas 14 hari (juga untuk melihat riwayat). Hapus filter
+                // (tanda x) untuk semua tanggal. Tab Menunggu tidak ikut difilter supaya booking yang
+                // belum dijawab tidak terlewat.
+                DateRangeFilter::make('scheduled_at')
+                    ->label('Tanggal')
+                    ->format('d/m/Y')
+                    ->displayFormat('DD/MM/YYYY')
+                    ->ranges(fn() => self::dateRanges())
+                    ->useRangeLabels()
+                    ->defaultToday()
+                    ->firstDayOfWeek(1)
+                    ->autoApply()
+                    ->modifyQueryUsing(function (Builder $query, $startDate, $endDate, $livewire) {
+                        if ($startDate === null || $endDate === null || ($livewire->activeTab ?? null) === ServiceStatus::Pending->value) {
                             return $query;
                         }
 
-                        return $query->whereDate('scheduled_at', $tanggal->toDateString());
+                        return $query->whereBetween('scheduled_at', [$startDate, $endDate]);
                     })
-                    ->indicateUsing(function (array $data, $livewire) {
-                        $tanggal = self::filterDate($data);
+                    // Penanda filter yang mudah dibaca: "Hari ini", "21 Nov 2026", atau "1 Nov - 30 Nov 2026".
+                    ->indicateUsing(function (array $data): ?string {
+                        $range = self::dateRangeFromFilter($data['scheduled_at'] ?? null);
 
-                        if ($tanggal === null || ($livewire->activeTab ?? null) === ServiceStatus::Pending->value) {
+                        if ($range === null) {
                             return null;
                         }
 
-                        return 'Tanggal: ' . match ($data['rentang'] ?? null) {
-                            'today' => 'Hari ini',
-                            'tomorrow' => 'Besok',
-                            default => $tanggal->translatedFormat('j M Y'),
-                        };
+                        [$dari, $sampai] = $range;
+
+                        if ($dari->isSameDay($sampai)) {
+                            return 'Tanggal: ' . ($dari->isToday() ? 'Hari ini' : $dari->translatedFormat('j M Y'));
+                        }
+
+                        return 'Tanggal: ' . $dari->translatedFormat('j M') . ' - ' . $sampai->translatedFormat('j M Y');
                     })
                     ->visible(fn($livewire) => ($livewire->activeTab ?? null) !== ServiceStatus::Pending->value),
                 SelectFilter::make('source')
@@ -159,14 +149,39 @@ class ServicesTable
             ]);
     }
 
-    // Tanggal yang dipilih di filter Tanggal, atau null untuk Semua tanggal.
-    private static function filterDate(array $data): ?\Illuminate\Support\Carbon
+    /** Pilihan cepat di kalender filter Tanggal. */
+    public static function dateRanges(): array
     {
-        return match ($data['rentang'] ?? 'today') {
-            'today' => today(),
-            'tomorrow' => today()->addDay(),
-            'date' => filled($data['tanggal'] ?? null) ? \Illuminate\Support\Carbon::parse($data['tanggal']) : null,
-            default => null,
-        };
+        return [
+            'Hari ini' => [today(), today()],
+            'Besok' => [today()->addDay(), today()->addDay()],
+            'Kemarin' => [today()->subDay(), today()->subDay()],
+            'Minggu ini' => [today()->startOfWeek(), today()->endOfWeek()],
+            'Bulan ini' => [today()->startOfMonth(), today()->endOfMonth()],
+        ];
+    }
+
+    /**
+     * Rentang dari state filter Tanggal ("d/m/Y - d/m/Y"), atau null kalau filter dihapus.
+     * Dipakai juga oleh angka di tab supaya sama dengan isi tabel.
+     *
+     * @return array{0: \Illuminate\Support\Carbon, 1: \Illuminate\Support\Carbon}|null
+     */
+    public static function dateRangeFromFilter(?string $value): ?array
+    {
+        $parts = array_map('trim', explode(' - ', (string) $value));
+
+        if (count($parts) !== 2) {
+            return null;
+        }
+
+        try {
+            return [
+                \Illuminate\Support\Carbon::createFromFormat('d/m/Y', $parts[0])->startOfDay(),
+                \Illuminate\Support\Carbon::createFromFormat('d/m/Y', $parts[1])->endOfDay(),
+            ];
+        } catch (\Throwable) {
+            return null;
+        }
     }
 }

@@ -123,7 +123,7 @@ test('LNS-014: filter Pembayaran yang dipilih di tab Selesai tidak menyaring tab
     $aktif = servisLunas(ServiceStatus::InProgress);
 
     \Livewire\Livewire::test(\App\Filament\Resources\Services\Pages\ListServices::class)
-        ->filterTable('tanggal', ['rentang' => 'all']) // sejak 20 Nov tabel default hanya hari ini
+        ->removeTableFilter('scheduled_at') // sejak 20 Nov tabel default hanya hari ini
         ->set('activeTab', ServiceStatus::Completed->value)
         ->filterTable('pembayaran', 'lunas')
         ->assertCanSeeTableRecords([$lunas])
