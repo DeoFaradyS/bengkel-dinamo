@@ -84,6 +84,8 @@ class ServicesTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            // Filter langsung berlaku begitu dipilih (tanpa tombol Terapkan), sama seperti filter dasbor.
+            ->deferFilters(false)
             ->filters([
                 // Filter Tanggal (aturan 22): kalender rentang seperti filter dasbor, default Hari ini,
                 // dengan pilihan cepat. Tanpa batas 14 hari (juga untuk melihat riwayat). Hapus filter
