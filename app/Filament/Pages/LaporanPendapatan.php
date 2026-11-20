@@ -24,8 +24,8 @@ use UnitEnum;
  * Laporan Pendapatan (aturan 23 dan 30). Dasar hitung: uang diterima, yaitu servis Selesai yang
  * sudah lunas, menurut tanggal lunas (paid_at). Uang masuk = jasa + spare part + ongkos transport.
  * Halaman: kartu ringkasan dan donat sumber pendapatan gaya dasbor (widget di
- * App\Filament\Widgets\Laporan), lalu riwayat transaksi (hanya total per servis). PDF: ringkasan,
- * rekap per hari/minggu/bulan (otomatis dari panjang periode), riwayat transaksi. Filter hanya
+ * App\Filament\Widgets\Laporan), lalu tabel servis lunas (hanya total per servis). PDF: ringkasan,
+ * rekap per hari/minggu/bulan (otomatis dari panjang periode), servis lunas. Filter hanya
  * periode, sama dengan dasbor. Istilah awam: "Pendapatan" dan "Belum dibayar", bukan omzet/piutang.
  * Tidak memuat pengeluaran, laba/rugi, atau modal spare part (pengembangan lanjutan).
  */
@@ -106,10 +106,10 @@ class LaporanPendapatan extends Page implements HasTable
             ->query(fn() => $this->metrics()->paidQuery()
                 ->withSum('items', 'price')
                 ->withSum('serviceParts as parts_sum', DB::raw('quantity * unit_price')))
-            ->heading('Riwayat transaksi')
+            ->heading('Servis lunas')
             ->defaultSort('paid_at')
             ->columns([
-                TextColumn::make('paid_at')->label('Tanggal lunas')
+                TextColumn::make('paid_at')->label('Tanggal bayar')
                     ->dateTime('j M Y, H.i')
                     ->sortable(),
                 TextColumn::make('booking_code')->label('Kode'),

@@ -79,7 +79,7 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara. Disaring
 - [x] Invoice PDF memuat status Lunas atau Belum Lunas (20 Nov 2026, INV-013).
 - [x] Link invoice PDF bertanda tangan (30 hari) di WA Selesai (20 Nov 2026, aturan 28, INV-014..016, WAO-010).
 - [x] Template pesan WhatsApp dirapikan, sapaan Bapak/Ibu (20 Nov 2026, aturan 29, WAO-011..012).
-- [x] Laporan Pendapatan disederhanakan gaya dasbor: 4 kartu (Pendapatan, Servis lunas, Rata-rata, Belum dibayar), donat sumber pendapatan, riwayat transaksi (total saja); filter periode sama dengan dasbor; PDF dengan pendapatan per hari/minggu/bulan otomatis (20-21 Nov 2026, aturan 30).
+- [x] Laporan Pendapatan disederhanakan gaya dasbor: 4 kartu (Pendapatan, Servis lunas, Rata-rata, Belum dibayar), tabel servis lunas (tanggal bayar dan total saja) sejajar donat sumber pendapatan; filter periode sama dengan dasbor; PDF dengan pendapatan per hari/minggu/bulan otomatis (20-21 Nov 2026, aturan 30).
 - [-] Dibatalkan (20 Nov 2026): ganti password di Profil.
 - [ ] Sinkronkan `PROJECT_RULES.md` setiap ada perubahan beranda atau aturan.
 - [x] Tabel Servis: kolom Total dan Status bersyarat per tab (D9). Selesai 17 Nov 2026. Tampil atau sembunyi kolom dicek manual (aturan tes bagian 10).

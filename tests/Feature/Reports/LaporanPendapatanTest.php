@@ -40,7 +40,7 @@ function lapRentang($dari, $sampai): string
 test('LAP-001: halaman Laporan Pendapatan terbuka untuk owner', function () {
     $this->get('/admin/laporan-pendapatan')
         ->assertOk()
-        ->assertSee('Riwayat transaksi');
+        ->assertSee('Tanggal bayar');
 });
 
 test('LAP-002: tabel hanya berisi servis lunas di periode, yang belum lunas atau di luar periode tidak', function () {

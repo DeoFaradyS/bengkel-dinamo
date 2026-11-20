@@ -88,12 +88,12 @@
         </tbody>
     </table>
 
-    <h3>Riwayat transaksi</h3>
+    <h3>Servis lunas</h3>
     <table class="list">
         <thead>
             <tr>
                 <th width="5%">No</th>
-                <th>Tanggal lunas</th>
+                <th>Tanggal bayar</th>
                 <th>Kode</th>
                 <th>Pelanggan</th>
                 <th>Tipe</th>
