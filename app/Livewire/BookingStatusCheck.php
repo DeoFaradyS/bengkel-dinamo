@@ -21,7 +21,7 @@ class BookingStatusCheck extends Component
     public function check(): void
     {
         $this->validate([
-            'phone' => ['required', 'string', 'max:20'],
+            'phone' => ['required', 'string', 'max:20', PhoneNumber::rule()],
             'booking_code' => ['required', 'string', 'max:20'],
         ], [], [
             'phone' => 'Nomor HP',

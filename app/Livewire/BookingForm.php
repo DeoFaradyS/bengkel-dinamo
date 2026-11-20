@@ -94,7 +94,7 @@ class BookingForm extends Component
 
         $rules = [
             'customer_name' => ['required', 'string', 'max:255'],
-            'phone' => ['required', 'string', 'max:16'],
+            'phone' => ['required', 'string', 'regex:' . PhoneNumber::REGEX],
             'complaint' => ['required', 'string', 'max:1000'],
             'scheduled_at' => ['required', 'date', 'after:now'],
             'booking_type' => ['required', Rule::enum(BookingType::class)],
@@ -108,6 +108,7 @@ class BookingForm extends Component
 
         $this->validate($rules, [
             'scheduled_at.required' => 'Pilih tanggal dan jam.',
+            'phone.regex' => PhoneNumber::MESSAGE,
             'latitude.required' => 'Pilih lokasi di peta.',
             'longitude.required' => 'Pilih lokasi di peta.',
         ], [

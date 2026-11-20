@@ -115,7 +115,9 @@ test('CEK-007: harga, total, dan alamat tidak ikut tampil', function () {
 test('CEK-008: nomor tidak valid tidak mencocokkan servis apa pun', function () {
     $s = servisCek();
 
-    cekBooking($s->booking_code, 'abc')->assertSet('results', []);
+    cekBooking($s->booking_code, 'abc')
+        ->assertHasErrors(['phone'])
+        ->assertSet('results', null);
 });
 
 test('CEK-009: tiap servis baru dapat kode 6 angka yang berbeda', function () {

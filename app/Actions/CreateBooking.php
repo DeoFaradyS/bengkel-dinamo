@@ -111,6 +111,7 @@ class CreateBooking
             ->body("{$service->customer_name} ({$service->customer_phone}) booking {$type->getLabel()}, menunggu konfirmasi." . ($address ? " Alamat: {$address}." : ''))
             ->icon('heroicon-o-clock')
             ->warning()
+            ->actions([\App\Support\OwnerNotification::openService($service)])
             ->sendToDatabase(User::where('role', UserRole::Owner->value)->get());
 
         return $service;

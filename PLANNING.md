@@ -71,6 +71,8 @@ Penomoran lanjut dari ID terakhir di tiap modul. ID di bawah sementara. Disaring
 - [x] Istilah "Spare Part" diganti "Suku Cadang" di semua teks yang tampil; kartu Laporan Stok tanpa satuan (21 Nov 2026, aturan 32).
 - [x] Satuan suku cadang (pcs, set, pasang, kg, meter, liter) dan jumlah desimal untuk kg/meter/liter; Laporan Stok kolom Satuan dan kartu jenis barang (21 Nov 2026, aturan 33, UNT-001..006). ERD: tambah `spare_parts.unit`, ubah stok/jumlah ke decimal(10,2).
 - [x] Tampilan HP dirapikan: Riwayat jadi kartu, suku cadang di Detail Booking bertumpuk, menu HP 44px, kotak isian 16px (pelanggan dan admin), ruang bawah untuk tombol WA, judul dasbor tidak tertabrak filter (21 Nov 2026, aturan 34).
+- [x] Nomor HP dirapikan dan dicek sama di semua form (21 Nov 2026, aturan 35, HPN-001..005).
+- [x] Notifikasi lonceng admin bisa diklik ke detail servis (21 Nov 2026, aturan 36, NTF-004..005).
 - [-] Dibatalkan (20 Nov 2026): promo dikelola dari panel (sisa US-07).
 - [x] Asal servis dan hak ubah admin, tahap 1 (17 Nov 2026, aturan 20): kolom `services.source` lewat migrasi `2026_11_17_120000_add_source_to_services_table` (ERD perlu ditambah kolom ini; keputusan lama "tanpa `source`" dicabut karena perlu membedakan booking online dan servis buatan admin), data pelanggan booking online dikunci termasuk jadwal (awalnya jadwal boleh digeser saat Menunggu/Dikonfirmasi, diputuskan ulang di hari yang sama), Jasa dan Spare Part hanya saat Dikerjakan/Selesai, status awal Tambah servis hanya Dikonfirmasi/Dikerjakan/Selesai, kolom Asal di tabel dan detail. Tes SRC-001..010; FLW-006, STK-006, RSN-005 disesuaikan.
 - [x] Pelanggan membatalkan booking sendiri selama Menunggu, di Cek Booking dan detail Riwayat, alasan opsional, notifikasi ke owner (17 Nov 2026, aturan 21, BTL-001..010). Ganti jadwal = batalkan lalu booking ulang; ubah jadwal mandiri jadi pengembangan lanjutan.
@@ -152,7 +154,7 @@ Daftar dari pemilik. Per 10 Nov 2026 (siang): tahap 1 sampai 3 selesai, 530 tes 
 - [x] Rapikan dan organisasi tes (`tests/README.md` dibuat 10 Nov 2026; sisa: ID kembar dan judul usang, lihat catatan di README): tiap berkas dan ID tes punya penjelasan satu baris "mengetes apa". Usul: tabel `tests/README.md` berisi kode modul (BKG, LOC, TIP, PRC, JSA, ANT, AUTH, SEC, LNS, RWY, PRF, dst), berkas, dan aturan bisnis yang dicek.
 - [x] Perbarui laporan skripsi: banyak perubahan (landing, jasa, ERD, login customer, area customer, antrian, Cek Booking, Tandai Lunas).
 - [x] Notifikasi WhatsApp ke pelanggan: selesai 20 Nov 2026 (aturan 27).
-- [ ] Siapkan bahan bimbingan: demo (beranda, `/layanan`, Cek Booking, upload foto jasa, login customer, booking login, Riwayat dan detail, Cetak Invoice, Profil, Tandai Lunas di panel), angka tes (635), daftar migrasi yang berubah, keputusan yang butuh jawaban (D1, D3, D8).
+- [ ] Siapkan bahan bimbingan: demo (beranda, `/layanan`, Cek Booking, upload foto jasa, login customer, booking login, Riwayat dan detail, Cetak Invoice, Profil, Tandai Lunas di panel), angka tes (646), daftar migrasi yang berubah, keputusan yang butuh jawaban (D1, D3, D8).
 
 ## F. Rencana perubahan database dan fitur turunannya (diperbarui 10 Nov 2026, siang)
 

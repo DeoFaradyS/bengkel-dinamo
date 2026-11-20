@@ -168,7 +168,8 @@ class ServiceForm
                             ->hidden(fn(?Service $record) => self::locked($record))
                             ->tel()
                             ->required()
-                            ->maxLength(16)
+                            ->maxLength(20)
+                            ->regex(\App\Support\PhoneNumber::REGEX)
                             ->placeholder('Contoh: 081234567890')
                             ->unique(
                                 ignoreRecord: true,
@@ -178,6 +179,7 @@ class ServiceForm
                             )
                             ->validationMessages([
                                 'unique' => 'Nomor ini masih punya servis yang belum selesai.',
+                                'regex' => \App\Support\PhoneNumber::MESSAGE,
                             ]),
 
                         DateTimePicker::make('scheduled_at')->label('Tanggal & Jam')

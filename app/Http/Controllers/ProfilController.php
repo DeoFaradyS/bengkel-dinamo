@@ -35,10 +35,10 @@ class ProfilController extends Controller
         // Email dan role sengaja tidak diterima dari input.
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'phone' => ['nullable', 'regex:/^08[0-9]{8,12}$/'],
+            'phone' => ['nullable', 'regex:' . PhoneNumber::REGEX],
         ], [
             'name.required' => 'Nama wajib diisi.',
-            'phone.regex' => 'Nomor HP tidak valid. Contoh: 081234567890.',
+            'phone.regex' => PhoneNumber::MESSAGE,
         ]);
 
         $request->user()->forceFill([

@@ -1,6 +1,6 @@
 # Peta Tes: SIM Bengkel Cak Budi Dinamo
 
-Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (635 lulus per 21 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
+Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (646 lulus per 21 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
 
 Jalankan: `php artisan test`, atau satu modul: `php artisan test --filter=Riwayat`.
 
@@ -72,7 +72,8 @@ Catatan umum:
 | FRM-001..008 | AdminServiceFormTypeTest | Form admin: pilihan tipe, koordinat tampil atau tersembunyi, validasi, dikosongkan saat pindah ke workshop | |
 | FRM-009..010 | AdminServiceFormMapTest | Preview peta di form admin hanya untuk Home Service | |
 | RSN-001..006 | CancelReasonFormTest | Alasan wajib untuk Ditolak dan Dibatalkan, tersembunyi untuk status aktif (RSN-006 tombol cepat "Pelanggan tidak datang"; RSN-005 sejak 17 Nov lewat form ubah) | |
-| NTF-001..003, 010..011 | BookingNotificationTest, BookingNotificationTypeTest | Notifikasi booking baru ke owner, isi memuat nama dan tipe | aturan 10 |
+| NTF-001..005, 010..011 | BookingNotificationTest, BookingNotificationTypeTest | Notifikasi booking baru ke owner, isi memuat nama dan tipe, notifikasi booking baru dan pembatalan membawa link ke detail servis dan tertanda dibaca saat diklik | aturan 10, 36 |
+| HPN-001..005 | Booking/PhoneNumberTest | Nomor HP: semua bentuk (+62, 62, 08, 8) dirapikan jadi 08..., batas 10-14 digit, booking dengan nomor tanpa 0 dan nomor ngawur, Cek Booking cocok walau ditulis beda, nomor bengkel di Jarak & Ongkos | aturan 35 |
 | SED-001..002 | SeederHomeServiceTest | Seeder punya servis Home Service dengan koordinat | |
 
 ## Jarak, ongkos, pengaturan bengkel

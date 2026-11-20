@@ -48,6 +48,7 @@ class CancelBookingByCustomer
                 ->body("Booking {$code} ({$service->customer_name}) dibatalkan pelanggan" . ($reason ? ": {$reason}." : '.'))
                 ->icon('heroicon-o-no-symbol')
                 ->danger()
+                ->actions([\App\Support\OwnerNotification::openService($service)])
                 ->sendToDatabase(User::where('role', UserRole::Owner->value)->get());
         }
 

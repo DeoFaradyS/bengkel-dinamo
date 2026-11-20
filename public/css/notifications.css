@@ -1,0 +1,43 @@
+/*
+ * Notifikasi lonceng admin bisa diklik di seluruh kotaknya (aturan 36, App\Support\OwnerNotification).
+ * Tombol aksi "Buka servis" disembunyikan, lalu area kliknya (::after) direntangkan menutupi kotak.
+ * Tombol tutup (x) tetap di atas supaya masih bisa ditekan.
+ */
+.fi-no-notification:has(.notif-buka) {
+    position: relative;
+    cursor: pointer;
+}
+
+.fi-no-notification:has(.notif-buka):hover {
+    background-color: rgb(0 0 0 / 0.03);
+}
+
+.fi-no-notification-actions:has(.notif-buka) {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 0;
+    overflow: visible;
+}
+
+.notif-buka {
+    position: static !important;
+    font-size: 0 !important;
+    line-height: 0 !important;
+    padding: 0 !important;
+}
+
+.notif-buka svg {
+    display: none;
+}
+
+.notif-buka::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+.fi-no-notification:has(.notif-buka) .fi-no-notification-close-btn {
+    position: relative;
+    z-index: 2;
+}

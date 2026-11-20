@@ -77,6 +77,7 @@ class JarakOngkos extends Page
                                     ->tel()
                                     ->required()
                                     ->maxLength(20)
+                                    ->rule(fn() => PhoneNumber::rule())
                                     ->placeholder('Contoh: 081234567890')
                                     ->helperText('Tampil di halaman depan dan dipakai untuk tombol WhatsApp.')
                                     ->columnSpanFull(),

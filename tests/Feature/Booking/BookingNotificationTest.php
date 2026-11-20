@@ -45,3 +45,26 @@ it('NTF-003: booking ditolak karena HP aktif, tidak ada notifikasi', function ()
 
     expect($admin->notifications()->count())->toBe(0);
 });
+// Notifikasi bisa diklik ke detail servis (21 Nov 2026, aturan 36).
+
+it('NTF-004: notifikasi booking baru membawa link ke detail servis dan ditandai dibaca saat diklik', function () {
+    $admin = User::factory()->owner()->create();
+
+    $service = app(CreateBooking::class)->handle(notifBookingData());
+
+    $aksi = $admin->notifications()->first()->data['actions'][0];
+
+    expect($aksi['url'])->toBe(\App\Filament\Resources\Services\ServiceResource::getUrl('view', ['record' => $service], panel: 'admin'))
+        ->and($aksi['shouldMarkAsRead'])->toBeTrue()
+        ->and($aksi['extraAttributes']['class'])->toBe(\App\Support\OwnerNotification::OPEN_CLASS);
+});
+
+it('NTF-005: notifikasi pembatalan oleh pelanggan juga membawa link ke detail servis', function () {
+    $admin = User::factory()->owner()->create();
+    $service = Service::factory()->create(['status' => \App\Enums\ServiceStatus::Pending]);
+
+    app(\App\Actions\CancelBookingByCustomer::class)->handle($service, 'Ganti jadwal');
+
+    expect($admin->notifications()->first()->data['actions'][0]['url'])
+        ->toBe(\App\Filament\Resources\Services\ServiceResource::getUrl('view', ['record' => $service], panel: 'admin'));
+});
