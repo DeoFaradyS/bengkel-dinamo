@@ -43,7 +43,7 @@
     <div id="mobileMenu"
       class="lg:hidden grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-in-out">
       <div class="overflow-hidden">
-        <div class="mt-5 flex flex-col gap-5 text-sm font-semibold uppercase text-neutral-800 pb-2">
+        <div class="mt-3 flex flex-col gap-1 pb-2 text-sm font-semibold uppercase text-neutral-800 [&_a]:flex [&_a]:min-h-11 [&_a]:items-center [&_button]:flex [&_button]:min-h-11 [&_button]:items-center">
           <a href="/#layanan">Layanan</a>
           <a href="/#lokasi">Lokasi</a>
           <a href="/#cek-booking">Cek Booking</a>

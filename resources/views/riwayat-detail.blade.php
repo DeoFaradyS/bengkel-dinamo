@@ -166,11 +166,11 @@
                     <h2 class="text-base font-semibold text-neutral-800">Jasa</h2>
                 </header>
                 <div class="overflow-x-auto">
-                    <table class="w-full min-w-[420px] text-left text-sm">
+                    <table class="w-full text-left text-sm">
                         <thead class="border-b border-neutral-200 bg-neutral-50 text-xs font-semibold text-neutral-700">
                             <tr>
                                 <th scope="col" class="{{ $th }}">Jasa</th>
-                                <th scope="col" class="{{ $th }} w-48 text-right">Harga</th>
+                                <th scope="col" class="{{ $th }} w-32 text-right sm:w-48">Harga</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-neutral-200">
@@ -191,11 +191,23 @@
                 <header class="border-b border-neutral-200 px-6 py-4">
                     <h2 class="text-base font-semibold text-neutral-800">Suku Cadang</h2>
                 </header>
-                <div class="overflow-x-auto">
+                {{-- HP: satu baris bertumpuk per suku cadang (aturan 34). --}}
+                <ul class="divide-y divide-neutral-200 text-sm md:hidden">
+                    @foreach ($service->serviceParts as $part)
+                        <li class="flex items-start justify-between gap-4 px-4 py-3">
+                            <div>
+                                <p class="text-neutral-800">{{ $part->sparePart?->name ?? '-' }}</p>
+                                <p class="text-neutral-500">{{ \App\Support\Qty::format($part->quantity, $part->sparePart?->unit) }} × {{ $rupiah($part->unit_price) }}</p>
+                            </div>
+                            <p class="whitespace-nowrap font-semibold text-neutral-800">{{ $rupiah($part->subtotal) }}</p>
+                        </li>
+                    @endforeach
+                </ul>
+                <div class="hidden overflow-x-auto md:block">
                     <table class="w-full min-w-[560px] text-left text-sm">
                         <thead class="border-b border-neutral-200 bg-neutral-50 text-xs font-semibold text-neutral-700">
                             <tr>
-                                <th scope="col" class="{{ $th }}">Part</th>
+                                <th scope="col" class="{{ $th }}">Suku cadang</th>
                                 <th scope="col" class="{{ $th }} w-24 text-right">Qty</th>
                                 <th scope="col" class="{{ $th }} w-44 text-right">Harga satuan</th>
                                 <th scope="col" class="{{ $th }} w-44 text-right">Jumlah</th>

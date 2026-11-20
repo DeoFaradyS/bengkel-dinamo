@@ -4,7 +4,7 @@
 
 @section('content')
     @php
-        $input = 'w-full rounded-[10px] border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-800 outline-none transition-colors placeholder:text-neutral-400 focus:border-red-600 focus:ring-1 focus:ring-red-600 disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-500';
+        $input = 'w-full rounded-[10px] border border-neutral-200 bg-white px-4 py-3 text-base text-neutral-800 sm:text-sm outline-none transition-colors placeholder:text-neutral-400 focus:border-red-600 focus:ring-1 focus:ring-red-600 disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-500';
     @endphp
 
     <h1 class="text-3xl font-bold text-neutral-800">Profil</h1>

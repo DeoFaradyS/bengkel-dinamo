@@ -1,6 +1,6 @@
 @php
   $mobile = $mobile ?? false;
-  $wrap = $mobile ? 'flex flex-col gap-5' : 'flex items-center gap-4';
+  $wrap = $mobile ? 'flex flex-col gap-1' : 'flex items-center gap-4';
 
   $user = auth()->user();
   $isOwner = $user?->role === \App\Enums\UserRole::Owner;
@@ -13,10 +13,10 @@
   @auth
     @if ($mobile)
       {{-- HP: daftar biasa di dalam menu lipat, tanpa dropdown. --}}
-      <span class="text-sm font-semibold normal-case text-neutral-800">{{ $user->name }}</span>
+      <span class="mt-2 border-t border-neutral-200 pt-3 text-xs font-semibold normal-case text-neutral-500">{{ $user->name }}</span>
 
       @if ($isOwner)
-        <a href="/admin" class="text-sm font-semibold text-neutral-800 transition-colors hover:text-red-600">Dashboard</a>
+        <a href="/admin" class="text-sm font-semibold text-neutral-800 transition-colors hover:text-red-600">Dasbor</a>
         <a href="/admin/services"
           class="text-sm font-semibold text-neutral-800 transition-colors hover:text-red-600">Servis</a>
         <a href="/admin/spare-parts"
@@ -64,7 +64,7 @@
 
           <div class="mt-2">
             @if ($isOwner)
-              <a href="/admin" class="{{ $item }}">Dashboard</a>
+              <a href="/admin" class="{{ $item }}">Dasbor</a>
               <a href="/admin/services" class="{{ $item }}">Servis</a>
               <a href="/admin/spare-parts" class="{{ $item }}">Suku Cadang</a>
               <a href="/admin/service-types" class="{{ $item }}">Jasa</a>

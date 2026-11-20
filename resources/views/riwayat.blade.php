@@ -64,7 +64,59 @@
                 @endif
             </div>
         @else
-            <div class="overflow-x-auto">
+            {{-- HP: satu kartu per booking supaya status dan total terlihat tanpa geser (aturan 34). --}}
+            <div class="md:hidden">
+                <div class="flex items-center gap-4 border-b border-neutral-200 bg-neutral-50 px-4 py-2.5 text-xs font-semibold text-neutral-700">
+                    <span class="text-neutral-500">Urutkan:</span>
+                    @foreach (['tanggal' => 'Tanggal', 'total' => 'Total'] as $kolom => $judul)
+                        <a href="{{ $sortUrl($kolom) }}" class="inline-flex min-h-9 items-center gap-1 {{ $sort === $kolom ? 'text-red-600' : 'hover:text-red-600' }}">
+                            {{ $judul }}
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 {{ $sort === $kolom ? '' : 'opacity-30' }}" aria-hidden="true"><path d="{{ $chevron($kolom) }}" /></svg>
+                        </a>
+                    @endforeach
+                </div>
+                <ul class="divide-y divide-neutral-200">
+                    @foreach ($services as $service)
+                        @php
+                            $done = $service->status === \App\Enums\ServiceStatus::Completed;
+                            $total = (float) ($service->items_sum_price ?? 0)
+                                + (float) ($service->parts_sum ?? 0)
+                                + (float) ($service->transport_fee ?? 0);
+                        @endphp
+                        <li class="flex flex-col gap-3 px-4 py-4">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <p class="font-semibold tabular-nums text-neutral-800">{{ $service->booking_code ?? '-' }}</p>
+                                    <p class="text-sm text-neutral-500">{{ $service->scheduled_at?->translatedFormat('j M Y, H.i') ?? '-' }}</p>
+                                </div>
+                                <x-status-badge :status="$service->status" />
+                            </div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <x-status-badge :status="$service->booking_type" />
+                                @if ($done)
+                                    <x-status-badge :label="$service->paid_at ? 'Lunas' : 'Belum Lunas'" :color="$service->paid_at ? 'success' : 'warning'" />
+                                @endif
+                                <span class="ml-auto font-semibold text-neutral-800">{{ $total > 0 ? $rupiah($total) : '-' }}</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <a href="{{ route('riwayat.show', $service->id) }}"
+                                    class="inline-flex min-h-11 flex-1 items-center justify-center gap-1 rounded-[10px] border border-neutral-200 text-sm font-semibold text-red-600 transition-colors hover:bg-neutral-50">
+                                    Lihat detail
+                                </a>
+                                @if ($done)
+                                    <a href="{{ route('riwayat.invoice', $service->id) }}" target="_blank" rel="noopener"
+                                        class="inline-flex min-h-11 flex-1 items-center justify-center gap-1 rounded-[10px] border border-neutral-200 text-sm font-semibold text-neutral-700 transition-colors hover:bg-neutral-50">
+                                        Invoice
+                                    </a>
+                                @endif
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+
+            {{-- Layar besar: tabel. --}}
+            <div class="hidden overflow-x-auto md:block">
                 <table class="w-full min-w-[760px] text-left text-sm">
                     <thead class="border-b border-neutral-200 bg-neutral-50 text-xs font-semibold text-neutral-700">
                         <tr>

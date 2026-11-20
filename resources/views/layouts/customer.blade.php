@@ -63,7 +63,8 @@
             </nav>
         </aside>
 
-        <div class="min-w-0 flex-1">
+        {{-- pb-20 di HP: ruang untuk tombol WA melayang supaya tidak menutupi isi terakhir (aturan 34). --}}
+        <div class="min-w-0 flex-1 pb-20 md:pb-0">
             @yield('content')
         </div>
     </div>

@@ -83,7 +83,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->renderHook(
                 \Filament\View\PanelsRenderHook::HEAD_END,
-                fn() => new \Illuminate\Support\HtmlString('<link rel="stylesheet" href="/css/kpi-cards.css">'),
+                fn() => new \Illuminate\Support\HtmlString('<link rel="stylesheet" href="/css/kpi-cards.css"><link rel="stylesheet" href="/css/admin-mobile.css">'),
             );
     }
 }
