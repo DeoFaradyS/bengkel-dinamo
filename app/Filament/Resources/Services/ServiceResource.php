@@ -29,6 +29,11 @@ class ServiceResource extends Resource
 
     protected static ?string $navigationLabel = 'Servis';
 
+    // Judul, breadcrumb, dan tombol (Buat Servis) memakai "Servis", sama dengan menu.
+    protected static ?string $modelLabel = 'Servis';
+
+    protected static ?string $pluralModelLabel = 'Servis';
+
     protected static string|UnitEnum|null $navigationGroup = 'Operasional';
 
     protected static ?int $navigationSort = 1;
