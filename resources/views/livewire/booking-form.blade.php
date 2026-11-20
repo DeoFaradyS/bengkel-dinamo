@@ -185,7 +185,7 @@
                     @error('latitude') <small class="text-sm text-red-600">{{ $message }}</small> @enderror
 
                     <input type="text" wire:model="address" maxlength="255"
-                        placeholder="Patokan (opsional), contoh: depan Indomaret, pagar hijau"
+                        placeholder="Detail alamat (opsional), contoh: Jl. Raya Nguling no. 12, pagar hijau"
                         class="w-full p-4 bg-white rounded-[10px] text-neutral-800 placeholder:text-neutral-400 border border-neutral-200 outline-none focus:ring-2 focus:ring-red-500">
                     @error('address') <small class="text-sm text-red-600">{{ $message }}</small> @enderror
 
@@ -200,7 +200,7 @@
                                     class="size-10 flex items-center justify-center rounded-lg text-2xl text-neutral-500 hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-red-500">&times;</button>
                             </div>
 
-                            <p class="text-sm text-neutral-500">Ketuk peta untuk menaruh pin. Pin bisa digeser.</p>
+                            <p class="text-sm text-neutral-500">Cari nama desa atau jalan, atau ketuk peta untuk menaruh pin. Pin bisa digeser.</p>
 
                             <div wire:ignore class="flex-1 min-h-0 sm:flex-none">
                                 <div id="booking-map" x-init="bookingMap($el, $wire)" data-center-lat="-7.7174465"

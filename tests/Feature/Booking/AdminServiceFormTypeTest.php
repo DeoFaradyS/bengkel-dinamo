@@ -56,7 +56,7 @@ it('FRM-005: koordinat di luar rentang ditolak', function () {
             'longitude' => 200,
         ]))
         ->call('create')
-        ->assertHasFormErrors(['latitude' => 'max', 'longitude' => 'max']);
+        ->assertHasFormErrors(['latitude' => 'between', 'longitude' => 'between']); // sejak 20 Nov isian tersembunyi, aturannya between
 });
 
 it('FRM-006: Home Service dengan koordinat tersimpan', function () {

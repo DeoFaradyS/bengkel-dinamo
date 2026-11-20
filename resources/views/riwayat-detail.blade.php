@@ -143,7 +143,7 @@
 
                 @if (filled($service->address_note))
                     <div class="sm:col-span-2">
-                        <dt class="{{ $dt }}">Alamat atau patokan</dt>
+                        <dt class="{{ $dt }}">Detail alamat</dt>
                         <dd class="{{ $dd }} whitespace-pre-line">{{ $service->address_note }}</dd>
                     </div>
                 @endif

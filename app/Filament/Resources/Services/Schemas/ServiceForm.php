@@ -229,7 +229,7 @@ class ServiceForm
                             ->columnSpanFull()
                             ->state(fn(?Service $record) => $record?->complaint)
                             ->visible(fn(?Service $record) => self::locked($record)),
-                        TextEntry::make('ro_address_note')->label('Alamat atau patokan')
+                        TextEntry::make('ro_address_note')->label('Detail alamat')
                             ->columnSpanFull()
                             ->state(fn(?Service $record) => $record?->address_note)
                             ->visible(fn(?Service $record) => self::locked($record) && filled($record?->address_note)),
@@ -239,36 +239,35 @@ class ServiceForm
                             ->rows(3)
                             ->required(),
 
-                        TextInput::make('latitude')->label('Latitude')
+                        // Koordinat tidak diketik: diisi dari pin di peta (klik, geser, atau cari tempat).
+                        // Tetap disimpan dan divalidasi karena dipakai menghitung jarak dan ongkos.
+                        // Pesan error tampil di bawah peta (filament.forms.pin-map).
+                        Hidden::make('latitude')
                             ->hidden(fn(?Service $record) => self::locked($record))
-                            ->numeric()
-                            ->minValue(-90)
-                            ->maxValue(90)
                             ->required(fn(Get $get) => self::isHome($get))
+                            ->rules(['nullable', 'numeric', 'between:-90,90'])
+                            ->validationMessages(['required' => 'Pilih lokasi di peta.'])
                             ->visible(fn(Get $get) => self::isHome($get))
                             ->dehydratedWhenHidden()
-                            ->live(onBlur: true)
-                            ->helperText('Contoh: -7.7174465'),
-                        TextInput::make('longitude')->label('Longitude')
+                            ->live(),
+                        Hidden::make('longitude')
                             ->hidden(fn(?Service $record) => self::locked($record))
-                            ->numeric()
-                            ->minValue(-180)
-                            ->maxValue(180)
                             ->required(fn(Get $get) => self::isHome($get))
+                            ->rules(['nullable', 'numeric', 'between:-180,180'])
+                            ->validationMessages(['required' => 'Pilih lokasi di peta.'])
                             ->visible(fn(Get $get) => self::isHome($get))
                             ->dehydratedWhenHidden()
-                            ->live(onBlur: true)
-                            ->helperText('Contoh: 113.0755426'),
+                            ->live(),
                         View::make('filament.forms.pin-map')
                             ->columnSpanFull()
                             ->visible(fn(Get $get, ?Service $record) => self::isHome($get) && !self::locked($record)),
-                        TextInput::make('address_note')->label('Alamat atau patokan (opsional)')
+                        TextInput::make('address_note')->label('Detail alamat (opsional)')
                             ->hidden(fn(?Service $record) => self::locked($record))
                             ->columnSpanFull()
                             ->maxLength(255)
                             ->visible(fn(Get $get) => self::isHome($get))
                             ->dehydratedWhenHidden()
-                            ->placeholder('Contoh: depan Indomaret, pagar hijau'),
+                            ->placeholder('Contoh: Jl. Raya Nguling no. 12, pagar hijau, depan Indomaret'),
                         TextEntry::make('maps_link')->label('Peta')
                             ->columnSpanFull()
                             ->state('Buka di Google Maps')

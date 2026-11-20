@@ -49,7 +49,7 @@ class ServiceInfolist
                         TextEntry::make('booking_type')->label('Tipe Layanan')->badge(),
                         TextEntry::make('complaint')->label('Keluhan')
                             ->columnSpanFull(),
-                        TextEntry::make('address_note')->label('Alamat atau patokan')
+                        TextEntry::make('address_note')->label('Detail alamat')
                             ->columnSpanFull()
                             ->visible(fn($record) => filled($record->address_note)),
                         TextEntry::make('maps_link')->label('Peta')
