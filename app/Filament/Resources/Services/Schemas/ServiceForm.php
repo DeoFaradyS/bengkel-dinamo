@@ -206,9 +206,14 @@ class ServiceForm
                             ->hintColor('warning')
                             ->required(),
 
-                        Select::make('booking_type')->label('Tipe Layanan')
+                        // Dua pilihan saja, jadi tombol (sekali klik) lebih cepat daripada dropdown.
+                        ToggleButtons::make('booking_type')->label('Tipe Layanan')
                             ->hidden(fn(?Service $record) => self::locked($record))
                             ->options(BookingType::class)
+                            ->inline()
+                            // Sejajar dengan Tanggal & Jam; tanpa ikon supaya dua tombol muat. Terpilih berwarna biru.
+                            ->colors(['workshop' => 'primary', 'home_service' => 'primary'])
+                            ->icons(['workshop' => null, 'home_service' => null])
                             ->default(BookingType::Workshop)
                             ->live()
                             ->afterStateUpdated(function ($state, Set $set) {
