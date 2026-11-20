@@ -6,6 +6,11 @@ use App\Enums\BookingType;
 use App\Enums\ServiceStatus;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\DatePicker;
+use Filament\Schemas\Components\Utilities\Get;
+use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\DB;
 use App\Filament\Resources\Services\ServiceResource;
@@ -83,6 +88,50 @@ class ServicesTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                // Filter Tanggal, default Hari ini (aturan 22): daftar servis hari ini dulu, jadi kolom
+                // Antrean terisi. Bisa Besok, tanggal tertentu (tanpa batas 14 hari, karena juga dipakai
+                // melihat riwayat), atau semua tanggal. Tab Menunggu tidak ikut difilter supaya booking
+                // yang belum dijawab tidak terlewat.
+                Filter::make('tanggal')
+                    ->schema([
+                        Select::make('rentang')->label('Tanggal')
+                            ->options([
+                                'today' => 'Hari ini',
+                                'tomorrow' => 'Besok',
+                                'date' => 'Pilih tanggal',
+                                'all' => 'Semua tanggal',
+                            ])
+                            ->default('today')
+                            ->selectablePlaceholder(false)
+                            ->live(),
+                        DatePicker::make('tanggal')->label('Pilih tanggal')
+                            ->native(false)
+                            ->displayFormat('j M Y')
+                            ->visible(fn(Get $get) => $get('rentang') === 'date'),
+                    ])
+                    ->query(function (Builder $query, array $data, $livewire) {
+                        $tanggal = self::filterDate($data);
+
+                        if ($tanggal === null || ($livewire->activeTab ?? null) === ServiceStatus::Pending->value) {
+                            return $query;
+                        }
+
+                        return $query->whereDate('scheduled_at', $tanggal->toDateString());
+                    })
+                    ->indicateUsing(function (array $data, $livewire) {
+                        $tanggal = self::filterDate($data);
+
+                        if ($tanggal === null || ($livewire->activeTab ?? null) === ServiceStatus::Pending->value) {
+                            return null;
+                        }
+
+                        return 'Tanggal: ' . match ($data['rentang'] ?? null) {
+                            'today' => 'Hari ini',
+                            'tomorrow' => 'Besok',
+                            default => $tanggal->translatedFormat('j M Y'),
+                        };
+                    })
+                    ->visible(fn($livewire) => ($livewire->activeTab ?? null) !== ServiceStatus::Pending->value),
                 SelectFilter::make('source')
                     ->label('Dibuat oleh')
                     ->options(\App\Enums\ServiceSource::class),
@@ -108,5 +157,16 @@ class ServicesTable
                 ViewAction::make()
                     ->visible(fn($record) => $record->status->isFinal()),
             ]);
+    }
+
+    // Tanggal yang dipilih di filter Tanggal, atau null untuk Semua tanggal.
+    private static function filterDate(array $data): ?\Illuminate\Support\Carbon
+    {
+        return match ($data['rentang'] ?? 'today') {
+            'today' => today(),
+            'tomorrow' => today()->addDay(),
+            'date' => filled($data['tanggal'] ?? null) ? \Illuminate\Support\Carbon::parse($data['tanggal']) : null,
+            default => null,
+        };
     }
 }

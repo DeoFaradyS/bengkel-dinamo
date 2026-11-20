@@ -34,6 +34,7 @@ it('ADM-003: filter tipe memisahkan home service dan workshop', function () {
     $workshop = Service::factory()->create(['booking_type' => BookingType::Workshop]);
 
     Livewire::test(ListServices::class)
+        ->filterTable('tanggal', ['rentang' => 'all']) // sejak 20 Nov tabel default hanya hari ini
         ->filterTable('booking_type', BookingType::HomeService->value)
         ->assertCanSeeTableRecords([$home])
         ->assertCanNotSeeTableRecords([$workshop]);

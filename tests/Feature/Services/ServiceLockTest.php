@@ -88,6 +88,7 @@ it('KNC-010: servis aktif punya tombol Ubah tanpa Lihat', function () {
     $service = Service::factory()->create();
 
     Livewire::test(ListServices::class)
+        ->filterTable('tanggal', ['rentang' => 'all']) // sejak 20 Nov tabel default hanya hari ini
         ->assertActionVisible(TestAction::make('edit')->table($service))
         ->assertActionHidden(TestAction::make('view')->table($service));
 });
@@ -97,6 +98,7 @@ it('KNC-011: servis final punya tombol Lihat tanpa Ubah', function (ServiceStatu
 
     Livewire::test(ListServices::class)
         ->set('activeTab', $status->value)
+        ->filterTable('tanggal', ['rentang' => 'all']) // sejak 20 Nov tabel default hanya hari ini
         ->assertActionVisible(TestAction::make('view')->table($service))
         ->assertActionHidden(TestAction::make('edit')->table($service));
 })->with('statusFinal');
