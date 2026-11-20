@@ -93,7 +93,7 @@ Catatan umum:
 | KPI-001..008, 010..011 | KpiSummaryTest | Empat kartu KPI dan tren dibanding periode lalu; sejak 20 Nov kartu keempat Belum dibayar (KPI-008), Menunggu dihitung lewat pendingNow (KPI-007) | US-08, aturan 24 |
 | MET-001..017 | ServiceMetricsTest | Hitungan booking, selesai, pendapatan (sejak 20 Nov dasar uang diterima: lunas menurut tanggal lunas, termasuk transport, belum dibayar terpisah, grafik per hari/bulan: MET-013..017), pembatalan, tren, komposisi, terlaris | US-08 |
 | TRD-001..002 | TrendChartTest | Grafik pendapatan (sejak 20 Nov menggantikan grafik tren booking) | US-08, aturan 24 |
-| HRI-001..003 | Dashboard/TodayTest | Dasbor Hari ini: jadwal hari ini tanpa yang batal atau hari lain, angka menunggu/servis hari ini/stok menipis, dasbor memuat bagian Hari ini | aturan 24 |
+| HRI-001, 003 (002 dihapus 20 Nov) | Dashboard/TodayTest | Dasbor Hari ini: jadwal hari ini tanpa yang batal atau hari lain, dasbor memuat bagian Hari ini | aturan 24 |
 | LAP-001..005 | Reports/LaporanPendapatanTest | Laporan Pendapatan: halaman terbuka, hanya servis lunas di periode, filter tipe, ringkasan jasa+part+transport dan belum dibayar, unduh PDF | aturan 23 |
 | CMP-001..005 | CompositionChartsTest | Donat status dan tipe, jasa dan part terlaris | US-08 |
 

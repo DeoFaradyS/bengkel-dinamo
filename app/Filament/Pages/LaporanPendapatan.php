@@ -35,7 +35,7 @@ class LaporanPendapatan extends Page implements HasTable
     }
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBanknotes;
-    protected static ?string $navigationLabel = 'Laporan Pendapatan';
+    protected static ?string $navigationLabel = 'Pendapatan';
     protected static ?string $title = 'Laporan Pendapatan';
     protected static string|UnitEnum|null $navigationGroup = 'Laporan';
     protected static ?int $navigationSort = 1;

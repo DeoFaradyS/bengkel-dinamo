@@ -68,10 +68,7 @@ class JarakOngkos extends Page
                                     ->rule('gt:0')
                                     ->maxValue(99999)
                                     ->prefix('Rp')
-                                    ->live(onBlur: true)
-                                    ->helperText(fn(Get $get) => 'Setara Rp'
-                                        . number_format((int) str_replace('.', '', (string) $get('fuel_price')) / 40, 0, ',', '.')
-                                        . ' per km (harga BBM ÷ 40 km/liter)'),
+                                    ->live(onBlur: true),
                                 TextInput::make('latitude')
                                     ->label('Latitude')
                                     ->required()

@@ -6,9 +6,8 @@ use App\Filament\Widgets\KpiOverview;
 use App\Filament\Widgets\StatusChart;
 use App\Filament\Widgets\TopPartsChart;
 use App\Filament\Widgets\TopServicesChart;
-use App\Filament\Widgets\RevenueChart;
-use App\Filament\Widgets\TodaySchedule;
-use App\Filament\Widgets\TodayStats;
+use App\Filament\Widgets\RevenueChart;
+use App\Filament\Widgets\TodaySchedule;
 use Filament\Schemas\Components\Livewire;
 use App\Filament\Widgets\TypeChart;
 use App\Support\Dashboard\DashboardPeriod;
@@ -29,7 +28,6 @@ class Dashboard extends BaseDashboard
         // "Kinerja periode" dengan filter tanggal tepat di atasnya.
         return $schema->components([
             View::make('filament.pages.dashboard-top')->columnSpanFull(),
-            Livewire::make(TodayStats::class)->key('today-stats')->columnSpanFull(),
             Livewire::make(TodaySchedule::class)->key('today-schedule')->columnSpanFull(),
             View::make('filament.pages.dashboard-period')->columnSpanFull(),
             $this->getWidgetsContentComponent(),

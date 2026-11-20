@@ -24,24 +24,10 @@ test('HRI-001: jadwal hari ini hanya servis hari ini yang tidak batal', function
         ->assertCanNotSeeTableRecords([$batal, $besok]);
 });
 
-test('HRI-002: angka hari ini: menunggu konfirmasi, servis hari ini, stok menipis', function () {
-    Service::factory()->create(['status' => ServiceStatus::Pending, 'scheduled_at' => now()->addDays(3)]);
-    Service::factory()->create(['status' => ServiceStatus::Confirmed, 'scheduled_at' => now()->setTime(9, 0)]);
-    Service::factory()->create(['status' => ServiceStatus::InProgress, 'scheduled_at' => now()->setTime(10, 0)]);
-    SparePart::factory()->create(['stock' => 1, 'min_stock' => 3]);
-    SparePart::factory()->create(['stock' => 10, 'min_stock' => 3]);
-
-    $stats = collect((fn () => $this->getStats())->call(Livewire::test(TodayStats::class)->instance()))
-        ->mapWithKeys(fn ($s) => [$s->getLabel() => $s->getValue()]);
-
-    expect($stats['Menunggu konfirmasi'])->toBe('1')
-        ->and($stats['Servis hari ini'])->toBe('2')
-        ->and($stats['Stok menipis'])->toBe('1');
-});
+// HRI-002 (kartu Menunggu, Servis hari ini, Stok menipis) dihapus 20 Nov: kartunya dicabut. Jangan dipakai ulang.
 
 test('HRI-003: dasbor memuat bagian Hari ini', function () {
     Livewire::test(Dashboard::class)
-        ->assertSeeLivewire(TodayStats::class)
         ->assertSeeLivewire(TodaySchedule::class)
         ->assertSee('Kinerja periode');
 });
