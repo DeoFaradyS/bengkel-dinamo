@@ -1,6 +1,6 @@
 # Peta Tes: SIM Bengkel Cak Budi Dinamo
 
-Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (599 lulus per 20 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
+Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (613 lulus per 20 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
 
 Jalankan: `php artisan test`, atau satu modul: `php artisan test --filter=Riwayat`.
 
@@ -29,7 +29,7 @@ Catatan umum:
 | --- | --- | --- | --- |
 | FRM-001..003 | ServiceFormTest | Field wajib, HP maks 16 karakter | |
 | DTL-001..005 | ServiceDetailTest | Detail: Total Servis, alasan hanya untuk Dibatalkan, alamat dan link peta hanya Home Service | |
-| INV-001..005, 009..013 (006..008 dihapus 20 Nov, jangan dipakai ulang; INV-013 status pembayaran) | ServiceInvoiceTest, ServiceInvoiceContentTest, ServiceInvoicePartTest | Nomor invoice, PDF jadi, tombol Invoice hanya untuk Selesai, part terhapus tetap bisa dicetak | |
+| INV-001..005, 009..016 (006..008 dihapus 20 Nov, jangan dipakai ulang; INV-013 status pembayaran; INV-014..016 link invoice bertanda tangan, aturan 28) | ServiceInvoiceTest, ServiceInvoiceContentTest, ServiceInvoicePartTest, ServiceInvoiceLinkTest | Nomor invoice, PDF jadi, tombol Invoice hanya untuk Selesai, part terhapus tetap bisa dicetak | |
 | TSJ-001..017 (004 dua kali) | ServiceItemTest | Baris jasa: salin nama dan harga, harga boleh diubah, harga negatif atau kosong ditolak, nota lama tidak ikut perubahan katalog, total jasa | aturan 6, 7 |
 | SPF-001..015 | ServicePartTest | Baris part: qty tidak melebihi stok, harga satuan disalin dan terkunci, part ganda ditolak, subtotal dan grand total | aturan 6, 7 |
 | HPU-001..007 | ServicePhoneTest | Satu HP satu servis aktif, +62 dan 08 dianggap sama, HP disimpan `08...` | aturan 4 |
@@ -40,6 +40,7 @@ Catatan umum:
 | TGL-001..006 | Services/ServiceDateFilterTest | Filter Tanggal (kalender rentang) tabel Servis: default hari ini, rentang besok, tanggal lebih dari 14 hari lalu, filter dihapus = semua, tab Menunggu tidak difilter, angka tab ikut filter kecuali Menunggu | aturan 22 |
 | GMP-001..004 | Settings/WorkshopSettingTest | Baca koordinat dari link Google Maps (q=, @, !3d!4d, koordinat langsung, link pendek), link tanpa lokasi ditolak, nomor bengkel dipakai di footer dan tombol WA. TPG-009..012 sejak 20 Nov menguji link Maps dan nomor HP (bukan koordinat) | aturan 25 |
 | SLG-001..006 | ServiceTypes/ServiceTypeSlugTest | Slug jasa otomatis dari nama, unik termasuk arsip, ikut berubah saat nama diubah, URL id lama dialihkan 301, kartu menaut ke slug, halaman 404 bergaya landing | aturan 26 |
+| WAO-001..010 | WhatsApp/NotifyCustomerWhatsAppTest | WA otomatis: Dikonfirmasi (kode, jadwal), Selesai (total), Ditolak/Dibatalkan (alasan), status lain dan batal oleh pelanggan tidak dikirim, gagal kirim tercatat tanpa membatalkan status, panggilan Fonnte (URL, header, isian), jawaban gagal Fonnte, mode log tanpa token, link invoice di pesan Selesai | aturan 27, 28 |
 | SRC-001..010 | ServiceSourceTest | Asal servis: booking beranda online, Tambah servis admin, data pelanggan booking online terkunci dan tidak bisa dipaksa, jadwal terkunci (SRC-005 dibalik di hari yang sama) termasuk saat Dikerjakan, servis admin bebas diubah, Jasa dan Spare Part hanya saat Dikerjakan/Selesai, jasa lama tidak terhapus | aturan 20 |
 | ANT-001..019 | ServiceQueueTest | Antrian: satu `in_progress` (penghalang), jadwal lebih awal hanya konfirmasi lewati (ANT-009 diubah 20 Nov, ANT-013..014), nomor antrean hari ini: urut jam, Selesai tetap dihitung, batal/menunggu tidak, sedang dikerjakan dan sisa, bukan hari ini null (ANT-015..019) | aturan 11, 22 |
 | STK-001..008, 012..013 | ServiceStockTest | Stok berkurang saat Selesai, sekali saja, stok kurang membatalkan, modal konfirmasi | aturan 2 |

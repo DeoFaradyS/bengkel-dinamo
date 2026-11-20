@@ -50,3 +50,15 @@ Route::post('/riwayat/{id}/batal', [RiwayatController::class, 'batal'])->whereNu
 Route::get('/riwayat/{id}/invoice', [RiwayatController::class, 'invoice'])->whereNumber('id')->middleware('auth')->name('riwayat.invoice');
 Route::get('/profil', [ProfilController::class, 'edit'])->middleware('auth')->name('profil');
 Route::put('/profil', [ProfilController::class, 'update'])->middleware('auth');
+
+// Link invoice untuk pelanggan lewat WhatsApp (aturan 28). Link bertanda tangan dan berlaku
+// 30 hari (URL::temporarySignedRoute), jadi tidak bisa ditebak atau diubah ke servis lain.
+// Bisa dibuka tamu tanpa login. Hanya servis Selesai.
+Route::get('/invoice/{service}', function (\App\Models\Service $service) {
+    abort_unless($service->status === \App\Enums\ServiceStatus::Completed, 404);
+
+    return response($service->invoicePdf(), 200, [
+        'Content-Type' => 'application/pdf',
+        'Content-Disposition' => 'inline; filename="' . $service->invoiceNumber() . '.pdf"',
+    ]);
+})->middleware(['signed', 'throttle:30,1'])->name('invoice.public');
