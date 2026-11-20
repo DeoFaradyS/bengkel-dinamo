@@ -34,3 +34,4 @@
 .kpi-completed { --kpi-line: #3b82f6; --kpi-fill: #eff6ff; }
 .kpi-bookings  { --kpi-line: #f59e0b; --kpi-fill: #fffbeb; }
 .kpi-pending   { --kpi-line: #9ca3af; --kpi-fill: #f3f4f6; }
+.kpi-unpaid   { --kpi-line: #9ca3af; --kpi-fill: #f3f4f6; }

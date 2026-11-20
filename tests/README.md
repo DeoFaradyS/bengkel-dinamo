@@ -1,6 +1,6 @@
 # Peta Tes: SIM Bengkel Cak Budi Dinamo
 
-Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (615 lulus per 20 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
+Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (623 lulus per 20 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
 
 Jalankan: `php artisan test`, atau satu modul: `php artisan test --filter=Riwayat`.
 
@@ -97,7 +97,7 @@ Catatan umum:
 | MET-001..017 | ServiceMetricsTest | Hitungan booking, selesai, pendapatan (sejak 20 Nov dasar uang diterima: lunas menurut tanggal lunas, termasuk transport, belum dibayar terpisah, grafik per hari/bulan: MET-013..017), pembatalan, tren, komposisi, terlaris | US-08 |
 | TRD-001..002 | TrendChartTest | Grafik pendapatan (sejak 20 Nov menggantikan grafik tren booking) | US-08, aturan 24 |
 | HRI-001, 003 (002 dihapus 20 Nov) | Dashboard/TodayTest | Dasbor Hari ini: jadwal hari ini tanpa yang batal atau hari lain, dasbor memuat bagian Hari ini | aturan 24 |
-| LAP-001..005 | Reports/LaporanPendapatanTest | Laporan Pendapatan: halaman terbuka, hanya servis lunas di periode, filter tipe, ringkasan jasa+part+transport dan belum dibayar, unduh PDF | aturan 23 |
+| LAP-001..002, 004..012 (LAP-003 filter tipe dihapus 20 Nov, jangan dipakai ulang) | Reports/LaporanPendapatanTest | Laporan Pendapatan: halaman terbuka, hanya servis lunas di periode, ringkasan jasa+part+transport dan piutang, unduh PDF, rekap per hari, rekap per minggu dan bulan, jumlah rekap sama dengan ringkasan, daftar piutang, kartu gaya dasbor, jasa dan part paling menghasilkan (Rupiah), satuan rekap PDF otomatis | aturan 23, 30 |
 | CMP-001..005 | CompositionChartsTest | Donat status dan tipe, jasa dan part terlaris | US-08 |
 
 ## Jasa dan kategori

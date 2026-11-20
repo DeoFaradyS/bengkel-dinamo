@@ -2,14 +2,12 @@
 
 namespace App\Filament\Pages;
 
-use App\Enums\BookingType;
 use App\Filament\Resources\Services\ServiceResource;
 use App\Support\Dashboard\DashboardPeriod;
 use App\Support\Dashboard\ServiceMetrics;
 use Barryvdh\DomPDF\Facade\Pdf;
 use BackedEnum;
 use Filament\Actions\Action;
-use Filament\Forms\Components\ToggleButtons;
 use Filament\Pages\Dashboard\Concerns\HasFiltersForm;
 use Filament\Pages\Page;
 use Filament\Schemas\Schema;
@@ -23,9 +21,11 @@ use Malzariey\FilamentDaterangepickerFilter\Fields\DateRangePicker;
 use UnitEnum;
 
 /**
- * Laporan Pendapatan (aturan 23). Dasar hitung: uang diterima, yaitu servis Selesai yang sudah
- * lunas, menurut tanggal lunas (paid_at). Pendapatan = jasa + spare part + ongkos transport.
- * Servis Selesai yang belum lunas ditampilkan terpisah sebagai "Belum dibayar".
+ * Laporan Pendapatan (aturan 23 dan 30). Dasar hitung: uang diterima, yaitu servis Selesai yang
+ * sudah lunas, menurut tanggal lunas (paid_at). Uang masuk = jasa + spare part + ongkos transport.
+ * Halaman: kartu ringkasan dan grafik gaya dasbor (widget di App\Filament\Widgets\Laporan), rincian
+ * transaksi, piutang. PDF: ringkasan, rekap per hari/minggu/bulan (otomatis dari panjang periode),
+ * rincian transaksi, piutang. Filter hanya periode, sama dengan dasbor.
  * Tidak memuat pengeluaran, laba/rugi, atau modal spare part (pengembangan lanjutan).
  */
 class LaporanPendapatan extends Page implements HasTable
@@ -42,12 +42,19 @@ class LaporanPendapatan extends Page implements HasTable
 
     protected string $view = 'filament.pages.laporan-pendapatan';
 
+    public const RECAP_UNITS = ['day' => 'Hari', 'week' => 'Minggu', 'month' => 'Bulan'];
+
+    // Sama dengan filter dasbor: satu date picker ringkas tanpa label.
     public function filtersForm(Schema $schema): Schema
     {
         return $schema
-            ->columns(['default' => 1, 'md' => 3])
+            ->columns(['default' => 1, 'sm' => 1, 'md' => 1, 'lg' => 1, 'xl' => 1, '2xl' => 1])
             ->components([
-                DateRangePicker::make('range')->label('Periode')
+                DateRangePicker::make('range')
+                    ->hiddenLabel()
+                    ->extraAttributes(['style' => 'width:fit-content;max-width:100%;'], merge: true)
+                    ->extraInputAttributes(['style' => 'field-sizing:content;min-width:8rem;'], merge: true)
+                    ->prefixIcon('heroicon-m-calendar-days')
                     ->format('d/m/Y')
                     ->ranges(DashboardPeriod::ranges())
                     ->useRangeLabels()
@@ -55,26 +62,14 @@ class LaporanPendapatan extends Page implements HasTable
                     ->endDate(now())
                     ->maxDate(now())
                     ->firstDayOfWeek(1)
-                    ->autoApply(),
-                ToggleButtons::make('tipe')->label('Tipe layanan')
-                    ->options(['' => 'Semua'] + collect(BookingType::cases())
-                        ->mapWithKeys(fn(BookingType $t) => [$t->value => $t->getLabel()])
-                        ->all())
-                    ->colors(['' => 'primary', 'workshop' => 'primary', 'home_service' => 'primary'])
-                    ->default('')
-                    ->inline()
-                    ->columnSpan(['default' => 1, 'md' => 2]),
+                    ->autoApply()
+                    ->live(),
             ]);
     }
 
     public function metrics(): ServiceMetrics
     {
         return DashboardPeriod::metrics(['range' => $this->filters['range'] ?? null]);
-    }
-
-    public function bookingType(): ?string
-    {
-        return filled($this->filters['tipe'] ?? null) ? $this->filters['tipe'] : null;
     }
 
     public function periodLabel(): string
@@ -89,22 +84,35 @@ class LaporanPendapatan extends Page implements HasTable
     /** @return array{jobs: float, parts: float, transport: float, total: float, count: int} */
     public function summary(): array
     {
-        return $this->metrics()->revenueBreakdown($this->bookingType());
+        return $this->metrics()->revenueBreakdown();
     }
 
     /** @return array{jobs: float, parts: float, transport: float, total: float, count: int} */
     public function unpaid(): array
     {
-        return ServiceMetrics::unpaidNow($this->bookingType());
+        return ServiceMetrics::unpaidNow();
+    }
+
+    /** Rekap untuk PDF, satuannya otomatis dari panjang periode (sama dengan grafik dasbor). */
+    public function recap(): array
+    {
+        return $this->metrics()->recap($this->metrics()->autoUnit());
+    }
+
+    /** Daftar piutang: servis Selesai belum lunas, semua tanggal. */
+    public function unpaidRows()
+    {
+        return ServiceMetrics::unpaidQuery()->with(['items', 'serviceParts'])->get();
     }
 
     public function table(Table $table): Table
     {
         return $table
             ->query(fn() => $this->metrics()->paidQuery()
-                ->when($this->bookingType(), fn($q, $type) => $q->where('booking_type', $type))
                 ->withSum('items', 'price')
                 ->withSum('serviceParts as parts_sum', DB::raw('quantity * unit_price')))
+            ->heading('Rincian transaksi')
+            ->description('Setiap servis lunas di periode ini. Klik baris untuk membuka detail servis.')
             ->defaultSort('paid_at')
             ->columns([
                 TextColumn::make('paid_at')->label('Tanggal lunas')
@@ -157,7 +165,6 @@ class LaporanPendapatan extends Page implements HasTable
     public function pdf(): string
     {
         $rows = $this->metrics()->paidQuery()
-            ->when($this->bookingType(), fn($q, $type) => $q->where('booking_type', $type))
             ->withSum('items', 'price')
             ->withSum('serviceParts as parts_sum', DB::raw('quantity * unit_price'))
             ->orderBy('paid_at')
@@ -165,9 +172,11 @@ class LaporanPendapatan extends Page implements HasTable
 
         return Pdf::loadView('reports.pendapatan', [
             'period' => $this->periodLabel(),
-            'type' => $this->bookingType() ? BookingType::from($this->bookingType())->getLabel() : 'Semua',
             'summary' => $this->summary(),
             'unpaid' => $this->unpaid(),
+            'unpaidRows' => $this->unpaidRows(),
+            'recap' => $this->recap(),
+            'recapUnit' => self::RECAP_UNITS[$this->metrics()->autoUnit()],
             'rows' => $rows,
         ])->setPaper('a4')->output();
     }

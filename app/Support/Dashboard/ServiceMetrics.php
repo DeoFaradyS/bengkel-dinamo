@@ -106,10 +106,119 @@ final class ServiceMetrics
      */
     public static function unpaidNow(?string $bookingType = null): array
     {
-        return self::sumServices(Service::query()
+        return self::sumServices(self::unpaidQuery($bookingType)->reorder());
+    }
+
+    /**
+     * Rekap pendapatan per hari, minggu (Senin-Minggu), atau bulan untuk Laporan Pendapatan
+     * (aturan 30). Hanya kelompok yang ada pemasukannya, urut dari yang paling lama. Label minggu
+     * dan bulan dipotong ke batas periode, contoh periode mulai Rabu 4 Nov: "4 - 8 Nov".
+     *
+     * @return list<array{label: string, count: int, jobs: float, parts: float, transport: float, total: float}>
+     */
+    public function recap(string $unit = 'day', ?string $bookingType = null): array
+    {
+        $rows = $this->paidQuery()
+            ->when($bookingType, fn(Builder $q) => $q->where('booking_type', $bookingType))
+            ->orderBy('paid_at')
+            ->with(['items', 'serviceParts'])
+            ->get();
+
+        return $rows
+            ->groupBy(fn(Service $s) => match ($unit) {
+                'week' => CarbonImmutable::instance($s->paid_at)->startOfWeek(CarbonImmutable::MONDAY)->toDateString(),
+                'month' => CarbonImmutable::instance($s->paid_at)->format('Y-m'),
+                default => CarbonImmutable::instance($s->paid_at)->toDateString(),
+            })
+            ->map(function ($group, string $key) use ($unit) {
+                $start = CarbonImmutable::parse($unit === 'month' ? $key . '-01' : $key);
+                $end = match ($unit) {
+                    'week' => $start->endOfWeek(CarbonImmutable::SUNDAY),
+                    'month' => $start->endOfMonth(),
+                    default => $start,
+                };
+                $start = $start->max($this->from);
+                $end = $end->min($this->to);
+
+                $jobs = (float) $group->sum(fn(Service $s) => $s->labor_total);
+                $parts = (float) $group->sum(fn(Service $s) => $s->parts_total);
+                $transport = (float) $group->sum(fn(Service $s) => (float) $s->transport_fee);
+
+                return [
+                    'label' => match ($unit) {
+                        'week' => $start->isSameDay($end) ? $start->translatedFormat('j M') : $start->translatedFormat('j M') . ' - ' . $end->translatedFormat('j M'),
+                        'month' => $start->translatedFormat('F Y'),
+                        default => $start->translatedFormat('D, j M Y'),
+                    },
+                    'count' => $group->count(),
+                    'jobs' => $jobs,
+                    'parts' => $parts,
+                    'transport' => $transport,
+                    'total' => $jobs + $parts + $transport,
+                ];
+            })
+            ->values()
+            ->all();
+    }
+
+    /** Servis Selesai yang belum lunas (piutang), tidak terikat periode, urut tanggal servis. */
+    public static function unpaidQuery(?string $bookingType = null): Builder
+    {
+        return Service::query()
             ->where('status', ServiceStatus::Completed->value)
             ->whereNull('paid_at')
-            ->when($bookingType, fn(Builder $q) => $q->where('booking_type', $bookingType)));
+            ->when($bookingType, fn(Builder $q) => $q->where('booking_type', $bookingType))
+            ->orderBy('scheduled_at');
+    }
+
+    /** Satuan waktu menurut panjang periode: sampai 31 hari per hari, sampai 92 hari per minggu, selebihnya per bulan. */
+    public function autoUnit(): string
+    {
+        return $this->days() <= 31 ? 'day' : ($this->days() <= 92 ? 'week' : 'month');
+    }
+
+    /**
+     * Jasa yang paling menghasilkan uang di periode (servis lunas), menurut Rupiah, bukan jumlah
+     * pemakaian seperti topServices(). Untuk Laporan Pendapatan (aturan 30).
+     *
+     * @return array<string, float> nama jasa => total Rupiah
+     */
+    public function revenueByService(int $limit = 5): array
+    {
+        return ServiceItem::query()
+            ->whereIn('service_id', $this->paidQuery()->select('id'))
+            ->selectRaw('name, SUM(price) as total')
+            ->groupBy('name')
+            ->orderByDesc('total')
+            ->orderBy('name')
+            ->limit($limit)
+            ->pluck('total', 'name')
+            ->map(fn($t) => (float) $t)
+            ->all();
+    }
+
+    /**
+     * Spare part yang paling menghasilkan uang di periode (servis lunas), menurut Rupiah
+     * (jumlah x harga jual). Part yang sudah diarsip tetap dihitung.
+     *
+     * @return array<string, float> nama part => total Rupiah
+     */
+    public function revenueByPart(int $limit = 5): array
+    {
+        $rows = ServicePart::query()
+            ->whereIn('service_id', $this->paidQuery()->select('id'))
+            ->selectRaw('spare_part_id, SUM(quantity * unit_price) as total')
+            ->groupBy('spare_part_id')
+            ->orderByDesc('total')
+            ->orderBy('spare_part_id')
+            ->limit($limit)
+            ->get();
+
+        $names = SparePart::withTrashed()->whereIn('id', $rows->pluck('spare_part_id'))->pluck('name', 'id');
+
+        return $rows
+            ->mapWithKeys(fn($row) => [($names[$row->spare_part_id] ?? 'Part #' . $row->spare_part_id) => (float) $row->total])
+            ->all();
     }
 
     /**
@@ -120,7 +229,7 @@ final class ServiceMetrics
      */
     public function revenueSeries(): array
     {
-        $unit = $this->days() <= 31 ? 'day' : ($this->days() <= 92 ? 'week' : 'month');
+        $unit = $this->autoUnit();
 
         $rows = $this->paidQuery()->get(['id', 'paid_at', 'transport_fee'])->load(['items', 'serviceParts']);
 
