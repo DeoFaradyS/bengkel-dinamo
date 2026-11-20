@@ -165,7 +165,8 @@ test('CEK-013: setelah booking, kode tampil dan link WA berisi kode', function (
         ->assertSee(substr($kode, 0, 3) . ' ' . substr($kode, 3))
         ->assertSee('Konfirmasi ke WhatsApp')
         ->assertSet('waLink', fn ($link) => str_starts_with($link, 'https://wa.me/628882509745?text=')
-            && str_contains(rawurldecode($link), 'Kode booking: ' . $kode));
+            && str_contains(rawurldecode($link), '*Kode booking:* ' . substr($kode, 0, 3) . ' ' . substr($kode, 3))
+            && str_contains(rawurldecode($link), '*Keluhan:* Dinamo starter mati'));
 });
 
 test('CEK-014: booking dibatalkan atau ditolak, alasan dari bengkel tampil', function (ServiceStatus $status) {

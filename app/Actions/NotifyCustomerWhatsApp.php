@@ -2,9 +2,11 @@
 
 namespace App\Actions;
 
+use App\Enums\BookingType;
 use App\Enums\ServiceStatus;
 use App\Models\Service;
 use App\Models\WhatsappMessage;
+use App\Models\WorkshopSetting;
 use App\Support\WhatsApp\WhatsAppSender;
 use Illuminate\Support\Facades\URL;
 
@@ -76,13 +78,52 @@ class NotifyCustomerWhatsApp
         $total = 'Rp ' . number_format($service->grand_total, 0, ',', '.');
         $alasan = filled($service->cancel_reason) ? $service->cancel_reason : '-';
 
-        $isi = match ($service->status) {
-            ServiceStatus::Confirmed => "booking kamu (kode {$kode}) sudah dikonfirmasi untuk {$jadwal}. Sampai jumpa.",
-            ServiceStatus::Completed => "servis kamu (kode {$kode}) sudah selesai. Total biaya {$total}.\nLihat invoice: " . self::invoiceLink($service) . "\nTerima kasih sudah servis di Budi Dinamo.",
-            ServiceStatus::Cancelled => "booking kamu (kode {$kode}) dibatalkan. Alasan: {$alasan}. Silakan booking ulang kalau masih perlu.",
-            ServiceStatus::Rejected => "maaf, booking kamu (kode {$kode}) belum bisa kami terima. Alasan: {$alasan}. Silakan pilih jadwal lain.",
+        // Template aturan 29: sapaan Bapak/Ibu, label tebal (*teks*), baris rapi.
+        $baris = match ($service->status) {
+            ServiceStatus::Confirmed => [
+                'Booking Bapak/Ibu sudah *dikonfirmasi*.',
+                '',
+                "*Kode:* {$kode}",
+                "*Jadwal:* {$jadwal}",
+                '*Jenis:* ' . $service->booking_type->getLabel(),
+                '',
+                ...self::lokasi($service),
+                'Cek status booking: ' . url('/#cek-booking'),
+                'Mau ganti jadwal atau batal? Balas pesan ini saja.',
+            ],
+            ServiceStatus::Completed => [
+                'Servis Bapak/Ibu sudah *selesai*. Terima kasih sudah servis di Budi Dinamo.',
+                '',
+                "*Kode:* {$kode}",
+                "*Total:* {$total}",
+                '*Pembayaran:* ' . ($service->paid_at ? 'Lunas' : 'Belum lunas'),
+                '',
+                'Invoice (PDF): ' . self::invoiceLink($service),
+                'Link berlaku 30 hari.',
+            ],
+            ServiceStatus::Cancelled, ServiceStatus::Rejected => [
+                'Mohon maaf, booking Bapak/Ibu ' . ($service->status === ServiceStatus::Rejected ? '*tidak bisa kami terima*.' : '*kami batalkan*.'),
+                '',
+                "*Kode:* {$kode}",
+                "*Alasan:* {$alasan}",
+                '',
+                'Silakan booking ulang di jadwal lain: ' . url('/#booking'),
+                'Ada pertanyaan? Balas pesan ini saja.',
+            ],
         };
 
-        return "Halo {$service->customer_name}, {$isi}\n\n- Budi Dinamo";
+        return implode("\n", ["Halo Bapak/Ibu {$service->customer_name},", '', ...$baris, '', 'Budi Dinamo']);
+    }
+
+    /** Ke Bengkel: link Google Maps bengkel (kalau diisi). Panggil Montir: alamat pelanggan. */
+    private static function lokasi(Service $service): array
+    {
+        if ($service->booking_type === BookingType::HomeService) {
+            return filled($service->address_note) ? ["Montir akan datang ke alamat: {$service->address_note}"] : ['Montir akan datang ke lokasi yang Bapak/Ibu pilih.'];
+        }
+
+        $maps = WorkshopSetting::query()->value('maps_url');
+
+        return filled($maps) ? ["Lokasi bengkel: {$maps}"] : [];
     }
 }

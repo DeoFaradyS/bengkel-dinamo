@@ -144,14 +144,19 @@ class BookingForm extends Component
         $this->rememberPhone();
 
         $this->bookingCode = $service->booking_code;
-        $this->waLink = WhatsAppLink::make(\App\Support\WorkshopContact::phone(), implode("\n", [
-            'Halo Budi Dinamo, saya sudah booking.',
-            'Kode booking: ' . $service->booking_code,
-            'Nama: ' . $service->customer_name,
-            'Jadwal: ' . $service->scheduled_at->translatedFormat('l, j F Y · H.i'),
-            'Jenis: ' . $service->booking_type->getLabel(),
+        // Pesan konfirmasi pelanggan ke bengkel (aturan 29). *teks* = tebal di WhatsApp.
+        $this->waLink = WhatsAppLink::make(\App\Support\WorkshopContact::phone(), implode("\n", array_filter([
+            'Halo Budi Dinamo, saya sudah booking servis.',
+            '',
+            '*Kode booking:* ' . substr($service->booking_code, 0, 3) . ' ' . substr($service->booking_code, 3),
+            '*Nama:* ' . $service->customer_name,
+            '*Jadwal:* ' . $service->scheduled_at->translatedFormat('l, j F Y') . ' pukul ' . $service->scheduled_at->format('H.i'),
+            '*Jenis:* ' . $service->booking_type->getLabel(),
+            $service->booking_type === \App\Enums\BookingType::HomeService && filled($service->address_note) ? '*Alamat:* ' . $service->address_note : null,
+            '*Keluhan:* ' . $service->complaint,
+            '',
             'Mohon dikonfirmasi, terima kasih.',
-        ]));
+        ], fn ($baris) => $baris !== null)));
 
         $this->reset([
             'customer_name',
