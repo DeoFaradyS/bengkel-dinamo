@@ -68,14 +68,7 @@ test('LSK-004: periode sampai hari ini, stok akhir sama dengan stok sebenarnya d
     expect(lskBaris('01/11/2026 - 20/11/2026', $part)['closing'])->toBe($part->fresh()->stock)->toBe(25);
 });
 
-test('LSK-005: hampir habis kalau stok akhir <= stok minimal, batas tepat sama ikut', function () {
-    $pas = lskPart('2026-11-01 09:00:00', 3, ['min_stock' => 3]);
-    $aman = lskPart('2026-11-01 09:00:00', 4, ['min_stock' => 3]);
-    $this->travelTo('2026-11-20 12:00:00');
-
-    expect(lskBaris('01/11/2026 - 20/11/2026', $pas)['low'])->toBeTrue()
-        ->and(lskBaris('01/11/2026 - 20/11/2026', $aman)['low'])->toBeFalse();
-});
+// LSK-005 (penanda hampir habis) dihapus 21 Nov 2026 karena bukan bagian laporan mutasi standar, jangan dipakai ulang.
 
 test('LSK-006: part diarsip hanya tampil kalau ada pergerakan di periode, kodenya tanpa akhiran -DEL', function () {
     $diam = lskPart('2026-09-01 09:00:00', 5, ['code' => 'SP-90']);
@@ -88,12 +81,12 @@ test('LSK-006: part diarsip hanya tampil kalau ada pergerakan di periode, kodeny
     $baris = lskBaris('01/11/2026 - 20/11/2026', $gerak);
 
     expect(lskBaris('01/11/2026 - 20/11/2026', $diam))->toBeNull()
-        ->and($baris)->toMatchArray(['code' => 'SP-91', 'archived' => true, 'out' => 2, 'low' => false]);
+        ->and($baris)->toMatchArray(['code' => 'SP-91', 'archived' => true, 'out' => 2]);
 });
 
-test('LSK-007: kartu ringkasan menjumlahkan masuk, keluar, penyesuaian, dan hampir habis', function () {
+test('LSK-007: kartu ringkasan menjumlahkan masuk, keluar, penyesuaian, dan stok akhir (jumlah barang)', function () {
     $a = lskPart('2026-09-01 09:00:00', 10);
-    $b = lskPart('2026-11-02 09:00:00', 1, ['min_stock' => 2]);              // masuk 1, hampir habis
+    lskPart('2026-11-02 09:00:00', 1);                                       // part baru: masuk 1
     lskGerak($a, '2026-11-03 09:00:00', 5, StockMovementType::Purchase, StockReason::Supplier);
     lskGerak($a, '2026-11-04 09:00:00', -3, StockMovementType::Usage);
     lskGerak($a, '2026-11-05 09:00:00', -1, StockMovementType::Correction, StockReason::Damaged);
@@ -105,7 +98,7 @@ test('LSK-007: kartu ringkasan menjumlahkan masuk, keluar, penyesuaian, dan hamp
         'Barang masuk' => '6',
         'Barang keluar' => '3',
         'Penyesuaian' => '-1',
-        'Hampir habis' => '1',
+        'Stok akhir' => '12',
     ]);
 });
 
@@ -118,4 +111,18 @@ test('LSK-008: tombol Unduh PDF menghasilkan file PDF', function () {
     expect(substr($page->instance()->pdf(), 0, 4))->toBe('%PDF');
 
     $page->callAction('unduh_pdf')->assertFileDownloaded();
+});
+
+test('LSK-009: tabel bisa dicari menurut kode atau nama dan diurutkan menurut kolom', function () {
+    $bearing = lskPart('2026-11-02 09:00:00', 10, ['code' => 'SP-81', 'name' => 'Bearing 6203']);
+    $kapasitor = lskPart('2026-11-02 09:00:00', 10, ['code' => 'SP-82', 'name' => 'Kapasitor 8uF']);
+    lskGerak($bearing, '2026-11-03 09:00:00', -1, StockMovementType::Usage);
+    lskGerak($kapasitor, '2026-11-03 09:00:00', -4, StockMovementType::Usage);
+    $this->travelTo('2026-11-20 12:00:00');
+
+    $page = Livewire::test(LaporanStok::class)->set('filters.range', '01/11/2026 - 20/11/2026');
+
+    $page->searchTable('bearing')->assertSee('Bearing 6203')->assertDontSee('Kapasitor 8uF');
+    $page->searchTable('SP-82')->assertSee('Kapasitor 8uF')->assertDontSee('Bearing 6203');
+    $page->searchTable(null)->sortTable('out', 'desc')->assertSeeInOrder(['Kapasitor 8uF', 'Bearing 6203']);
 });

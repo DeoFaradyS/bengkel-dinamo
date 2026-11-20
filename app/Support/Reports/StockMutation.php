@@ -16,9 +16,9 @@ use Illuminate\Support\Carbon;
  * - Keluar     = dipakai servis (Usage) di periode, ditulis positif.
  * - Penyesuaian = koreksi (rusak, hilang, salah hitung, lainnya) di periode, bertanda + atau -.
  * - Stok akhir = stok awal + masuk - keluar + penyesuaian.
- * - Hampir habis = stok akhir <= stok minimal (sama dengan penanda merah di menu Suku Cadang).
  *
- * Semua part aktif tampil, part yang diarsip hanya tampil kalau ada pergerakan di periode.
+ * Tanpa penanda hampir habis: bukan bagian laporan mutasi standar, pengingatnya ada di menu
+ * Suku Cadang (baris merah). Semua part aktif tampil, part yang diarsip hanya tampil kalau ada pergerakan di periode.
  * Satuan mengikuti nama barang (set, kg), tidak ada kolom satuan; nilai persediaan tidak dihitung karena harga beli tidak dicatat.
  */
 final class StockMutation
@@ -34,7 +34,7 @@ final class StockMutation
     }
 
     /**
-     * @return list<array{id: int, code: string, name: string, archived: bool, opening: int, in: int, out: int, adjustment: int, closing: int, low: bool}>
+     * @return list<array{id: int, code: string, name: string, archived: bool, opening: int, in: int, out: int, adjustment: int, closing: int}>
      */
     public function rows(): array
     {
@@ -75,23 +75,23 @@ final class StockMutation
                     'out' => $out,
                     'adjustment' => $adjustment,
                     'closing' => $closing,
-                    'low' => ! $p->trashed() && $closing <= $p->min_stock,
                 ];
             })
             ->values()
             ->all();
     }
 
-    /** @return array{in: int, out: int, adjustment: int, low: int} */
+    /** @return array{opening: int, in: int, out: int, adjustment: int, closing: int} */
     public function totals(): array
     {
         $rows = collect($this->rows());
 
         return [
+            'opening' => (int) $rows->sum('opening'),
             'in' => (int) $rows->sum('in'),
             'out' => (int) $rows->sum('out'),
             'adjustment' => (int) $rows->sum('adjustment'),
-            'low' => $rows->where('low', true)->count(),
+            'closing' => (int) $rows->sum('closing'),
         ];
     }
 }

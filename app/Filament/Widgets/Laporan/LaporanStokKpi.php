@@ -8,7 +8,10 @@ use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
-/** Kartu ringkasan Laporan Stok (aturan 31), tampilannya sama dengan kartu KPI dasbor. */
+/**
+ * Kartu ringkasan Laporan Stok (aturan 31), gaya kartu KPI dasbor. Dibaca seperti rumus:
+ * masuk, keluar, penyesuaian, stok akhir. Semua angka = jumlah barang, bukan jumlah transaksi.
+ */
 class LaporanStokKpi extends StatsOverviewWidget
 {
     use InteractsWithPageFilters;
@@ -32,7 +35,7 @@ class LaporanStokKpi extends StatsOverviewWidget
             ['key' => 'revenue', 'label' => 'Barang masuk', 'value' => (string) $t['in']],
             ['key' => 'completed', 'label' => 'Barang keluar', 'value' => (string) $t['out']],
             ['key' => 'bookings', 'label' => 'Penyesuaian', 'value' => ($t['adjustment'] > 0 ? '+' : '') . $t['adjustment']],
-            ['key' => 'low', 'label' => 'Hampir habis', 'value' => (string) $t['low']],
+            ['key' => 'unpaid', 'label' => 'Stok akhir', 'value' => (string) $t['closing']],
         ];
     }
 

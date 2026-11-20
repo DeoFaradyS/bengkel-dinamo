@@ -14,7 +14,7 @@
         table.list th, table.list td { border: 1px solid #ccc; padding: 5px 6px; }
         table.list th { background: #f0f0f0; text-align: left; }
         .total td { font-weight: bold; background: #f7f7f7; }
-        .low { color: #b91c1c; font-weight: bold; }
+        .minus { color: #b91c1c; }
         h3 { margin: 14px 0 6px; font-size: 12px; }
         .cards td { border: 1px solid #ccc; padding: 8px; width: 25%; vertical-align: top; }
         .cards .big { font-size: 14px; font-weight: bold; margin-top: 2px; }
@@ -47,7 +47,7 @@
             <td><div class="muted">Barang masuk</div><div class="big">{{ $totals['in'] }}</div></td>
             <td><div class="muted">Barang keluar</div><div class="big">{{ $totals['out'] }}</div></td>
             <td><div class="muted">Penyesuaian</div><div class="big">{{ $tanda($totals['adjustment']) }}</div></td>
-            <td><div class="muted">Hampir habis</div><div class="big">{{ $totals['low'] }}</div></td>
+            <td><div class="muted">Stok akhir</div><div class="big">{{ $totals['closing'] }}</div></td>
         </tr>
     </table>
 
@@ -63,7 +63,6 @@
                 <th class="right">Keluar</th>
                 <th class="right">Penyesuaian</th>
                 <th class="right">Stok akhir</th>
-                <th>Keterangan</th>
             </tr>
         </thead>
         <tbody>
@@ -75,19 +74,19 @@
                     <td class="right">{{ $r['opening'] }}</td>
                     <td class="right">{{ $r['in'] }}</td>
                     <td class="right">{{ $r['out'] }}</td>
-                    <td class="right">{{ $tanda($r['adjustment']) }}</td>
+                    <td class="right {{ $r['adjustment'] < 0 ? 'minus' : '' }}">{{ $tanda($r['adjustment']) }}</td>
                     <td class="right"><strong>{{ $r['closing'] }}</strong></td>
-                    <td>@if ($r['low'])<span class="low">Hampir habis</span>@endif</td>
                 </tr>
             @empty
-                <tr><td colspan="9" class="muted" style="text-align: center;">Belum ada suku cadang</td></tr>
+                <tr><td colspan="8" class="muted" style="text-align: center;">Belum ada suku cadang</td></tr>
             @endforelse
             <tr class="total">
-                <td colspan="4">Jumlah</td>
+                <td colspan="3">Jumlah</td>
+                <td class="right">{{ $totals['opening'] }}</td>
                 <td class="right">{{ $totals['in'] }}</td>
                 <td class="right">{{ $totals['out'] }}</td>
                 <td class="right">{{ $tanda($totals['adjustment']) }}</td>
-                <td colspan="2"></td>
+                <td class="right">{{ $totals['closing'] }}</td>
             </tr>
         </tbody>
     </table>
