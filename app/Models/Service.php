@@ -179,19 +179,29 @@ class Service extends Model
         });
     }
 
-    // Alasan servis belum boleh dikerjakan, atau null kalau boleh.
-    // $record null berarti servis baru: dianggap paling akhir dibuat.
+    // Alasan servis belum boleh dikerjakan, atau null kalau boleh (aturan 11).
+    // Gabungan dua cek di bawah; dipakai untuk logika dan tes.
     public static function startBlockerMessage(?self $record, mixed $scheduledAt): ?string
+    {
+        return self::runningServiceMessage($record) ?? self::aheadServiceMessage($record, $scheduledAt);
+    }
+
+    // Penghalang: hanya satu servis Dikerjakan dalam satu waktu (satu montir).
+    public static function runningServiceMessage(?self $record): ?string
     {
         $running = self::query()
             ->where('status', ServiceStatus::InProgress->value)
             ->when($record, fn($q) => $q->whereKeyNot($record->id))
             ->exists();
 
-        if ($running) {
-            return 'Masih ada servis yang sedang dikerjakan.';
-        }
+        return $running ? 'Masih ada servis yang sedang dikerjakan.' : null;
+    }
 
+    // Peringatan (bukan penghalang, sejak 20 Nov 2026): ada servis Dikonfirmasi yang jadwalnya
+    // lebih dulu. Admin boleh melewatinya, misalnya pelanggan itu belum datang.
+    // $record null berarti servis baru: dianggap paling akhir dibuat.
+    public static function aheadServiceMessage(?self $record, mixed $scheduledAt): ?string
+    {
         $scheduledAt = Carbon::parse($scheduledAt)->startOfMinute();
 
         $ahead = self::query()
@@ -219,6 +229,48 @@ class Service extends Model
         return $ahead
             ? "Servis atas nama {$ahead->customer_name} lebih dulu antre."
             : null;
+    }
+
+    // Status yang ikut nomor antrean: yang sudah pasti datang atau sudah dilayani.
+    // Menunggu belum pasti; Batal, Ditolak, Kedaluwarsa tidak dihitung.
+    public const QUEUE_STATUSES = [ServiceStatus::Confirmed, ServiceStatus::InProgress, ServiceStatus::Completed];
+
+    /**
+     * Nomor antrean hari itu (aturan 22): urutan jam booking, lalu waktu dibuat, lalu id.
+     * Servis Selesai tetap dihitung, jadi nomor tidak berubah saat antrean di depan selesai.
+     * Hanya untuk servis yang jadwalnya hari ini; selain itu null.
+     *
+     * @return array{number: int, current: ?int, ahead: int}|null
+     */
+    public function queueInfo(): ?array
+    {
+        if (!$this->scheduled_at?->isToday() || !in_array($this->status, self::QUEUE_STATUSES, true)) {
+            return null;
+        }
+
+        $day = self::query()
+            ->whereDate('scheduled_at', $this->scheduled_at->toDateString())
+            ->whereIn('status', array_map(fn($s) => $s->value, self::QUEUE_STATUSES))
+            ->orderBy('scheduled_at')->orderBy('created_at')->orderBy('id')
+            ->get(['id', 'status']);
+
+        $number = null;
+        $current = null;
+        $ahead = 0;
+
+        foreach ($day->values() as $i => $s) {
+            if ($s->status === ServiceStatus::InProgress) {
+                $current = $i + 1;
+            }
+
+            if ($s->id === $this->id) {
+                $number = $i + 1;
+            } elseif ($number === null && in_array($s->status, [ServiceStatus::Confirmed, ServiceStatus::InProgress], true)) {
+                $ahead++;
+            }
+        }
+
+        return $number === null ? null : ['number' => $number, 'current' => $current, 'ahead' => $ahead];
     }
 
     public function invoiceNumber(): string

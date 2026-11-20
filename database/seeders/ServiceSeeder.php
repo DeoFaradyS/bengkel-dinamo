@@ -170,31 +170,35 @@ class ServiceSeeder extends Seeder
                 'parts' => [['Regulator / IC Alternator 12V', 1], ['Kohlen / Carbon Brush Alternator (set)', 1]],
             ],
             [
+                // Aturan 11: hanya satu servis Dikerjakan sekaligus (Bu Yuli). Yang lain Selesai/Dikonfirmasi.
                 'name' => 'Toko Sinar Terang',
                 'customer_phone' => '082112345604',
-                'status' => 'in_progress',
+                'status' => 'completed',
+                'mechanic' => 'Cak Budi',
                 'days' => -1,
                 'complaint' => 'Dinamo ampere Carry bunyi kasar dan berdecit',
                 'jasa' => [['Ganti bearing', null]],
                 'parts' => [['Pulley Alternator', 1], ['Bearing 6203', 2]],
             ],
             [
+                // Antre hari ini, belum dikerjakan: jasa dan part belum diisi.
                 'name' => 'Pak Hendra',
                 'customer_phone' => '081998765405',
-                'status' => 'in_progress',
+                'status' => 'confirmed',
                 'days' => 0,
                 'complaint' => 'Alternator tidak ngecas, kemungkinan dioda jebol',
-                'jasa' => [['Servis dinamo', null], ['Perbaikan kabel kelistrikan', null]],
-                'parts' => [['Dioda Plat / Rectifier', 1]],
+                'jasa' => [],
+                'parts' => [],
             ],
             [
+                // Antre hari ini, belum dikerjakan: jasa dan part belum diisi.
                 'name' => 'Bu Rina Marlina',
                 'customer_phone' => '087712345606',
-                'status' => 'in_progress',
+                'status' => 'confirmed',
                 'days' => 0,
                 'complaint' => 'Dinamo pompa air tidak mau start',
-                'jasa' => [['Servis dinamo', null]],
-                'parts' => [['Kapasitor Motor 12uF', 1], ['Seal Mekanik Pompa Air', 1]],
+                'jasa' => [],
+                'parts' => [],
             ],
             [ // dikonfirmasi, belum ada jasa: baris kosong boleh
                 'name' => 'UD Tani Makmur',

@@ -435,6 +435,14 @@ class ServiceForm
                                 'required' => 'Isi alasan penolakan atau pembatalan.',
                             ])
                             ->helperText('Alasan ini terlihat oleh pelanggan di Cek Booking.')
+                            // Alasan cepat untuk pelanggan yang tidak datang (jadwal tidak mengunci antrean lagi).
+                            ->hintAction(
+                                \Filament\Actions\Action::make('alasan_tidak_datang')
+                                    ->label('Pelanggan tidak datang')
+                                    ->link()
+                                    ->visible(fn(Get $get) => in_array($get('status'), [ServiceStatus::Cancelled, ServiceStatus::Cancelled->value], true))
+                                    ->action(fn(Set $set) => $set('cancel_reason', 'Pelanggan tidak datang')),
+                            )
                             ->placeholder('Contoh: jadwal montir penuh, kerusakan di luar layanan bengkel'),
                         // Montir: catatan internal bengkel, tidak tampil ke pelanggan.
                         TextInput::make('mechanic_names')->label('Montir')

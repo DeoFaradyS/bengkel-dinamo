@@ -15,9 +15,6 @@ class ServiceTypesTable
     {
         return $table
             ->columns([
-                TextColumn::make('index')->label('No')->rowIndex()
-                    ->alignCenter()
-                    ->extraHeaderAttributes(['style' => 'width: 4rem']),
                 ImageColumn::make('photo')->label('Foto')
                     ->disk('public')
                     ->square()

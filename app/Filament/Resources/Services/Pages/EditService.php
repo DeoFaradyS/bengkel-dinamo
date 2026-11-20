@@ -18,6 +18,7 @@ class EditService extends EditRecord
     protected static string $resource = ServiceResource::class;
 
     public bool $completeConfirmed = false;
+    public bool $queueSkipConfirmed = false;
     public static string|Alignment $formActionsAlignment = Alignment::End;
 
     protected function getRedirectUrl(): string
@@ -27,8 +28,14 @@ class EditService extends EditRecord
 
     protected function beforeSave(): void
     {
-        if ($message = $this->queueBlockMessage()) {
+        if ($this->queueBlockMessage()) {
             $this->mountAction('queueBlocked');
+            $this->halt();
+        }
+
+        // Ada jadwal lebih awal yang belum dikerjakan: konfirmasi dulu, boleh dilewati.
+        if ($this->queueAheadMessage() && !$this->queueSkipConfirmed) {
+            $this->mountAction('confirmQueueSkip');
             $this->halt();
         }
 
@@ -41,17 +48,46 @@ class EditService extends EditRecord
         $this->data['serviceParts'] = array_filter($this->data['serviceParts'] ?? [], fn($r) => filled($r['spare_part_id'] ?? null));
     }
 
-    // Alasan servis belum boleh dikerjakan, atau null kalau boleh.
-    private function queueBlockMessage(): ?string
+    // Status di form sedang diubah menjadi Dikerjakan?
+    private function isStartingWork(): bool
     {
         $status = $this->data['status'] ?? null;
         $status = $status instanceof ServiceStatus ? $status : ServiceStatus::tryFrom((string) $status);
 
         if ($status !== ServiceStatus::InProgress || $this->record->status === $status) {
-            return null;
+            return false;
         }
 
-        return \App\Models\Service::startBlockerMessage($this->record, $this->data['scheduled_at'] ?? null);
+        return true;
+    }
+
+    // Penghalang: masih ada servis lain yang sedang dikerjakan (aturan 11).
+    private function queueBlockMessage(): ?string
+    {
+        return $this->isStartingWork() ? \App\Models\Service::runningServiceMessage($this->record) : null;
+    }
+
+    // Peringatan: ada servis Dikonfirmasi yang jadwalnya lebih dulu.
+    private function queueAheadMessage(): ?string
+    {
+        return $this->isStartingWork()
+            ? \App\Models\Service::aheadServiceMessage($this->record, $this->data['scheduled_at'] ?? $this->record->scheduled_at)
+            : null;
+    }
+
+    public function confirmQueueSkipAction(): Action
+    {
+        return Action::make('confirmQueueSkip')
+            ->requiresConfirmation()
+            ->modalHeading('Kerjakan servis ini duluan?')
+            ->modalDescription(fn() => $this->queueAheadMessage() . ' Kalau pelanggan itu belum datang, servis ini boleh dikerjakan lebih dulu.')
+            ->modalIcon('heroicon-o-exclamation-triangle')
+            ->modalIconColor('warning')
+            ->modalSubmitActionLabel('Ya, kerjakan')
+            ->action(function () {
+                $this->queueSkipConfirmed = true;
+                $this->save();
+            });
     }
 
     public function queueBlockedAction(): Action

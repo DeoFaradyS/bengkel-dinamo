@@ -15,9 +15,6 @@ class CategoriesTable
     {
         return $table
             ->columns([
-                TextColumn::make('index')->label('No')->rowIndex()
-                    ->alignCenter()
-                    ->extraHeaderAttributes(['style' => 'width: 4rem']),
                 TextColumn::make('name')->label('Nama Kategori')->searchable()->sortable(),
                 TextColumn::make('description')->label('Deskripsi')->searchable()->sortable()->limit(50),
             ])

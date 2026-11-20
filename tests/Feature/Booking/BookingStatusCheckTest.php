@@ -106,10 +106,10 @@ test('CEK-007: harga, total, dan alamat tidak ikut tampil', function () {
 
     cekBooking($service->booking_code, '081234567890')
         ->assertSet('results', fn ($r) => count($r) === 1
-            && array_keys($r[0]) === ['booking_code', 'status', 'status_label', 'type', 'scheduled_at', 'complaint', 'cancel_reason'])
+            && array_keys($r[0]) === ['booking_code', 'status', 'status_label', 'type', 'scheduled_at', 'complaint', 'cancel_reason', 'queue'])
         ->assertDontSee('RAHASIA')
         ->assertDontSee('123.456')
-        ->assertDontSee('Rp');
+        ->assertDontSeeText('Rp'); // teks terlihat saja: id acak Livewire bisa memuat 'Rp'
 });
 
 test('CEK-008: nomor tidak valid tidak mencocokkan servis apa pun', function () {
@@ -182,4 +182,17 @@ test('CEK-015: booking dengan status lain, alasan tidak tampil', function () {
     cekBooking($s->booking_code, '081234567890')
         ->assertSet('results', fn ($r) => $r[0]['cancel_reason'] === null)
         ->assertDontSee('Sisa catatan lama');
+});
+
+test('CEK-016: booking Dikonfirmasi hari ini menampilkan nomor antrean dan sisa antrean', function () {
+    Service::factory()->create([
+        'status' => ServiceStatus::InProgress,
+        'scheduled_at' => now()->setTime(8, 0),
+    ]);
+    $s = servisCek(['status' => ServiceStatus::Confirmed, 'scheduled_at' => now()->setTime(10, 0)]);
+
+    cekBooking($s->booking_code, '081234567890')
+        ->assertSet('results', fn ($r) => $r[0]['queue'] === ['number' => 2, 'current' => 1, 'ahead' => 1])
+        ->assertSee('Tinggal 1 antrean lagi')
+        ->assertSee('Sedang dikerjakan: nomor 1');
 });

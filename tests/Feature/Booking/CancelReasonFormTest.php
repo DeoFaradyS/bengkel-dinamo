@@ -63,3 +63,12 @@ it('RSN-005: Ditolak dengan alasan tersimpan', function () {
 
     expect($service->fresh()->cancel_reason)->toBe('Biaya melebihi harga unit baru');
 });
+
+it('RSN-006: tombol "Pelanggan tidak datang" mengisi alasan pembatalan', function () {
+    $service = Service::factory()->create(['status' => ServiceStatus::Confirmed]);
+
+    Livewire::test(\App\Filament\Resources\Services\Pages\EditService::class, ['record' => $service->getRouteKey()])
+        ->fillForm(['status' => ServiceStatus::Cancelled->value])
+        ->callAction(\Filament\Actions\Testing\TestAction::make('alasan_tidak_datang')->schemaComponent('cancel_reason'))
+        ->assertFormSet(['cancel_reason' => 'Pelanggan tidak datang']);
+});

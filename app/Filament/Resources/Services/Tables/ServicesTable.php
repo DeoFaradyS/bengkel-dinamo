@@ -26,7 +26,12 @@ class ServicesTable
                 ->orderBy('created_at', 'asc')
                 ->orderBy('id', 'asc'))
             ->columns([
-                TextColumn::make('index')->label('No')->rowIndex(),
+                // Nomor antrean hari ini (aturan 22), bukan nomor baris. Selain hari ini tampil '-'.
+                TextColumn::make('antrean')->label('Antrean')
+                    ->state(fn($record) => $record->queueInfo()['number'] ?? null)
+                    ->placeholder('-')
+                    ->alignCenter()
+                    ->visible(fn($livewire) => in_array($livewire->activeTab ?? 'all', ['all', 'confirmed', 'in_progress', 'completed'], true)),
                 TextColumn::make('booking_code')->label('Kode')
                     ->searchable(),
                 TextColumn::make('customer_name')->label('Pelanggan')

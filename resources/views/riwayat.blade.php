@@ -68,7 +68,6 @@
                 <table class="w-full min-w-[760px] text-left text-sm">
                     <thead class="border-b border-neutral-200 bg-neutral-50 text-xs font-semibold text-neutral-700">
                         <tr>
-                            <th scope="col" class="w-14 px-4 py-3">No</th>
                             <th scope="col" class="px-4 py-3">Kode</th>
                             <th scope="col" class="px-4 py-3" @if ($sort === 'tanggal') aria-sort="{{ $arah === 'asc' ? 'ascending' : 'descending' }}" @endif>
                                 <a href="{{ $sortUrl('tanggal') }}" class="inline-flex items-center gap-1 transition-colors hover:text-red-600">
@@ -97,7 +96,6 @@
                                     + (float) ($service->transport_fee ?? 0);
                             @endphp
                             <tr class="transition-colors hover:bg-neutral-50">
-                                <td class="px-4 py-3 text-neutral-500">{{ $services->firstItem() + $loop->index }}</td>
                                 <td class="whitespace-nowrap px-4 py-3 font-semibold tabular-nums text-neutral-800">{{ $service->booking_code ?? '-' }}</td>
                                 <td class="whitespace-nowrap px-4 py-3 text-neutral-800">
                                     {{ $service->scheduled_at?->translatedFormat('j M Y, H.i') ?? '-' }}

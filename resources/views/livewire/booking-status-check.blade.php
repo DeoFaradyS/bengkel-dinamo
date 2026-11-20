@@ -92,6 +92,28 @@
                             <p class="text-lg text-neutral-700 leading-relaxed">{{ $pesan[$r['status']] ?? '' }}</p>
                         </div>
 
+                        @if ($r['queue'])
+                            {{-- Nomor antrean hari ini: nomor tetap, ditambah posisi yang bergerak. --}}
+                            <div class="flex items-center gap-5 p-4 bg-neutral-50 rounded-xl">
+                                <div class="flex flex-col items-center justify-center min-w-20 px-3 py-2 bg-white border border-neutral-200 rounded-lg">
+                                    <span class="text-sm text-neutral-500">Antrean</span>
+                                    <span class="text-3xl font-bold text-neutral-900 tabular-nums">{{ $r['queue']['number'] }}</span>
+                                </div>
+                                <div class="flex flex-col gap-1 text-lg">
+                                    @if ($r['status'] === 'in_progress')
+                                        <p class="font-semibold text-neutral-900">Sedang dikerjakan</p>
+                                    @elseif ($r['queue']['ahead'] === 0)
+                                        <p class="font-semibold text-neutral-900">Giliranmu berikutnya</p>
+                                    @else
+                                        <p class="font-semibold text-neutral-900">Tinggal {{ $r['queue']['ahead'] }} antrean lagi</p>
+                                    @endif
+                                    @if ($r['status'] !== 'in_progress' && $r['queue']['current'])
+                                        <p class="text-neutral-600">Sedang dikerjakan: nomor {{ $r['queue']['current'] }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+
                         @if ($r['cancel_reason'])
                             <div class="flex flex-col gap-1 p-4 bg-neutral-50 border-l-4 border-neutral-300 rounded-r-lg">
                                 <p class="text-base text-neutral-500">Alasan</p>

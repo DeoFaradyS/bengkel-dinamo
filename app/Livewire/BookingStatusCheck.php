@@ -94,6 +94,10 @@ class BookingStatusCheck extends Component
             'cancel_reason' => in_array($s->status, [ServiceStatus::Cancelled, ServiceStatus::Rejected], true)
                 ? $s->cancel_reason
                 : null,
+            // Nomor antrean hari ini (aturan 22), hanya untuk booking yang menunggu dikerjakan atau sedang dikerjakan.
+            'queue' => in_array($s->status, [ServiceStatus::Confirmed, ServiceStatus::InProgress], true)
+                ? $s->queueInfo()
+                : null,
         ])->all();
     }
 

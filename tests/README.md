@@ -1,6 +1,6 @@
 # Peta Tes: SIM Bengkel Cak Budi Dinamo
 
-Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (587 lulus per 20 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
+Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (596 lulus per 20 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
 
 Jalankan: `php artisan test`, atau satu modul: `php artisan test --filter=Riwayat`.
 
@@ -38,7 +38,7 @@ Catatan umum:
 | BTL-001..010 | Booking/CancelByCustomerTest | Pelanggan membatalkan booking Menunggu lewat Cek Booking dan Riwayat, alasan dari daftar atau kosong, Dikonfirmasi tidak bisa (link WA), HP salah atau milik orang lain tidak bisa, ikut batas percobaan, notifikasi owner, nomor bisa booking lagi | aturan 21 |
 | MTR-001..004 | Services/ServiceMechanicTest | Isian Montir tersembunyi saat Menunggu, muncul mulai Dikonfirmasi, tersimpan, maksimal 255 karakter, tidak tampil di Cek Booking dan Riwayat | `mechanic_names` |
 | SRC-001..010 | ServiceSourceTest | Asal servis: booking beranda online, Tambah servis admin, data pelanggan booking online terkunci dan tidak bisa dipaksa, jadwal terkunci (SRC-005 dibalik di hari yang sama) termasuk saat Dikerjakan, servis admin bebas diubah, Jasa dan Spare Part hanya saat Dikerjakan/Selesai, jasa lama tidak terhapus | aturan 20 |
-| ANT-001..012 | ServiceQueueTest | Antrian: satu `in_progress`, urutan confirmed, modal blokir | aturan 11 |
+| ANT-001..019 | ServiceQueueTest | Antrian: satu `in_progress` (penghalang), jadwal lebih awal hanya konfirmasi lewati (ANT-009 diubah 20 Nov, ANT-013..014), nomor antrean hari ini: urut jam, Selesai tetap dihitung, batal/menunggu tidak, sedang dikerjakan dan sisa, bukan hari ini null (ANT-015..019) | aturan 11, 22 |
 | STK-001..008, 012..013 | ServiceStockTest | Stok berkurang saat Selesai, sekali saja, stok kurang membatalkan, modal konfirmasi | aturan 2 |
 | STK-010..011 | ServiceStockFormTest | Stok kurang lewat form tidak error, batal atau tolak tidak mengurangi stok | aturan 2 |
 | SUS-001..005 | ServiceStockUsageTest | Pemakaian tercatat di riwayat stok, `syncStock` dua kali tidak menggandakan | aturan 1, 2 |
@@ -53,7 +53,7 @@ Catatan umum:
 | BKG-001..006 | CreateBookingTest | Booking baru Menunggu, HP `08...`, HP aktif ditolak, HP servis Selesai atau terhapus boleh lagi | aturan 4 |
 | BKG-010..020 | BookingFormTest | Formulir tamu: kirim valid, wajib, honeypot, 5 kiriman per menit, pilih slot, koreksi tanggal, pesan HP aktif dengan link Cek Booking, Buat booking lain tetap menolak nomor yang sama | aturan 4 |
 | BKA-001..007 | BookingAccountTest | Booking customer login: form terisi, `user_id` tersimpan, HP akun tersimpan atau tidak tertimpa, tamu `user_id` NULL | aturan 15 |
-| CEK-001..015 | BookingStatusCheckTest | Cek Booking: cocok kode booking dan nomor (+62 = 08), pesan gagal sama, wajib isi, 5 per menit, soft delete tersembunyi, harga/total/alamat tidak bocor, nomor tidak valid, kode 6 angka unik, spasi di kode diabaikan, nama + HP saja ditolak, kode bukan fillable, kode dan link WA tampil setelah booking, alasan tampil untuk Dibatalkan/Ditolak dan tidak untuk status lain | aturan 12 |
+| CEK-001..016 | BookingStatusCheckTest | Cek Booking: cocok kode booking dan nomor (+62 = 08), pesan gagal sama, wajib isi, 5 per menit, soft delete tersembunyi, harga/total/alamat tidak bocor, nomor tidak valid, kode 6 angka unik, spasi di kode diabaikan, nama + HP saja ditolak, kode bukan fillable, kode dan link WA tampil setelah booking, alasan tampil untuk Dibatalkan/Ditolak dan tidak untuk status lain, nomor antrean hari ini (CEK-016) | aturan 12, 22 |
 | SLB-001..005 | BookingSlotTest | Slot kosong lolos, terisi ditolak, servis final melepas slot | aturan 4 |
 | SLT-001..008 | SlotsTest | 9 slot sehari, jam di luar slot, jarak minimal, slot penuh tampil tapi tidak tersedia | |
 | EXP-001..005 | ExpireBookingsTest | Menunggu kedaluwarsa, status lain tidak disentuh, slot dilepas | aturan 5 |
@@ -66,7 +66,7 @@ Catatan umum:
 | ADM-001..004 | AdminBookingTypeTest | Kolom, badge, filter tipe di tabel admin, link Peta | |
 | FRM-001..008 | AdminServiceFormTypeTest | Form admin: pilihan tipe, koordinat tampil atau tersembunyi, validasi, dikosongkan saat pindah ke workshop | |
 | FRM-009..010 | AdminServiceFormMapTest | Preview peta di form admin hanya untuk Home Service | |
-| RSN-001..005 | CancelReasonFormTest | Alasan wajib untuk Ditolak dan Dibatalkan, tersembunyi untuk status aktif (RSN-005 sejak 17 Nov lewat form ubah) | |
+| RSN-001..006 | CancelReasonFormTest | Alasan wajib untuk Ditolak dan Dibatalkan, tersembunyi untuk status aktif (RSN-006 tombol cepat "Pelanggan tidak datang"; RSN-005 sejak 17 Nov lewat form ubah) | |
 | NTF-001..003, 010..011 | BookingNotificationTest, BookingNotificationTypeTest | Notifikasi booking baru ke owner, isi memuat nama dan tipe | aturan 10 |
 | SED-001..002 | SeederHomeServiceTest | Seeder punya servis Home Service dengan koordinat | |
 
