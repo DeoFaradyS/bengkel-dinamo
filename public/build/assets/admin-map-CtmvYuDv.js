@@ -1,0 +1,1 @@
+import{t as e}from"./map-pin-CPR2J__l.js";window.adminPinMap=(t,n)=>{let r=e(t,{get:()=>({lat:parseFloat(n.data.latitude),lng:parseFloat(n.data.longitude)}),set:(e,t)=>{n.data.latitude=e,n.data.longitude=t,n.$refresh()}});r.sync(),n.$watch(`data.latitude`,r.sync),n.$watch(`data.longitude`,r.sync)},window.dispatchEvent(new Event(`admin-map-ready`));

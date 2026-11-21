@@ -14,7 +14,7 @@
 /.zed
 /auth.json
 /node_modules
-/public/build
+# /public/build sengaja ikut Git: hosting tidak punya Node.js, jadi CSS/JS dibuat di laptop (npm run build) lalu di-push.
 /public/css/filament
 /public/fonts-manifest.dev.json
 /public/fonts/filament
