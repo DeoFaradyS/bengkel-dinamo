@@ -1,6 +1,6 @@
 # Peta Tes: SIM Bengkel Cak Budi Dinamo
 
-Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (646 lulus per 21 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
+Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (649 lulus per 21 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
 
 Jalankan: `php artisan test`, atau satu modul: `php artisan test --filter=Riwayat`.
 
@@ -129,6 +129,7 @@ Catatan umum:
 | WAL-001..004 | Unit/WhatsAppLinkTest | Tautan wa.me: format internasional, encode pesan | |
 | (tanpa ID) | Unit/PhoneNumberTest | `PhoneNumber::normalize` ke `08...`, null dan kosong | |
 | SED-001 | Seeders/SeederTest | `DatabaseSeeder` jalan tanpa error | |
+| AKN-001..003 | Seeders/AccountSeederTest | Akun bawaan: pemilik dan 2 pelanggan demo, server menolak seeder tanpa OWNER_PASSWORD, server tanpa suku cadang dan servis contoh | aturan 37 |
 
 ## Catatan rapikan
 

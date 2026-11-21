@@ -15,7 +15,7 @@ class ServiceSeeder extends Seeder
     public function run(): void
     {
         Auth::setUser(User::where('role', UserRole::Owner)->firstOrFail());
-        $customer = User::where('email', 'customer@bengkel-dinamo.test')->firstOrFail();
+        $customer = User::where('email', DemoCustomerSeeder::ACCOUNTS[0]['email'])->firstOrFail();
         $types = ServiceType::all()->keyBy('name');
         $parts = SparePart::all()->keyBy('name');
 
@@ -258,7 +258,7 @@ class ServiceSeeder extends Seeder
             ],
 
             [ // milik customer demo: selesai dan lunas
-                'name' => 'Pelanggan Demo',
+                'name' => 'Pelanggan Demo 1',
                 'customer_phone' => '081234567890',
                 'user' => true,
                 'status' => 'completed',
@@ -270,7 +270,7 @@ class ServiceSeeder extends Seeder
                 'parts' => [],
             ],
             [ // milik customer demo: selesai, belum lunas
-                'name' => 'Pelanggan Demo',
+                'name' => 'Pelanggan Demo 1',
                 'customer_phone' => '081234567890',
                 'user' => true,
                 'status' => 'completed',
@@ -278,10 +278,10 @@ class ServiceSeeder extends Seeder
                 'days' => -3,
                 'complaint' => 'Starter ngik-ngik, bendix slip',
                 'jasa' => [['Ganti bendix', null]],
-                'parts' => [],
+                'parts' => [['Bendix Starter 12V', 1]],
             ],
             [ // milik customer demo: sudah dikonfirmasi
-                'name' => 'Pelanggan Demo',
+                'name' => 'Pelanggan Demo 1',
                 'customer_phone' => '081234567890',
                 'user' => true,
                 'status' => 'confirmed',
