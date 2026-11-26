@@ -55,6 +55,14 @@ class SparePartSeeder extends Seeder
             ['SP-025', 'Terminal Kabel & Baut', 'Lainnya', 30, 10, 'Laci F3', 8000, 'set'],
         ];
 
+        // Garansi (aturan 38), dalam hari. Komponen utama (kumparan) 90 hari, komponen listrik dan
+        // mekanik 30 hari. Barang habis pakai (kohlen, bearing, bosh, seal, kabel, terminal) tanpa garansi.
+        $warranty = [
+            'SP-005' => 90, 'SP-006' => 90, 'SP-007' => 90, 'SP-015' => 90, 'SP-016' => 90,
+            'SP-001' => 30, 'SP-002' => 30, 'SP-003' => 30, 'SP-004' => 30, 'SP-009' => 30, 'SP-010' => 30,
+            'SP-011' => 30, 'SP-012' => 30, 'SP-013' => 30, 'SP-018' => 30, 'SP-019' => 30,
+        ];
+
         $imageDir = database_path('seeders/images/spare-parts');
 
         // Kolom ke-8 = satuan (aturan 33), kosong berarti pcs. Kabel email ditimbang (kg, boleh pecahan).
@@ -71,6 +79,7 @@ class SparePartSeeder extends Seeder
                 'min_stock' => $minStock,
                 'storage_location' => $location,
                 'price' => $price,
+                'warranty_days' => $warranty[$code] ?? null,
             ]);
 
             // cari file gambar bernama kode part, format apa saja
