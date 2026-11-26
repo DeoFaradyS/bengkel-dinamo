@@ -44,8 +44,7 @@ class SparePartsTable
                     ->searchable(),
                 TextColumn::make('price')->label('Harga')
                     ->money('IDR', locale: 'id', decimalPlaces: 0)
-                    ->sortable(),
-            ])
+                    ->sortable(),            ])
             ->filters([
                 SelectFilter::make('category_id')
                     ->label('Kategori')

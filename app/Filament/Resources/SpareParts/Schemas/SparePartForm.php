@@ -72,7 +72,6 @@ class SparePartForm
                                     ->columns(2)
                                     ->schema([
                                         TextInput::make('price')->label('Harga')
-                                            ->columnSpanFull()
                                             ->required()
                                             ->numeric()
                                             ->mask(RawJs::make("\$money(\$input, ',', '.', 0)"))
@@ -80,6 +79,13 @@ class SparePartForm
                                             ->minValue(0)
                                             ->maxValue(9999999999)
                                             ->prefix('Rp'),
+                                        // Garansi (aturan 38): disalin ke servis saat suku cadang dipakai.
+                                        TextInput::make('warranty_days')->label('Garansi')
+                                            ->integer()
+                                            ->minValue(1)
+                                            ->maxValue(3650)
+                                            ->suffix('hari')
+                                            ->placeholder('30'),
                                         // Satuan (aturan 33): kg/meter/liter boleh desimal, pcs/set/pasang bulat.
                                         Select::make('unit')->label('Satuan')
                                             ->columnSpanFull()
@@ -87,8 +93,7 @@ class SparePartForm
                                             ->default(StockUnit::Pcs->value)
                                             ->required()
                                             ->native(false)
-                                            ->live()
-                                            ->helperText('kg, meter, liter boleh pecahan (contoh 0,5). pcs, set, pasang harus bulat.'),
+                                            ->live(),
                                         TextInput::make('stock')->label('Stok')
                                             ->required()
                                             ->numeric()

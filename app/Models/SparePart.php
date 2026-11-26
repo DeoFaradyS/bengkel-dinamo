@@ -27,6 +27,7 @@ class SparePart extends Model
         'min_stock',
         'storage_location',
         'price',
+        'warranty_days',
     ];
 
     protected $casts = [
@@ -34,6 +35,7 @@ class SparePart extends Model
         'stock' => Quantity::class,
         'min_stock' => Quantity::class,
         'price' => 'decimal:2',
+        'warranty_days' => 'integer',
     ];
 
     protected static function booted(): void

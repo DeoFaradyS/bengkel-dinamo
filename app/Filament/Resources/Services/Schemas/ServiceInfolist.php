@@ -88,6 +88,7 @@ class ServiceInfolist
                                 EntryTableColumn::make('Qty')->width('8rem')->alignment(Alignment::End),
                                 EntryTableColumn::make('Harga satuan')->width('12rem')->alignment(Alignment::End),
                                 EntryTableColumn::make('Jumlah')->width('12rem')->alignment(Alignment::End),
+                                EntryTableColumn::make('Garansi')->width('14rem'),
                             ])
                             ->schema([
                                 TextEntry::make('sparePart.name'),
@@ -100,6 +101,15 @@ class ServiceInfolist
                                 TextEntry::make('subtotal')
                                     ->money('IDR', locale: 'id', decimalPlaces: 0)
                                     ->alignment(Alignment::End),
+                                // Garansi (aturan 38): dipakai admin saat pelanggan klaim.
+                                TextEntry::make('garansi')
+                                    ->state(fn($record) => $record->warrantyLabel()
+                                        . ($record->warrantyUntil() && ! $record->warrantyActive() ? ' · habis' : ''))
+                                    ->color(fn($record) => match (true) {
+                                        $record->warrantyActive() => 'success',
+                                        $record->warrantyUntil() !== null => 'danger',
+                                        default => 'gray',
+                                    }),
                             ]),
                     ]),
 

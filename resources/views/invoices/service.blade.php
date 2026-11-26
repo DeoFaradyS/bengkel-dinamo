@@ -74,6 +74,19 @@
         .grand {
             font-size: 14px;
         }
+
+        .terms {
+            font-size: 10px;
+            color: #444;
+            border: 1px solid #ccc;
+            padding: 8px 10px;
+            margin-bottom: 16px;
+        }
+
+        .terms ol {
+            margin: 4px 0 0;
+            padding-left: 16px;
+        }
     </style>
 </head>
 
@@ -154,8 +167,9 @@
             <tr>
                 <th>Part</th>
                 <th class="center" width="10%">Qty</th>
-                <th class="right" width="20%">Harga</th>
-                <th class="right" width="22%">Subtotal</th>
+                <th class="right" width="16%">Harga</th>
+                <th class="right" width="18%">Subtotal</th>
+                <th width="22%">Garansi</th>
             </tr>
         </thead>
         <tbody>
@@ -165,15 +179,17 @@
                     <td class="center">{{ \App\Support\Qty::format($part->quantity, $part->sparePart->unit) }}</td>
                     <td class="right">Rp {{ number_format($part->unit_price, 0, ',', '.') }}</td>
                     <td class="right">Rp {{ number_format($part->subtotal, 0, ',', '.') }}</td>
+                    <td>{{ $part->warrantyLabel() }}</td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="4" class="center muted">Tidak ada suku cadang</td>
+                    <td colspan="5" class="center muted">Tidak ada suku cadang</td>
                 </tr>
             @endforelse
             <tr class="total">
                 <td colspan="3" class="right">Total Suku Cadang</td>
                 <td class="right">Rp {{ number_format($service->parts_total, 0, ',', '.') }}</td>
+                <td></td>
             </tr>
         </tbody>
     </table>
@@ -202,6 +218,20 @@
             <td class="right" width="25%">Rp {{ number_format($service->grand_total, 0, ',', '.') }}</td>
         </tr>
     </table>
+
+    {{-- Ketentuan garansi (aturan 38): hanya kalau ada suku cadang bergaransi. --}}
+    @if ($service->serviceParts->contains(fn ($p) => $p->warranty_days))
+        <div class="terms">
+            <strong>Ketentuan Garansi</strong>
+            <ol>
+                <li>Garansi berlaku sejak servis selesai dan lunas, sesuai masa garansi tiap barang di atas.</li>
+                <li>Garansi hanya untuk suku cadang yang tertulis bergaransi. Jasa tidak bergaransi.</li>
+                <li>Garansi tidak berlaku jika barang rusak karena salah pemakaian, korsleting kelistrikan kendaraan, terkena air, benturan, atau terbakar, atau sudah dibongkar atau diperbaiki pihak lain.</li>
+                <li>Klaim garansi: bawa barang dan invoice ini (atau sebutkan kode booking) ke bengkel.</li>
+                <li>Klaim diputuskan setelah barang diperiksa. Garansi berupa perbaikan atau penggantian barang, bukan pengembalian uang.</li>
+            </ol>
+        </div>
+    @endif
 
     <p class="muted center">Terima kasih telah mempercayakan dinamo Anda kepada kami.</p>
 </body>

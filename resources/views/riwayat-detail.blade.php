@@ -198,19 +198,23 @@
                             <div>
                                 <p class="text-neutral-800">{{ $part->sparePart?->name ?? '-' }}</p>
                                 <p class="text-neutral-500">{{ \App\Support\Qty::format($part->quantity, $part->sparePart?->unit) }} × {{ $rupiah($part->unit_price) }}</p>
+                                @if ($part->warranty_days)
+                                    <p class="text-neutral-500">Garansi {{ $part->warrantyLabel() }}</p>
+                                @endif
                             </div>
                             <p class="whitespace-nowrap font-semibold text-neutral-800">{{ $rupiah($part->subtotal) }}</p>
                         </li>
                     @endforeach
                 </ul>
                 <div class="hidden overflow-x-auto md:block">
-                    <table class="w-full min-w-[560px] text-left text-sm">
+                    <table class="w-full min-w-[680px] text-left text-sm">
                         <thead class="border-b border-neutral-200 bg-neutral-50 text-xs font-semibold text-neutral-700">
                             <tr>
                                 <th scope="col" class="{{ $th }}">Suku cadang</th>
                                 <th scope="col" class="{{ $th }} w-24 text-right">Qty</th>
                                 <th scope="col" class="{{ $th }} w-44 text-right">Harga satuan</th>
                                 <th scope="col" class="{{ $th }} w-44 text-right">Jumlah</th>
+                                <th scope="col" class="{{ $th }} w-52">Garansi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-neutral-200">
@@ -220,6 +224,7 @@
                                     <td class="px-4 py-3 text-right text-neutral-800">{{ \App\Support\Qty::format($part->quantity, $part->sparePart?->unit) }}</td>
                                     <td class="whitespace-nowrap px-4 py-3 text-right text-neutral-800">{{ $rupiah($part->unit_price) }}</td>
                                     <td class="whitespace-nowrap px-4 py-3 text-right text-neutral-800">{{ $rupiah($part->subtotal) }}</td>
+                                    <td class="px-4 py-3 text-neutral-500">{{ $part->warrantyLabel() }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
