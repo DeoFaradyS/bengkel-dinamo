@@ -70,7 +70,7 @@ it('PRV-005: data bengkel belum ada, diam saja tanpa error', function () {
 });
 
 // Kotak peringatan di luar jangkauan (26 Nov 2026, aturan 40).
-it('PRV-006: di luar jangkauan, kotak merah berisi judul, jarak, batas, dan jalan keluar; tanda hijau tidak tampil', function () {
+it('PRV-006: di luar jangkauan, kotak merah berisi judul, jarak, batas, dan tombol Pilih Ke Bengkel (tanpa link WA); tanda hijau tidak tampil', function () {
     prvWorkshop(2);
 
     prvPick()->call('hitungJarak')
@@ -79,7 +79,7 @@ it('PRV-006: di luar jangkauan, kotak merah berisi judul, jarak, batas, dan jala
         ->assertSee('Lokasi di luar jangkauan montir')
         ->assertSee('Lokasimu sekitar 2,6 km dari bengkel. Montir hanya melayani sampai 2 km.')
         ->assertSee('Pilih Ke Bengkel saja')
-        ->assertSee('Tanya lewat WhatsApp')
+        ->assertDontSee('Tanya lewat WhatsApp')
         ->assertDontSee('Lokasi sudah dipilih')
         ->assertDontSee('Dalam jangkauan');
 });

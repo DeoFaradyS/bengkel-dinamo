@@ -82,7 +82,7 @@ Catatan umum:
 | --- | --- | --- | --- |
 | BKD-001..003 | Distance/BookingDistanceTest | Jarak udara tersimpan untuk Home Service | aturan 8 |
 | LIM-001..004 | Distance/BookingLimitTest | Batas jarak maksimal, pesan penolakan | aturan 8 |
-| PRV-001..007 | Distance/BookingPreviewTest | Pratinjau jarak di formulir; kotak hijau dalam jangkauan, kotak merah di luar jangkauan dengan tombol Pilih Ke Bengkel dan link WA (006..007) | aturan 40 |
+| PRV-001..007 | Distance/BookingPreviewTest | Pratinjau jarak di formulir; kotak hijau dalam jangkauan, kotak merah di luar jangkauan dengan tombol Pilih Ke Bengkel, tanpa link WA (006..007) | aturan 40 |
 | SET-001..002 | Distance/DistanceMethodSettingTest | Ubah jarak maksimal dan harga BBM | |
 | DST-001..002 | Distance/DistanceServiceTest | Jarak Haversine | |
 | SDR-001 | Distance/SeederDistanceTest | Seeder Home Service punya jarak | |

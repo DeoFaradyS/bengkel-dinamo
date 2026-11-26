@@ -24,16 +24,11 @@
             <p class="font-semibold text-red-800">Lokasi di luar jangkauan montir</p>
             <p class="text-red-700">Lokasimu sekitar {{ $distanceKm }} km dari bengkel. Montir hanya melayani sampai {{ $maxKm }} km.</p>
             @unless ($ringkas)
-                <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
+                <div class="mt-2">
                     <button type="button" wire:click="pilihKeBengkel"
                         class="min-h-11 rounded-lg bg-white px-4 py-2 font-semibold text-red-700 ring-1 ring-red-200 transition-colors hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500">
                         Pilih Ke Bengkel saja
                     </button>
-                    <a href="{{ \App\Support\WhatsAppLink::make(\App\Support\WorkshopContact::phone(), 'Halo, lokasi saya sekitar ' . $distanceKm . ' km dari bengkel. Apakah montir masih bisa datang?') }}"
-                        target="_blank" rel="noopener"
-                        class="font-semibold text-red-700 underline underline-offset-2 hover:text-red-800">
-                        Tanya lewat WhatsApp
-                    </a>
                 </div>
             @endunless
         </div>
