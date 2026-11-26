@@ -83,7 +83,10 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->renderHook(
                 \Filament\View\PanelsRenderHook::HEAD_END,
-                fn() => new \Illuminate\Support\HtmlString('<link rel="stylesheet" href="/css/kpi-cards.css"><link rel="stylesheet" href="/css/admin-mobile.css"><link rel="stylesheet" href="/css/notifications.css">'),
+                // ?v= dari waktu ubah berkas: browser langsung memuat versi baru setelah CSS diubah.
+                fn() => new \Illuminate\Support\HtmlString(collect(['kpi-cards', 'admin-mobile', 'notifications'])
+                    ->map(fn($f) => '<link rel="stylesheet" href="/css/' . $f . '.css?v=' . @filemtime(public_path("css/{$f}.css")) . '">')
+                    ->implode('')),
             );
     }
 }

@@ -1,6 +1,18 @@
 /*
+ * Ukuran huruf panel admin (aturan 39). Bawaan Filament 14px dinilai terlalu kecil; ukuran dasar
+ * dinaikkan ke 112,5% (18px) sehingga teks tabel dan form sekitar 16px, standar keterbacaan layar.
+ * Semua ukuran Filament memakai rem, jadi teks, tombol, jarak, dan ikon membesar dengan seimbang.
+ * Hanya tablet dan desktop; di HP ruangnya sempit, cukup kotak isian 16px di bawah.
+ */
+@media (min-width: 768px) {
+    html {
+        font-size: 112.5%;
+    }
+}
+
+/*
  * Panel admin di HP (aturan 34). Kotak isian di bawah 16px membuat iPhone otomatis memperbesar
- * layar saat diketuk; di layar kecil ukuran hurufnya dinaikkan ke 16px. Desktop tidak berubah.
+ * layar saat diketuk; di layar kecil ukuran hurufnya dinaikkan ke 16px.
  */
 @media (max-width: 767px) {
     input:not([type=checkbox]):not([type=radio]):not([type=range]),
@@ -8,4 +20,28 @@
     textarea {
         font-size: 16px !important;
     }
+}
+
+/*
+ * Halaman detail (infolist): label pudar, isi tegas (aturan 39). Label abu-abu, normal, sedikit
+ * lebih kecil dan menempel ke isinya; isi hitam pekat dan medium. Tabel jasa dan suku cadang
+ * (repeatable) tidak ditebalkan supaya barisnya tetap ringan.
+ */
+.fi-in-entry {
+    row-gap: calc(var(--spacing) * 1);
+}
+
+.fi-in-entry .fi-in-entry-label {
+    color: var(--gray-500);
+    font-weight: var(--font-weight-normal);
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+}
+
+.fi-in-entry .fi-in-text-item:not(.fi-color) {
+    color: var(--gray-950);
+}
+
+.fi-in-entry .fi-in-text-item:not(.fi-in-table-repeatable *) {
+    font-weight: var(--font-weight-medium);
 }
