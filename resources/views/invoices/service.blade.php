@@ -123,15 +123,12 @@
             <td>Status</td>
             <td>: Selesai</td>
         </tr>
-        <tr>
-            <td></td>
-            <td></td>
-            <td>Pembayaran</td>
-            <td>: {{ $service->paid_at ? 'Lunas, ' . $service->paid_at->translatedFormat('j F Y, H.i') : 'Belum Lunas' }}</td>
-        </tr>
+        {{-- Keluhan sebaris dengan Pembayaran, supaya tidak ada baris kosong di kolom kiri. --}}
         <tr>
             <td>Keluhan</td>
-            <td colspan="3">: {{ $service->complaint }}</td>
+            <td style="padding-right: 12px;">: {{ $service->complaint }}</td>
+            <td>Pembayaran</td>
+            <td>: {{ $service->paid_at ? 'Lunas, ' . $service->paid_at->translatedFormat('j F Y, H.i') : 'Belum Lunas' }}</td>
         </tr>
     </table>
 
