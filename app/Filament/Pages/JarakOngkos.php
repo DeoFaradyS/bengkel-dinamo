@@ -93,7 +93,6 @@ class JarakOngkos extends Page
                                     ->required()
                                     ->maxLength(500)
                                     ->placeholder('https://maps.app.goo.gl/...')
-                                    ->helperText('Buka Google Maps, cari lokasi bengkel, tekan Bagikan, lalu salin link ke sini.')
                                     ->live(onBlur: true)
                                     ->rules([
                                         fn() => function (string $attribute, $value, \Closure $fail) {
