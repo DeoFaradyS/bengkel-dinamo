@@ -164,25 +164,20 @@
                         </button>
                     </div>
 
-                    <p class="text-sm font-semibold text-green-700" style="display:none"
-                        x-show="$wire.latitude != null">Lokasi sudah dipilih</p>
+                    {{-- Disembunyikan kalau di luar jangkauan, supaya tidak bertentangan dengan kotak merah. --}}
+                    @unless ($distanceError)
+                        <p class="text-sm font-semibold text-green-700" style="display:none"
+                            x-show="$wire.latitude != null">Lokasi sudah dipilih</p>
+                    @endunless
 
                     <p class="text-sm text-red-600" style="display:none" x-show="locateError" x-text="locateError"></p>
 
                     <p class="text-sm text-neutral-500" style="display:none" wire:loading.inline wire:target="hitungJarak">
                         Menghitung jarak...
                     </p>
-                    @if ($distanceText)
-                        <p class="text-sm font-semibold text-neutral-700" wire:loading.remove wire:target="hitungJarak">
-                            {{ $distanceText }}
-                        </p>
-                    @endif
-                    @if ($distanceError)
-                        <p class="text-sm font-semibold text-red-600" wire:loading.remove wire:target="hitungJarak">
-                            {{ $distanceError }}
-                        </p>
-                    @endif
-                    @error('latitude') <small class="text-sm text-red-600">{{ $message }}</small> @enderror
+                    @include('livewire.partials.booking-jangkauan')
+                    {{-- Pesan jangkauan dari server sudah tampil di kotak merah, jangan dobel. --}}
+                    @error('latitude') @unless ($distanceError) <small class="text-sm text-red-600">{{ $message }}</small> @endunless @enderror
 
                     <input type="text" wire:model="address" maxlength="255"
                         placeholder="Detail alamat (opsional), contoh: Jl. Raya Nguling no. 12, pagar hijau"
@@ -211,16 +206,7 @@
                             <p class="text-sm text-neutral-500" style="display:none" wire:loading.inline wire:target="hitungJarak">
                                 Menghitung jarak...
                             </p>
-                            @if ($distanceText)
-                                <p class="text-sm font-semibold text-neutral-700" wire:loading.remove wire:target="hitungJarak">
-                                    {{ $distanceText }}
-                                </p>
-                            @endif
-                            @if ($distanceError)
-                                <p class="text-sm font-semibold text-red-600" wire:loading.remove wire:target="hitungJarak">
-                                    {{ $distanceError }}
-                                </p>
-                            @endif
+                            @include('livewire.partials.booking-jangkauan', ['ringkas' => true])
 
                             <button type="button" x-bind:disabled="$wire.latitude == null" x-on:click="mapOpen = false"
                                 class="px-6 py-3.5 bg-neutral-800 rounded-[10px] text-white font-semibold transition-colors hover:bg-neutral-700 disabled:opacity-60">

@@ -29,7 +29,8 @@ it('PRV-001: jarak udara tampil', function () {
     prvPick()->call('hitungJarak')
         ->assertSet('distanceText', 'Jarak ke bengkel sekitar 2,6 km')
         ->assertSet('distanceError', null)
-        ->assertSee('Jarak ke bengkel sekitar 2,6 km');
+        ->assertSee('Dalam jangkauan')
+        ->assertSee('sekitar 2,6 km dari bengkel');
 });
 
 it('PRV-002: lewat batas, tampil pesan di luar jangkauan, bukan jarak', function () {
@@ -66,4 +67,30 @@ it('PRV-005: data bengkel belum ada, diam saja tanpa error', function () {
     prvPick()->call('hitungJarak')
         ->assertSet('distanceText', null)
         ->assertSet('distanceError', null);
+});
+
+// Kotak peringatan di luar jangkauan (26 Nov 2026, aturan 40).
+it('PRV-006: di luar jangkauan, kotak merah berisi judul, jarak, batas, dan jalan keluar; tanda hijau tidak tampil', function () {
+    prvWorkshop(2);
+
+    prvPick()->call('hitungJarak')
+        ->assertSet('distanceKm', '2,6')
+        ->assertSet('maxKm', '2')
+        ->assertSee('Lokasi di luar jangkauan montir')
+        ->assertSee('Lokasimu sekitar 2,6 km dari bengkel. Montir hanya melayani sampai 2 km.')
+        ->assertSee('Pilih Ke Bengkel saja')
+        ->assertSee('Tanya lewat WhatsApp')
+        ->assertDontSee('Lokasi sudah dipilih')
+        ->assertDontSee('Dalam jangkauan');
+});
+
+it('PRV-007: tombol Pilih Ke Bengkel saja mengganti tipe, menghapus lokasi dan peringatan', function () {
+    prvWorkshop(2);
+
+    prvPick()->call('hitungJarak')
+        ->call('pilihKeBengkel')
+        ->assertSet('booking_type', 'workshop')
+        ->assertSet('latitude', null)
+        ->assertSet('distanceError', null)
+        ->assertDontSee('Lokasi di luar jangkauan montir');
 });

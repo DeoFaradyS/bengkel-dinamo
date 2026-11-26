@@ -1,6 +1,6 @@
 # Peta Tes: SIM Bengkel Cak Budi Dinamo
 
-Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (658 lulus per 26 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
+Satu baris per kelompok ID: kode, berkas, dan apa yang dicek. Sumber: nama `test(...)` dan `it(...)` di repo, per 10 Nov 2026 (660 lulus per 26 Nov). Kalau menambah tes, tambahkan barisnya di sini. ID baru melanjutkan nomor terakhir di modulnya dan ID lama tidak diganti (aturan di `PROJECT_RULES.md` bagian 10).
 
 Jalankan: `php artisan test`, atau satu modul: `php artisan test --filter=Riwayat`.
 
@@ -82,7 +82,7 @@ Catatan umum:
 | --- | --- | --- | --- |
 | BKD-001..003 | Distance/BookingDistanceTest | Jarak udara tersimpan untuk Home Service | aturan 8 |
 | LIM-001..004 | Distance/BookingLimitTest | Batas jarak maksimal, pesan penolakan | aturan 8 |
-| PRV-001..005 | Distance/BookingPreviewTest | Pratinjau jarak di formulir | |
+| PRV-001..007 | Distance/BookingPreviewTest | Pratinjau jarak di formulir; kotak hijau dalam jangkauan, kotak merah di luar jangkauan dengan tombol Pilih Ke Bengkel dan link WA (006..007) | aturan 40 |
 | SET-001..002 | Distance/DistanceMethodSettingTest | Ubah jarak maksimal dan harga BBM | |
 | DST-001..002 | Distance/DistanceServiceTest | Jarak Haversine | |
 | SDR-001 | Distance/SeederDistanceTest | Seeder Home Service punya jarak | |

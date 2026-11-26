@@ -41,6 +41,10 @@ class BookingForm extends Component
     public ?string $distanceText = null;
     public ?string $distanceError = null;
 
+    // Untuk kotak peringatan di luar jangkauan (aturan 40): jarak dan batas, contoh "59,3" dan "15".
+    public ?string $distanceKm = null;
+    public ?string $maxKm = null;
+
     public function mount(): void
     {
         $this->slot_date = now()->format('Y-m-d');
@@ -170,6 +174,8 @@ class BookingForm extends Component
             'address',
             'distanceText',
             'distanceError',
+            'distanceKm',
+            'maxKm',
         ]);
         $this->submitted = true;
     }
@@ -185,8 +191,7 @@ class BookingForm extends Component
 
     public function hitungJarak(): void
     {
-        $this->distanceText = null;
-        $this->distanceError = null;
+        $this->reset(['distanceText', 'distanceError', 'distanceKm', 'maxKm']);
 
         if (
             $this->booking_type !== BookingType::HomeService->value
@@ -216,12 +221,22 @@ class BookingForm extends Component
 
         if ($error !== null) {
             $this->distanceError = $error;
+            $this->distanceKm = number_format($distance->airKm, 1, ',', '.');
+            $this->maxKm = \App\Support\Qty::format((float) \App\Models\WorkshopSetting::first()?->max_distance_km);
 
             return;
         }
 
         $this->distanceText = 'Jarak ke bengkel sekitar '
             . number_format($distance->airKm, 1, ',', '.') . ' km';
+    }
+
+    // Tombol "Pilih Ke Bengkel saja" di kotak peringatan di luar jangkauan (aturan 40).
+    public function pilihKeBengkel(): void
+    {
+        $this->booking_type = BookingType::Workshop->value;
+        $this->reset(['latitude', 'longitude', 'distanceText', 'distanceError', 'distanceKm', 'maxKm']);
+        $this->resetErrorBag(['latitude', 'longitude']);
     }
 
     // Customer login: nama dan HP terisi dari akun. Tetap bisa diubah
